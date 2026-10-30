@@ -2,21 +2,22 @@
  *
  * Hace que la app funcione sin conexión una vez abierta con internet.
  * Todo el HTML/CSS/JS está en index.html, así que basta con cachear ese
- * archivo, el manifest y los íconos. El modelo de IA (models/) no pasa por
- * aquí: la app lo guarda aparte la primera vez que separa una canción.
+ * archivo, el manifest, el sello y los íconos. Los modelos de IA (models/ y los de
+ * la letra en Hugging Face) no pasan por aquí: la app los guarda aparte.
  *
  * IMPORTANTE: cada vez que actualices index.html, sube también el número de
  * versión de CACHE (v1 -> v2 ...) para que los usuarios reciban la versión
  * nueva en vez de la vieja cacheada.
  */
-const CACHE = "ensayo-v1";
+const CACHE = "ensayo-v2";
 const ARCHIVOS = [
   "./",
   "./index.html",
   "./manifest.json",
   "./icon-192.png",
   "./icon-512.png",
-  "./apple-touch-icon.png"
+  "./apple-touch-icon.png",
+  "./sello.webp"
 ];
 
 // Instalación: guardar los archivos base en el caché.
@@ -42,8 +43,8 @@ self.addEventListener("activate", (evento) => {
 self.addEventListener("fetch", (evento) => {
   const req = evento.request;
   if (req.method !== "GET") return;
-  // El modelo (90 MB) lo maneja la app; no duplicarlo aquí.
-  if (req.url.includes("/models/")) return;
+  // Los modelos (cientos de MB) los guarda la app; no duplicarlos aquí.
+  if (req.url.includes("/models/") || /(^|\.)(huggingface\.co|hf\.co)$/.test(new URL(req.url).hostname)) return;
 
   evento.respondWith(
     fetch(req)

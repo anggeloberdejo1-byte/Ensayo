@@ -122,6 +122,9 @@
   .abrir:hover, .abrir.over { border-color: var(--brass); }
   .abrir-titulo { font-family: 'Bebas Neue', sans-serif; font-size: 26px; letter-spacing: 0.04em; color: var(--brass); }
   .abrir-sub { font-size: 13px; color: var(--parchment-dim); }
+  .modos { margin-top: 14px; }
+  .modos .seg button { text-align: left; font-family: 'Work Sans', sans-serif; font-size: 12.5px; line-height: 1.3; padding: 10px 12px; }
+  .modos .seg button b { display: block; font-family: 'IBM Plex Mono', monospace; font-size: 12px; letter-spacing: .06em; text-transform: uppercase; margin-bottom: 2px; }
   .aviso { font-size: 13px; color: var(--parchment-dim); margin: 12px 0 0; text-align: center; }
   .lista { display: grid; gap: 10px; }
   .cancion { display: flex; align-items: center; gap: 12px; background: var(--surface); border: 1px solid var(--surface-2); border-radius: 10px; padding: 12px 14px; }
@@ -184,10 +187,35 @@
   .descargas .menu button { background: none; border: none; text-align: left; color: var(--parchment); padding: 8px 10px; border-radius: 6px; font-size: 13px; cursor: pointer; }
   .descargas .menu button:hover { background: var(--surface-2); }
 
+  /* ---- Letra ---- */
+  .letra { position: relative; padding-top: 30px; text-align: center; }
+  .letra .label { position: absolute; top: 8px; left: 12px; }
+  .letra .ocultar { position: absolute; top: 6px; right: 8px; }
+  .linea { margin: 0; padding: 4px 8px; cursor: pointer; border-radius: 8px; line-height: 1.35; overflow-wrap: anywhere; }
+  .linea:hover { background: var(--surface-2); }
+  .linea.previa, .linea.siguiente { font-size: 15px; color: var(--parchment-dim); min-height: 1.35em; }
+  .linea.actual { font-size: 26px; font-weight: 700; color: var(--parchment-dim); min-height: 1.35em; }
+  .linea.actual .dicha { color: var(--ember); }
+  .letra-vacia { display: grid; gap: 8px; justify-items: center; padding: 4px 0 2px; }
+  .letra-vacia .sub { font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: var(--parchment-dim); }
+  .letra-vacia .barra { width: min(320px, 100%); }
+
+  /* ---- Pie: sello, crédito y apoyo ---- */
+  .paypal-btn {
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    margin: 22px auto 10px; padding: 10px 16px; max-width: 320px;
+    border-radius: 999px; border: 1px solid var(--brass);
+    color: var(--brass); background: transparent; text-decoration: none;
+    font-size: 13px; font-weight: 600; letter-spacing: 0.02em;
+  }
+  .paypal-btn:hover { background: var(--surface-2); }
+  .credit-badge { display: flex; flex-direction: column; align-items: center; gap: 6px; margin-top: 14px; }
+  .credit-badge-img { width: 40px; height: auto; opacity: 0.85; }
+
   .cargando { position: fixed; inset: 0; background: color-mix(in srgb, var(--bg) 88%, transparent); display: grid; place-items: center; z-index: 10; font-family: 'IBM Plex Mono', monospace; font-size: 15px; padding: 20px; text-align: center; }
   .atajos { color: var(--parchment-dim); font-size: 12px; text-align: center; line-height: 2; }
   kbd { font-family: 'IBM Plex Mono', monospace; font-size: 11px; background: var(--surface); border: 1px solid var(--surface-2); border-radius: 4px; padding: 1px 5px; }
-  .credit { text-align: center; font-size: 12px; color: var(--parchment-dim); margin-top: 22px; }
+  .credit { text-align: center; font-size: 11px; color: var(--parchment-dim); opacity: 0.75; margin: 0; }
   .credit a { color: var(--brass); }
 
   @media (max-width: 720px) {
@@ -206,6 +234,7 @@
     .cabeza-cancion .dato { order: 2; }
     .acordes { height: 84px; }
     .acordes .c { font-size: 26px; }
+    .linea.actual { font-size: 21px; }
     .transporte { position: static; gap: 10px 12px; padding: 12px; }
     .transporte .grupo { flex-wrap: wrap; }
     .grupo.velocidad input { width: 110px; }
@@ -257,6 +286,20 @@
         </div>
       </div>
       <div class="settings-section">
+        <p class="settings-section-title" data-i18n="letraCalidadT">Letra: precisión</p>
+        <div class="seg" id="letraCalidad">
+          <button type="button" data-calidad="normal" aria-pressed="true" data-i18n="calidadNormal">Normal · 205 MB</button>
+          <button type="button" data-calidad="alta" aria-pressed="false" data-i18n="calidadAlta">Alta · 410 MB</button>
+        </div>
+        <p class="settings-section-title" style="margin-top:14px" data-i18n="letraIdiomaT">Letra: idioma de la canción</p>
+        <div class="seg" id="letraIdioma">
+          <button type="button" data-idioma-letra="" aria-pressed="true" data-i18n="automatico">Auto</button>
+          <button type="button" data-idioma-letra="spanish" aria-pressed="false">ES</button>
+          <button type="button" data-idioma-letra="english" aria-pressed="false">EN</button>
+          <button type="button" data-idioma-letra="portuguese" aria-pressed="false">PT</button>
+        </div>
+      </div>
+      <div class="settings-section">
         <p class="settings-section-title" data-i18n="modeloT">Modelo de IA</p>
         <p class="nota-ajustes" id="estadoModelo"></p>
         <button class="boton" id="borrarModelo" type="button" data-i18n="borrarModelo">Borrar modelo descargado</button>
@@ -272,7 +315,14 @@
         <span class="abrir-sub" data-i18n="abrirSub">o arrástrala aquí · mp3, m4a, wav, flac o video</span>
         <input type="file" id="archivo" accept="audio/*,video/*" multiple hidden>
       </label>
-      <p class="aviso" data-i18n="aviso">Separa en 4 pistas: voz, batería, bajo y otros. Todo pasa en tu equipo: la canción no se sube a ningún servidor. La primera vez descarga el modelo de IA (90 MB).</p>
+      <div class="modos">
+        <p class="settings-section-title" data-i18n="separarEn">Separar en</p>
+        <div class="seg" id="modos">
+          <button type="button" data-modo="rapido" aria-pressed="true"><b data-i18n="modoRapido">Rápido · 4 pistas</b><span data-i18n="modoRapidoSub">Voz, batería, bajo y otros</span></button>
+          <button type="button" data-modo="estudio" aria-pressed="false"><b data-i18n="modoEstudio">Estudio · 9 pistas</b><span data-i18n="modoEstudioSub">Voz, bombo, redoblante, toms, platillos, bajo, guitarra, piano y otros</span></button>
+        </div>
+      </div>
+      <p class="aviso" data-i18n="aviso">Todo pasa en tu equipo: la canción no se sube a ningún servidor. La primera vez descarga los modelos de IA (90 MB el rápido, 230 MB el de estudio) y quedan guardados.</p>
     </div>
     <div class="lista" id="lista"></div>
   </section>
@@ -290,6 +340,20 @@
       <div class="label" data-i18n="acordesT">Acordes</div>
       <div class="tira" id="tira"></div>
       <div class="cabezal"></div>
+    </div>
+
+    <div class="panel letra" id="panelLetra">
+      <div class="label" data-i18n="letraT">Letra</div>
+      <div class="letra-vacia" id="letraVacia">
+        <button class="boton principal" id="sacarLetra" type="button" data-i18n="sacarLetra">Sacar la letra</button>
+        <div class="barra" id="letraBarra" hidden><i></i></div>
+        <span class="sub" id="letraEstado" data-i18n="letraNota">La IA escucha la voz separada y escribe la letra con el tiempo de cada palabra.</span>
+      </div>
+      <div id="letraLineas" hidden>
+        <p class="linea previa" id="lineaPrevia"></p>
+        <p class="linea actual" id="lineaActual"></p>
+        <p class="linea siguiente" id="lineaSiguiente"></p>
+      </div>
     </div>
 
     <div class="panel">
@@ -344,11 +408,19 @@
     </p>
   </section>
 
-  <p class="credit">
-    <span data-i18n="credito">Hecha por Anggelo Berdejo — El Ñañe</span> ·
-    <a href="https://instagram.com/anggelo.berdejo">@anggelo.berdejo</a> ·
-    <a href="https://anggeloberdejo1-byte.github.io/apps/" data-i18n="otras">Otras herramientas</a>
-  </p>
+  <a class="paypal-btn" href="https://www.paypal.com/paypalme/anggeloberdejo" target="_blank" rel="noopener noreferrer">
+    <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M7.1 21.5H3.6a.5.5 0 0 1-.5-.6L5.9 3.2a.9.9 0 0 1 .9-.7h6.1c3.6 0 5.6 1.8 5.1 5-.6 3.6-3 5.4-6.6 5.4H9.6l-.9 5.6-.3 2.1a.9.9 0 0 1-.9.9zm11.6-14c-.1.5-.2 1-.3 1.4-1 4.6-4.3 6.3-8.3 6.3h-.4l-1.1 6.5h2.9a.8.8 0 0 0 .8-.7l.6-3.8h1.7c3.6 0 6.2-1.6 6.9-5.4.3-1.8 0-3.2-.8-4.3z"/></svg>
+    <span data-i18n="paypal">Apoya este proyecto en PayPal</span>
+  </a>
+
+  <div class="credit-badge">
+    <img class="credit-badge-img" src="./sello.webp" alt="By Anggelo Berdejo">
+    <p class="credit">
+      <span data-i18n="credito">Hecha por Anggelo Berdejo — El Ñañe</span> ·
+      <a href="https://instagram.com/anggelo.berdejo">@anggelo.berdejo</a> ·
+      <a href="https://anggeloberdejo1-byte.github.io/apps/" data-i18n="otras">Otras herramientas</a>
+    </p>
+  </div>
 </main>
 
 <div class="cargando" id="cargando" hidden></div>
@@ -591,14 +663,18 @@ const ORT_URL = 'https://cdn.jsdelivr.net/npm/onnxruntime-web@1.27.0/dist/';
 importScripts(ORT_URL + 'ort.webgpu.min.js');
 ort.env.wasm.wasmPaths = ORT_URL;
 
-const FUENTES = ['drums', 'bass', 'other', 'vocals'];
+// Modelos: el de 4 pistas, el de 6 (Modo estudio) y el que separa la batería en sus piezas
+const MODELOS = {
+  base: { archivos: ['models/htdemucs.onnx'], largo: 343980, fuentes: ['drums', 'bass', 'other', 'vocals'], bytes: 90561419 },
+  estudio: { archivos: ['models/htdemucs_6s.onnx'], largo: 343980, fuentes: ['drums', 'bass', 'other', 'vocals', 'guitar', 'piano'], bytes: 59965563 },
+  // drumsep (github.com/inagoy/drumsep, MIT): partido en dos porque GitHub no acepta archivos de más de 100 MB
+  bateria: { archivos: ['models/bateria.onnx.1', 'models/bateria.onnx.2'], largo: 441000, fuentes: ['kick', 'snare', 'cymbals', 'toms'], bytes: 168325792 },
+};
 const NFFT = 4096, SALTO = 1024, MITAD = NFFT / 2;
-const L = 343980;                    // 7.8 s: el largo de segmento con que se entrenó el modelo
-const T = Math.ceil(L / SALTO);      // 336 cuadros
 const RELLENO = (SALTO / 2) * 3;     // relleno extra de demucs para alinear sus dos ramas
 const ESCALA = 1 / Math.sqrt(NFFT);  // normalized=True de torch.stft
 
-let sesion = null;
+const sesiones = {};
 let motor = '';
 
 /* ---------- FFT radix 2 ---------- */
@@ -633,15 +709,15 @@ const reflejar = (i, n) => {
 const re = new Float64Array(NFFT), im = new Float64Array(NFFT);
 
 /* ---------- STFT igual a demucs._spec + torch.stft(center, reflect, normalized) ---------- */
-const RELLENADO = T * SALTO + 2 * RELLENO;
-function espectro(canales, mag) {
+function espectro(canales, mag, L) {
   // mag: (1, 4, 2048, T) con canales [re0, im0, re1, im1]
+  const T = Math.ceil(L / SALTO), rellenado = T * SALTO + 2 * RELLENO;
   for (let c = 0; c < 2; c++) {
     const x = canales[c];
     for (let t = 0; t < T; t++) {
       const inicio = (t + 2) * SALTO; // demucs descarta los 2 primeros cuadros
       for (let n = 0; n < NFFT; n++) {
-        const j = reflejar(inicio + n - MITAD, RELLENADO) - RELLENO;
+        const j = reflejar(inicio + n - MITAD, rellenado) - RELLENO;
         re[n] = x[reflejar(j, L)] * ventana[n];
         im[n] = 0;
       }
@@ -656,13 +732,20 @@ function espectro(canales, mag) {
 }
 
 /* ---------- iSTFT igual a demucs._ispec + torch.istft ---------- */
-const CUADROS = T + 4;
-const LARGO_Y = (CUADROS - 1) * SALTO + NFFT;
-const envolvente = new Float64Array(LARGO_Y);
-for (let f = 0; f < CUADROS; f++) for (let n = 0; n < NFFT; n++) envolvente[f * SALTO + n] += ventana[n] * ventana[n];
-const y = new Float64Array(LARGO_Y);
+const envolventes = {};
+function envolvente(T) {
+  if (!envolventes[T]) {
+    const e = new Float64Array((T + 3) * SALTO + NFFT);
+    for (let f = 0; f < T + 4; f++) for (let n = 0; n < NFFT; n++) e[f * SALTO + n] += ventana[n] * ventana[n];
+    envolventes[T] = e;
+  }
+  return envolventes[T];
+}
+let y = new Float64Array(0);
 
-function espectroInverso(spec, s, c, out) {
+function espectroInverso(spec, s, c, out, L) {
+  const T = Math.ceil(L / SALTO), env = envolvente(T);
+  if (y.length !== env.length) y = new Float64Array(env.length);
   y.fill(0);
   const bR = ((s * 4) + c * 2) * MITAD * T, bI = ((s * 4) + c * 2 + 1) * MITAD * T;
   const norm = 1 / ESCALA;
@@ -679,45 +762,55 @@ function espectroInverso(spec, s, c, out) {
   }
   const o = MITAD + RELLENO;
   for (let i = 0; i < L; i++) {
-    const e = envolvente[o + i];
+    const e = env[o + i];
     out[i] = e > 1e-11 ? y[o + i] / e : 0;
   }
 }
 
-/* ---------- Modelo ---------- */
-async function cargarModelo(url) {
-  if (sesion) return;
-  let bytes;
+/* ---------- Modelos: se descargan una vez y quedan guardados ---------- */
+async function descargar(url, alAvanzar) {
   const cache = await caches.open('ensayo-modelos');
-  let resp = await cache.match(url);
-  if (resp) {
-    bytes = await resp.arrayBuffer();
-  } else {
-    resp = await fetch(url);
-    if (!resp.ok) throw new Error(`No se pudo descargar el modelo (${resp.status})`);
-    const total = +resp.headers.get('content-length') || 90561419;
-    const lector = resp.body.getReader();
-    const partes = [];
-    let llevo = 0;
-    for (;;) {
-      const { done, value } = await lector.read();
-      if (done) break;
-      partes.push(value);
-      llevo += value.length;
-      postMessage({ tipo: 'progreso', etapa: 'descargando', progreso: Math.min(1, llevo / total) });
-    }
-    const blob = new Blob(partes);
-    try { await cache.put(url, new Response(blob)); } catch (e) { /* sin espacio: se descargará otra vez */ }
-    bytes = await blob.arrayBuffer();
+  const guardado = await cache.match(url);
+  if (guardado) return guardado.arrayBuffer();
+  const resp = await fetch(url);
+  if (!resp.ok) throw new Error(`No se pudo descargar el modelo (${resp.status})`);
+  const lector = resp.body.getReader();
+  const partes = [];
+  for (;;) {
+    const { done, value } = await lector.read();
+    if (done) break;
+    partes.push(value);
+    alAvanzar(value.length);
   }
+  const blob = new Blob(partes);
+  try { await cache.put(url, new Response(blob)); } catch (e) { /* sin espacio: se descargará otra vez */ }
+  return blob.arrayBuffer();
+}
+
+async function cargarModelo(clave, base) {
+  if (sesiones[clave]) return sesiones[clave];
+  const cfg = MODELOS[clave];
+  let llevo = 0;
+  const partes = [];
+  for (const archivo of cfg.archivos) {
+    partes.push(await descargar(new URL(archivo, base).href, (n) => {
+      llevo += n;
+      postMessage({ tipo: 'progreso', etapa: clave === 'bateria' ? 'descargandoBateria' : 'descargando', progreso: Math.min(1, llevo / cfg.bytes) });
+    }));
+  }
+  // Juntar las partes en un solo modelo
+  const total = partes.reduce((s, p) => s + p.byteLength, 0);
+  const bytes = new Uint8Array(total);
+  let pos = 0;
+  for (const p of partes) { bytes.set(new Uint8Array(p), pos); pos += p.byteLength; }
   postMessage({ tipo: 'progreso', etapa: 'preparando', progreso: 0 });
   const errores = [];
   for (const ep of ['webgpu', 'wasm']) {
     if (ep === 'webgpu' && !self.navigator.gpu) continue;
     try {
-      sesion = await ort.InferenceSession.create(bytes, { executionProviders: [ep], graphOptimizationLevel: 'all' });
+      sesiones[clave] = await ort.InferenceSession.create(bytes, { executionProviders: [ep], graphOptimizationLevel: 'all' });
       motor = ep;
-      return;
+      return sesiones[clave];
     } catch (e) {
       errores.push(`${ep}: ${e.message}`);
     }
@@ -725,7 +818,14 @@ async function cargarModelo(url) {
   throw new Error('No se pudo cargar el modelo. ' + errores.join(' · '));
 }
 
-async function separar(izq, der) {
+async function soltarModelo(clave) {
+  if (sesiones[clave]) { try { await sesiones[clave].release(); } catch (e) {} delete sesiones[clave]; }
+}
+
+// Separa una pista estéreo (Float32 a 44.1 kHz) con el modelo indicado; devuelve Int16 entrelazado por fuente
+async function separar(clave, izq, der, etapa) {
+  const cfg = MODELOS[clave], L = cfg.largo, T = Math.ceil(L / SALTO);
+  const sesion = sesiones[clave];
   const largo = izq.length;
   // Normalizar con la media y la desviación de toda la canción, como demucs.separate
   let media = 0;
@@ -743,9 +843,10 @@ async function separar(izq, der) {
   for (let i = 0; i < h; i++) peso[i] = (i + 1) / h;
   for (let i = h; i < L; i++) peso[i] = (L - i) / h;
 
-  const salida = FUENTES.map(() => new Int16Array(largo * 2));
+  const F = cfg.fuentes.length;
+  const salida = cfg.fuentes.map(() => new Int16Array(largo * 2));
   // Solo se guarda en flotante la parte que todavía recibe aportes (ahorra memoria en el celular)
-  const pendiente = FUENTES.map(() => [new Float32Array(L), new Float32Array(L)]);
+  const pendiente = cfg.fuentes.map(() => [new Float32Array(L), new Float32Array(L)]);
   const pesoPend = new Float32Array(L);
   const seg = [new Float32Array(L), new Float32Array(L)];
   const datosMezcla = new Float32Array(2 * L);
@@ -766,15 +867,15 @@ async function separar(izq, der) {
       }
       datosMezcla.set(seg[c], c * L);
     }
-    espectro(seg, datosMag);
+    espectro(seg, datosMag, L);
     const res = await sesion.run({
       mix: new ort.Tensor('float32', datosMezcla, [1, 2, L]),
       mag: new ort.Tensor('float32', datosMag, [1, 4, MITAD, T]),
     });
     const spec = res.spec.data, onda = res.wave.data;
-    for (let s = 0; s < FUENTES.length; s++) {
+    for (let s = 0; s < F; s++) {
       for (let c = 0; c < 2; c++) {
-        espectroInverso(spec, s, c, tmp);
+        espectroInverso(spec, s, c, tmp, L);
         const base = (s * 2 + c) * L;
         const p = pendiente[s][c];
         for (let j = 0; j < cant; j++) p[j] += peso[j] * (tmp[antes + j] + onda[base + antes + j]);
@@ -785,7 +886,7 @@ async function separar(izq, der) {
 
     // Lo que está antes del próximo segmento ya no cambia: pasarlo a 16 bits
     const listo = n + 1 < inicios.length ? inicios[n + 1] - inicio : cant;
-    for (let s = 0; s < FUENTES.length; s++) {
+    for (let s = 0; s < F; s++) {
       const d = salida[s];
       for (let c = 0; c < 2; c++) {
         const p = pendiente[s][c];
@@ -797,9 +898,16 @@ async function separar(izq, der) {
       }
     }
     pesoPend.copyWithin(0, listo); pesoPend.fill(0, L - listo);
-    postMessage({ tipo: 'progreso', etapa: 'separando', progreso: (n + 1) / inicios.length, motor });
+    postMessage({ tipo: 'progreso', etapa, progreso: (n + 1) / inicios.length, motor });
   }
-  return Object.fromEntries(FUENTES.map((f, s) => [f, salida[s]]));
+  return Object.fromEntries(cfg.fuentes.map((f, s) => [f, salida[s]]));
+}
+
+// De Int16 entrelazado a dos canales flotantes
+function aCanales(d) {
+  const n = d.length / 2, l = new Float32Array(n), r = new Float32Array(n);
+  for (let i = 0; i < n; i++) { l[i] = d[2 * i] / 32768; r[i] = d[2 * i + 1] / 32768; }
+  return [l, r];
 }
 
 /* =====================================================================
@@ -1279,8 +1387,6 @@ function analizar(pistas) {
     downbeat_phase: fase,
     chords: acordes,
     sections: secciones,
-    stems: nombres,
-    peaks: Object.fromEntries(nombres.map((n) => [n, picos(pistas[n])])),
   };
 }
 
@@ -1288,13 +1394,71 @@ onmessage = async (e) => {
   const m = e.data;
   try {
     if (m.tipo === 'separar') {
-      await cargarModelo(m.urlModelo);
       const t0 = performance.now();
-      const pistas = await separar(m.izquierda, m.derecha);
+      const clave = m.estudio ? 'estudio' : 'base';
+      await cargarModelo(clave, m.base);
+      let pistas = await separar(clave, m.izquierda, m.derecha, 'separando');
       postMessage({ tipo: 'progreso', etapa: 'analizando', progreso: 0, motor });
+      // El análisis usa la batería completa, así que va antes de partirla
       const analisis = analizar(pistas);
+      if (m.estudio) {
+        // Modo estudio: soltar el modelo de 6 pistas y partir la batería en sus piezas
+        await soltarModelo('estudio');
+        await cargarModelo('bateria', m.base);
+        const [l, r] = aCanales(pistas.drums);
+        const piezas = await separar('bateria', l, r, 'separandoBateria');
+        await soltarModelo('bateria');
+        const { drums, ...resto } = pistas;
+        pistas = { ...resto, ...piezas };
+      }
+      analisis.stems = Object.keys(pistas);
+      analisis.peaks = Object.fromEntries(Object.entries(pistas).map(([n, d]) => [n, picos(d)]));
       postMessage({ tipo: 'listo', pistas, analisis, motor, segundos: (performance.now() - t0) / 1000 }, Object.values(pistas).map((p) => p.buffer));
     }
+  } catch (err) {
+    postMessage({ tipo: 'error', mensaje: err.message || String(err) });
+  }
+};
+</script>
+
+<!-- =====================================================================
+  Letra (Web Worker de módulo): Whisper con el tiempo de cada palabra,
+  usando Transformers.js. Escucha solo la pista de voz.
+===================================================================== -->
+<script type="text/plain" id="codigoLetra">
+import { pipeline } from 'https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.8.1';
+
+// Combinaciones probadas: otras (q8, q4f16) en GPU devuelven texto sin sentido
+const CONFIG = {
+  normal: { modelo: 'onnx-community/whisper-base_timestamped', gpu: { encoder_model: 'fp32', decoder_model_merged: 'q4' } },
+  alta: { modelo: 'onnx-community/whisper-small_timestamped', gpu: { encoder_model: 'fp16', decoder_model_merged: 'q4' } },
+};
+const SIN_GPU = { encoder_model: 'fp32', decoder_model_merged: 'q8' };
+let asr = null, actual = '';
+
+onmessage = async (e) => {
+  const { audio, calidad, idioma } = e.data;
+  try {
+    if (!asr || actual !== calidad) {
+      if (asr) { await asr.dispose(); asr = null; }
+      const cfg = CONFIG[calidad] || CONFIG.normal;
+      const archivos = {};
+      const gpu = !!self.navigator.gpu;
+      asr = await pipeline('automatic-speech-recognition', cfg.modelo, {
+        device: gpu ? 'webgpu' : 'wasm',
+        dtype: gpu ? cfg.gpu : SIN_GPU,
+        progress_callback: (p) => {
+          if (p.status !== 'progress' || !p.total) return;
+          archivos[p.file] = [p.loaded, p.total];
+          const v = Object.values(archivos);
+          postMessage({ tipo: 'progreso', etapa: 'descargandoLetra', progreso: v.reduce((s, x) => s + x[0], 0) / v.reduce((s, x) => s + x[1], 0) });
+        },
+      });
+      actual = calidad;
+    }
+    postMessage({ tipo: 'progreso', etapa: 'escuchandoLetra', progreso: 0 });
+    const r = await asr(audio, { return_timestamps: 'word', chunk_length_s: 30, stride_length_s: 5, language: idioma || null, task: 'transcribe' });
+    postMessage({ tipo: 'listo', palabras: (r.chunks || []).map((c) => ({ t: c.text, a: c.timestamp[0], b: c.timestamp[1] ?? c.timestamp[0] + 0.3 })) });
   } catch (err) {
     postMessage({ tipo: 'error', mensaje: err.message || String(err) });
   }
@@ -1310,13 +1474,16 @@ const TEXTOS = {
     eyebrow: 'Herramientas para músicos',
     subtitulo: 'Separa la voz, la batería, el bajo y más de cualquier canción con IA. Cambia velocidad y tono, y ve los acordes mientras tocas.',
     ajustes: 'Ajustes', cerrar: 'Cerrar', idiomaT: 'Idioma', paleta: 'Paleta de colores', nombresNotas: 'Nombres de las notas',
-    modeloT: 'Modelo de IA', modeloGuardado: 'Descargado y guardado en este equipo (90 MB). Funciona sin internet.',
-    modeloNo: 'Todavía no se descarga. Se descarga solo la primera vez que separas una canción (90 MB).',
-    borrarModelo: 'Borrar modelo descargado', modeloBorrado: 'Modelo borrado.',
+    modeloT: 'Modelos de IA', modeloGuardado: 'Guardados en este equipo: {m}. Funcionan sin internet.',
+    modeloNo: 'Todavía no se descarga ninguno. Se descargan solos la primera vez que separas una canción.',
+    borrarModelo: 'Borrar modelos descargados', mRapido: 'rápido', mEstudio: 'estudio', mBateria: 'batería', modeloBorrado: 'Modelo borrado.',
     abrir: 'Subir canción', abrirSub: 'o arrástrala aquí · mp3, m4a, wav, flac o video', subiendo: 'Leyendo',
-    aviso: 'Separa en 4 pistas: voz, batería, bajo y otros. Todo pasa en tu equipo: la canción no se sube a ningún servidor. La primera vez descarga el modelo de IA (90 MB).',
+    aviso: 'Todo pasa en tu equipo: la canción no se sube a ningún servidor. La primera vez descarga los modelos de IA (90 MB el rápido, 230 MB el de estudio) y quedan guardados.',
+    separarEn: 'Separar en', modoRapido: 'Rápido · 4 pistas', modoRapidoSub: 'Voz, batería, bajo y otros',
+    modoEstudio: 'Estudio · 9 pistas', modoEstudioSub: 'Voz, bombo, redoblante, toms, platillos, bajo, guitarra, piano y otros',
+    descargandoBateria: 'Descargando el modelo de batería (solo la primera vez)', separandoBateria: 'Separando las piezas de la batería',
     vacio: 'Todavía no hay canciones. Sube una para empezar.', abrirBtn: 'Abrir', borrar: 'Borrar',
-    borrarConfirma: '¿Borrar "{t}" y sus pistas?', lista: '4 pistas · {d} · lista', errorT: 'Error',
+    borrarConfirma: '¿Borrar "{t}" y sus pistas?', lista: '{n} pistas · {d} · lista', errorT: 'Error',
     noLeyo: 'No se pudo leer el archivo. Prueba con mp3, m4a o wav.', noAbrio: 'No se pudo abrir la canción',
     enCola: 'En cola', leyendo: 'Leyendo el audio', descargando: 'Descargando el modelo de IA (solo la primera vez)',
     preparando: 'Preparando el modelo', separando: 'Separando pistas', analizando: 'Analizando tempo, tonalidad y acordes',
@@ -1328,20 +1495,28 @@ const TEXTOS = {
     ayudaOnda: 'Toca una sección para repetirla · arrastra sobre las ondas para marcar un loop · toca para saltar', atajoTocar: 'tocar', atajoMetro: 'metrónomo',
     tonalidad: 'Tonalidad', mayor: 'mayor', menor: 'menor', original: 'original', silenciar: 'Silenciar', solo: 'Solo', volumen: 'Volumen',
     vocals: 'Voz', drums: 'Batería', bass: 'Bajo', guitar: 'Guitarra', piano: 'Piano', other: 'Otros',
+    kick: 'Bombo', snare: 'Redoblante', toms: 'Toms', cymbals: 'Platillos',
     'sec:Intro': 'Intro', 'sec:Estrofa': 'Estrofa', 'sec:Coro': 'Coro', 'sec:Puente': 'Puente', 'sec:Final': 'Final', 'sec:Canción': 'Canción', 'sec:Parte': 'Parte',
-    credito: 'Hecha por Anggelo Berdejo — El Ñañe', otras: 'Otras herramientas',
+    credito: 'Hecha por Anggelo Berdejo — El Ñañe', otras: 'Otras herramientas', paypal: 'Apoya este proyecto en PayPal',
+    letraT: 'Letra', sacarLetra: 'Sacar la letra', letraNota: 'La IA escucha la voz separada y escribe la letra con el tiempo de cada palabra.',
+    descargandoLetra: 'Descargando el modelo de letra (solo la primera vez)', escuchandoLetra: 'Escuchando la voz y escribiendo la letra',
+    sinLetra: 'No se encontró letra cantada en esta canción.', ocultarLetra: 'Ocultar letra', otraVez: 'Volver a sacar',
+    letraCalidadT: 'Letra: precisión', calidadNormal: 'Normal · 205 MB', calidadAlta: 'Alta · 410 MB', letraIdiomaT: 'Letra: idioma de la canción', automatico: 'Auto',
   },
   en: {
     eyebrow: 'Tools for musicians',
     subtitulo: 'Split vocals, drums, bass and more from any song with AI. Change speed and key, and see the chords as you play.',
     ajustes: 'Settings', cerrar: 'Close', idiomaT: 'Language', paleta: 'Color palette', nombresNotas: 'Note names',
-    modeloT: 'AI model', modeloGuardado: 'Downloaded and saved on this device (90 MB). Works offline.',
-    modeloNo: 'Not downloaded yet. It downloads the first time you split a song (90 MB).',
-    borrarModelo: 'Delete downloaded model', modeloBorrado: 'Model deleted.',
+    modeloT: 'AI models', modeloGuardado: 'Saved on this device: {m}. They work offline.',
+    modeloNo: 'None downloaded yet. They download the first time you split a song.',
+    borrarModelo: 'Delete downloaded models', mRapido: 'fast', mEstudio: 'studio', mBateria: 'drums', modeloBorrado: 'Model deleted.',
     abrir: 'Upload a song', abrirSub: 'or drop it here · mp3, m4a, wav, flac or video', subiendo: 'Reading',
-    aviso: 'Splits into 4 stems: vocals, drums, bass and other. Everything happens on your device: the song is never uploaded. The first time it downloads the AI model (90 MB).',
+    aviso: 'Everything happens on your device: the song is never uploaded. The first time it downloads the AI models (90 MB for fast, 230 MB for studio) and keeps them.',
+    separarEn: 'Split into', modoRapido: 'Fast · 4 stems', modoRapidoSub: 'Vocals, drums, bass and other',
+    modoEstudio: 'Studio · 9 stems', modoEstudioSub: 'Vocals, kick, snare, toms, cymbals, bass, guitar, piano and other',
+    descargandoBateria: 'Downloading the drum model (first time only)', separandoBateria: 'Splitting the drum kit',
     vacio: 'No songs yet. Upload one to get started.', abrirBtn: 'Open', borrar: 'Delete',
-    borrarConfirma: 'Delete "{t}" and its stems?', lista: '4 stems · {d} · ready', errorT: 'Error',
+    borrarConfirma: 'Delete "{t}" and its stems?', lista: '{n} stems · {d} · ready', errorT: 'Error',
     noLeyo: 'Could not read the file. Try mp3, m4a or wav.', noAbrio: 'Could not open the song',
     enCola: 'Queued', leyendo: 'Reading audio', descargando: 'Downloading the AI model (first time only)',
     preparando: 'Preparing the model', separando: 'Splitting stems', analizando: 'Analyzing tempo, key and chords',
@@ -1353,8 +1528,13 @@ const TEXTOS = {
     ayudaOnda: 'Tap a section to loop it · drag over the waveforms to mark a loop · tap to jump', atajoTocar: 'play', atajoMetro: 'metronome',
     tonalidad: 'Key', mayor: 'major', menor: 'minor', original: 'original', silenciar: 'Mute', solo: 'Solo', volumen: 'Volume',
     vocals: 'Vocals', drums: 'Drums', bass: 'Bass', guitar: 'Guitar', piano: 'Piano', other: 'Other',
+    kick: 'Kick', snare: 'Snare', toms: 'Toms', cymbals: 'Cymbals',
     'sec:Intro': 'Intro', 'sec:Estrofa': 'Verse', 'sec:Coro': 'Chorus', 'sec:Puente': 'Bridge', 'sec:Final': 'Outro', 'sec:Canción': 'Song', 'sec:Parte': 'Part',
-    credito: 'Built by Anggelo Berdejo — El Ñañe', otras: 'More tools',
+    credito: 'Built by Anggelo Berdejo — El Ñañe', otras: 'More tools', paypal: 'Support this project on PayPal',
+    letraT: 'Lyrics', sacarLetra: 'Get the lyrics', letraNota: 'The AI listens to the isolated vocals and writes the lyrics with the timing of every word.',
+    descargandoLetra: 'Downloading the lyrics model (first time only)', escuchandoLetra: 'Listening to the vocals and writing the lyrics',
+    sinLetra: 'No sung lyrics were found in this song.', ocultarLetra: 'Hide lyrics', otraVez: 'Get them again',
+    letraCalidadT: 'Lyrics: accuracy', calidadNormal: 'Normal · 205 MB', calidadAlta: 'High · 410 MB', letraIdiomaT: 'Lyrics: song language', automatico: 'Auto',
   },
 };
 
@@ -1408,7 +1588,7 @@ function aplicarTema(clave) {
   document.querySelector('meta[name="theme-color"]').setAttribute('content', vars.bg);
   guardarPref('tema', tema);
   pintarTemas();
-  if (S.a) { pintarSecciones(); dibujarOndas(); }
+  if (S.a) construirReproductor();
 }
 
 function pintarTemas() {
@@ -1463,13 +1643,24 @@ const nota = (pc, bemoles) => NOMBRES[notacion][bemoles ? 'b' : 's'][((pc % 12) 
 const $ = (id) => document.getElementById(id);
 const fmt = (s) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
 const cssVar = (v) => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
-const COLOR_PISTA = { vocals: '--ember', drums: '--verdigris', bass: '--brass', guitar: '--rust', piano: '--focus', other: '--parchment-dim' };
+const COLOR_PISTA = {
+  vocals: ['--ember', 1], drums: ['--verdigris', 1], kick: ['--verdigris', 1], snare: ['--verdigris', 0.78], toms: ['--verdigris', 0.6], cymbals: ['--verdigris', 0.44],
+  bass: ['--brass', 1], guitar: ['--rust', 1], piano: ['--focus', 1], other: ['--parchment-dim', 1],
+};
+// Color de una pista leído de la paleta actual (mezclado con el fondo para las piezas de batería)
+function colorPista(nombre) {
+  const [v, k] = COLOR_PISTA[nombre] || ['--brass', 1];
+  const hex = (h) => { h = h.replace('#', ''); return [0, 2, 4].map((i) => parseInt(h.slice(i, i + 2), 16)); };
+  const a = hex(cssVar(v)), b = hex(cssVar('--surface'));
+  return `rgb(${a.map((x, i) => Math.round(x * k + b[i] * (1 - k))).join(',')})`;
+}
 const COLOR_SECCION = ['--brass', '--ember', '--verdigris', '--rust', '--focus', '--parchment-dim'];
-const ORDEN_PISTAS = ['vocals', 'drums', 'bass', 'other'];
-const URL_MODELO = new URL('./models/htdemucs.onnx', location.href).href;
+const ORDEN_PISTAS = ['vocals', 'drums', 'kick', 'snare', 'toms', 'cymbals', 'bass', 'guitar', 'piano', 'other'];
+const ARCHIVOS_MODELO = { mRapido: ['models/htdemucs.onnx'], mEstudio: ['models/htdemucs_6s.onnx'], mBateria: ['models/bateria.onnx.1', 'models/bateria.onnx.2'] };
+let modo = 'rapido';
 
 const S = {
-  cancion: null, a: null, pistas: [], datos: null, sonando: false, tiempo: 0, dur: 0,
+  cancion: null, a: null, pistas: [], sonando: false, tiempo: 0, dur: 0,
   tempo: 1, semis: 0, loop: null, loopOn: false, clickOn: false, clickVol: 0.5,
 };
 
@@ -1555,7 +1746,7 @@ function pintarLista() {
       <button class="boton principal" type="button"></button>
       <button class="chip borrar" type="button">✕</button>`;
     el.querySelector('.nombre').textContent = c.titulo;
-    el.querySelector('.sub').textContent = t('lista', { d: fmt(c.duracion) });
+    el.querySelector('.sub').textContent = t('lista', { n: c.analisis.stems.length, d: fmt(c.duracion) });
     const abrir = el.querySelector('.principal');
     abrir.textContent = t('abrirBtn');
     abrir.onclick = () => abrirCancion(c.id);
@@ -1571,7 +1762,7 @@ function pintarLista() {
 }
 
 function agregarArchivo(archivo) {
-  trabajos.push({ id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6), titulo: archivo.name.replace(/\.[^.]+$/, ''), archivo, etapa: 'enCola', progreso: 0 });
+  trabajos.push({ id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6), titulo: archivo.name.replace(/\.[^.]+$/, ''), archivo, estudio: modo === 'estudio', etapa: 'enCola', progreso: 0 });
   pintarLista();
   procesarCola();
 }
@@ -1605,9 +1796,9 @@ async function procesarCola() {
         else if (m.tipo === 'error') mal(new Error(m.mensaje));
       };
       separador.onerror = (e) => mal(new Error(e.message || 'Error en el separador'));
-      separador.postMessage({ tipo: 'separar', izquierda, derecha, urlModelo: URL_MODELO }, [izquierda.buffer, derecha.buffer]);
+      separador.postMessage({ tipo: 'separar', izquierda, derecha, estudio: j.estudio, base: location.href }, [izquierda.buffer, derecha.buffer]);
     });
-    const cancion = { id: j.id, titulo: j.titulo, creada: Date.now(), duracion: r.analisis.duration, analisis: r.analisis, segundos: r.segundos, motor: r.motor };
+    const cancion = { id: j.id, titulo: j.titulo, creada: Date.now(), duracion: r.analisis.duration, analisis: r.analisis, segundos: r.segundos, motor: r.motor, estudio: j.estudio };
     await bdGuardar(cancion, r.pistas);
     trabajos.splice(trabajos.indexOf(j), 1);
     await cargarLista();
@@ -1622,6 +1813,12 @@ async function procesarCola() {
   procesarCola();
 }
 
+document.querySelectorAll('#modos button').forEach((b) => b.onclick = () => {
+  modo = b.dataset.modo;
+  document.querySelectorAll('#modos button').forEach((x) => x.setAttribute('aria-pressed', x === b ? 'true' : 'false'));
+  guardarPref('modo', modo);
+});
+
 const zona = $('zona');
 $('archivo').onchange = (e) => { for (const f of e.target.files) agregarArchivo(f); e.target.value = ''; };
 zona.ondragover = (e) => { e.preventDefault(); zona.classList.add('over'); };
@@ -1629,10 +1826,16 @@ zona.ondragleave = () => zona.classList.remove('over');
 zona.ondrop = (e) => { e.preventDefault(); zona.classList.remove('over'); for (const f of e.dataTransfer.files) agregarArchivo(f); };
 
 async function pintarEstadoModelo() {
-  let hay = false;
-  try { hay = !!(await (await caches.open('ensayo-modelos')).match(URL_MODELO)); } catch (e) {}
-  $('estadoModelo').textContent = t(hay ? 'modeloGuardado' : 'modeloNo');
-  $('borrarModelo').hidden = !hay;
+  const hay = [];
+  try {
+    const cache = await caches.open('ensayo-modelos');
+    for (const [nombre, archivos] of Object.entries(ARCHIVOS_MODELO)) {
+      const ok = await Promise.all(archivos.map((a) => cache.match(new URL(a, location.href).href)));
+      if (ok.every(Boolean)) hay.push(t(nombre));
+    }
+  } catch (e) {}
+  $('estadoModelo').textContent = hay.length ? t('modeloGuardado', { m: hay.join(', ') }) : t('modeloNo');
+  $('borrarModelo').hidden = !hay.length;
 }
 $('borrarModelo').onclick = async () => {
   try { await caches.delete('ensayo-modelos'); } catch (e) {}
@@ -1654,7 +1857,7 @@ async function prepararAudio() {
   nodo.connect(actx.destination);
   nodo.port.onmessage = (e) => {
     if (e.data.tipo === 'pos') S.tiempo = e.data.tiempo;
-    if (e.data.tipo === 'fin') { S.sonando = false; S.tiempo = 0; pintarPlay(); }
+    if (e.data.tipo === 'fin') { S.sonando = false; S.tiempo = 0; soltarPantalla(); pintarPlay(); }
   };
 }
 
@@ -1670,11 +1873,10 @@ async function abrirCancion(id) {
     const nombres = ORDEN_PISTAS.filter((n) => datos[n]);
     const pistas = nombres.map((n) => datos[n]);
     const largo = Math.min(...pistas.map((p) => p.length / 2));
-    // Al motor van copias: las originales se quedan para descargar
-    const copias = pistas.map((p) => p.slice());
-    nodo.port.postMessage({ tipo: 'cargar', pistas: copias, largo }, copias.map((p) => p.buffer));
+    // Las pistas pasan al motor sin copiarse (para descargar se vuelven a leer de la base de datos)
+    nodo.port.postMessage({ tipo: 'cargar', pistas, largo }, pistas.map((p) => p.buffer));
 
-    Object.assign(S, { cancion, a, datos, sonando: false, tiempo: 0, dur: largo / 44100, loop: null, loopOn: false, tempo: 1, semis: 0 });
+    Object.assign(S, { cancion, a, sonando: false, tiempo: 0, dur: largo / 44100, loop: null, loopOn: false, tempo: 1, semis: 0 });
     S.pistas = nombres.map((n) => ({ nombre: n, vol: 1, mute: false, solo: false }));
     const fase = a.downbeat_phase;
     nodo.port.postMessage({ tipo: 'pulsos', pulsos: a.beats, acentos: a.beats.map((_, i) => (((i - fase) % 4) + 4) % 4 === 0) });
@@ -1732,6 +1934,7 @@ async function tocarPausar() {
   await actx.resume();
   S.sonando = !S.sonando;
   nodo.port.postMessage({ tipo: S.sonando ? 'tocar' : 'pausar' });
+  if (S.sonando) mantenerPantalla(); else soltarPantalla();
   pintarPlay();
 }
 function pintarPlay() {
@@ -1811,9 +2014,155 @@ function pintarSecciones() {
 }
 
 /* =====================================================================
+ * Letra
+ * ===================================================================== */
+let trabajadorLetra = null;
+let calidadLetra = 'normal', idiomaLetra = '';
+let lineaActual = -2;
+let letraEnCurso = null;  // id de la canción cuya letra se está sacando
+
+// Agrupa las palabras en líneas: corta en pausas, en puntuación o cada 9 palabras
+function armarLineas(palabras) {
+  const lineas = [];
+  let actual = [];
+  palabras.forEach((p, i) => {
+    const previa = palabras[i - 1];
+    if (actual.length && (p.a - previa.b > 0.8 || /[.!?;:,]$/.test(previa.t.trim()) || actual.length >= 9)) { lineas.push(actual); actual = []; }
+    actual.push(i);
+  });
+  if (actual.length) lineas.push(actual);
+  return lineas;
+}
+
+async function sacarLetra() {
+  const c = S.cancion;
+  if (letraEnCurso) return;
+  letraEnCurso = c.id;
+  $('sacarLetra').hidden = true;
+  $('letraBarra').hidden = false;
+  const avance = (etapa, p) => { $('letraEstado').textContent = `${t(etapa)}… ${Math.round(p * 100)}%`; $('letraBarra').querySelector('i').style.width = `${p * 100}%`; };
+  avance('leyendo', 0);
+  try {
+    // Voz a 16 kHz mono (lo que espera Whisper)
+    const voz = (await bdPistas(c.id)).vocals;
+    const n = voz.length / 2;
+    const ctx = new OfflineAudioContext(1, Math.ceil((n * 16000) / 44100), 16000);
+    const buf = ctx.createBuffer(1, n, 44100);
+    const d = buf.getChannelData(0);
+    for (let i = 0; i < n; i++) d[i] = (voz[2 * i] + voz[2 * i + 1]) / 65536;
+    const src = ctx.createBufferSource();
+    src.buffer = buf;
+    src.connect(ctx.destination);
+    src.start();
+    const audio = (await ctx.startRendering()).getChannelData(0);
+
+    if (!trabajadorLetra) trabajadorLetra = new Worker(URL.createObjectURL(new Blob([$('codigoLetra').textContent], { type: 'text/javascript' })), { type: 'module' });
+    const palabras = await new Promise((ok, mal) => {
+      trabajadorLetra.onmessage = (e) => {
+        const m = e.data;
+        if (m.tipo === 'progreso') { if (S.cancion && S.cancion.id === c.id) avance(m.etapa, m.progreso); }
+        else if (m.tipo === 'listo') ok(m.palabras);
+        else mal(new Error(m.mensaje));
+      };
+      trabajadorLetra.onerror = (e) => mal(new Error(e.message || 'Error al sacar la letra'));
+      trabajadorLetra.postMessage({ audio, calidad: calidadLetra, idioma: idiomaLetra }, [audio.buffer]);
+    });
+
+    // Whisper a veces "inventa" texto en partes sin voz: se descartan las palabras donde la voz está en silencio
+    const energia = (a, b) => {
+      let s = 0, k = 0;
+      for (let i = Math.floor(a * 44100); i < Math.min(n, Math.ceil(b * 44100)); i += 4) { s += (voz[2 * i] / 32768) ** 2; k++; }
+      return k ? Math.sqrt(s / k) : 0;
+    };
+    let ref = 0;
+    for (let i = 0; i < n; i += 441) ref = Math.max(ref, Math.abs(voz[2 * i] / 32768));
+    // Una palabra no dura más de 1.5 s: si Whisper la estira (pasa con la primera), se acerca a su final
+    palabras.forEach((p) => { if (p.b - p.a > 1.5) p.a = p.b - 0.5; });
+    const limpias = palabras.filter((p) => p.t.trim() && energia(p.a, Math.max(p.b, p.a + 0.1)) > 0.01 * ref);
+    c.letra = { palabras: limpias, lineas: armarLineas(limpias) };
+    await bdHacer('canciones', 'readwrite', (st) => st.put(c));
+  } catch (err) {
+    c.letra = null;
+    letraEnCurso = null;
+    if (S.cancion && S.cancion.id === c.id) { pintarLetra(); $('letraEstado').textContent = `${t('errorT')}: ${err.message}`; }
+    if (trabajadorLetra) { trabajadorLetra.terminate(); trabajadorLetra = null; }
+  }
+  letraEnCurso = null;
+  if (S.cancion && S.cancion.id === c.id) pintarLetra();
+}
+
+function pintarLetra() {
+  const l = S.cancion && S.cancion.letra;
+  const hay = !!(l && l.palabras.length);
+  $('letraVacia').hidden = hay;
+  $('letraLineas').hidden = !hay;
+  const enCurso = letraEnCurso === (S.cancion && S.cancion.id);
+  $('sacarLetra').hidden = enCurso;
+  $('letraBarra').hidden = !enCurso;
+  if (!enCurso) $('letraEstado').textContent = l && !l.palabras.length ? t('sinLetra') : t('letraNota');
+  lineaActual = -2;
+}
+
+function lineaHtml(idx) {
+  const l = S.cancion.letra;
+  const linea = l.lineas[idx];
+  if (!linea) return '';
+  return linea.map((i) => `<span data-i="${i}">${l.palabras[i].t.trim().replace(/[&<>]/g, '')}</span>`).join(' ');
+}
+
+function moverLetra(s) {
+  const l = S.cancion && S.cancion.letra;
+  if (!l || !l.palabras.length) return;
+  let idx = -1;
+  for (let k = 0; k < l.lineas.length; k++) if (l.palabras[l.lineas[k][0]].a - 0.3 <= s) idx = k; else break;
+  if (idx !== lineaActual) {
+    lineaActual = idx;
+    $('lineaPrevia').innerHTML = idx > 0 ? lineaHtml(idx - 1) : '';
+    $('lineaActual').innerHTML = idx >= 0 ? lineaHtml(idx) : '';
+    $('lineaSiguiente').innerHTML = lineaHtml(idx + 1);
+    $('lineaPrevia').dataset.linea = idx - 1;
+    $('lineaActual').dataset.linea = idx;
+    $('lineaSiguiente').dataset.linea = idx + 1;
+  }
+  $('lineaActual').querySelectorAll('span').forEach((w) => w.classList.toggle('dicha', l.palabras[+w.dataset.i].a <= s));
+}
+
+$('sacarLetra').onclick = sacarLetra;
+['lineaPrevia', 'lineaActual', 'lineaSiguiente'].forEach((id) => {
+  $(id).onclick = () => {
+    const l = S.cancion.letra, k = +$(id).dataset.linea;
+    if (l && l.lineas[k]) saltar(Math.max(0, l.palabras[l.lineas[k][0]].a - 0.2));
+  };
+});
+document.querySelectorAll('#letraCalidad button').forEach((b) => b.onclick = () => aplicarCalidadLetra(b.dataset.calidad));
+document.querySelectorAll('#letraIdioma button').forEach((b) => b.onclick = () => aplicarIdiomaLetra(b.dataset.idiomaLetra));
+function aplicarCalidadLetra(c) {
+  calidadLetra = c === 'alta' ? 'alta' : 'normal';
+  document.querySelectorAll('#letraCalidad button').forEach((b) => b.setAttribute('aria-pressed', b.dataset.calidad === calidadLetra ? 'true' : 'false'));
+  guardarPref('calidadLetra', calidadLetra);
+}
+function aplicarIdiomaLetra(i) {
+  idiomaLetra = ['spanish', 'english', 'portuguese'].includes(i) ? i : '';
+  document.querySelectorAll('#letraIdioma button').forEach((b) => b.setAttribute('aria-pressed', b.dataset.idiomaLetra === idiomaLetra ? 'true' : 'false'));
+  guardarPref('idiomaLetra', idiomaLetra);
+}
+
+/* =====================================================================
+ * Pantalla encendida mientras suena (iOS y Android la apagan si no)
+ * ===================================================================== */
+let wakeLock = null;
+async function mantenerPantalla() {
+  try { if ('wakeLock' in navigator && !wakeLock) wakeLock = await navigator.wakeLock.request('screen'); } catch (e) {}
+}
+function soltarPantalla() {
+  try { if (wakeLock) { wakeLock.release(); wakeLock = null; } } catch (e) {}
+}
+
+/* =====================================================================
  * Reproductor
  * ===================================================================== */
 function construirReproductor() {
+  pintarLetra();
   $('titulo').textContent = S.cancion.titulo;
   pintarDatos();
   construirAcordes();
@@ -1826,7 +2175,7 @@ function construirReproductor() {
     carril.className = 'carril';
     carril.innerHTML = `
       <div class="pista">
-        <div class="nm"><span class="punto" style="background:var(${COLOR_PISTA[p.nombre] || '--brass'})"></span>${t(p.nombre)}</div>
+        <div class="nm"><span class="punto" style="background:${colorPista(p.nombre)}"></span>${t(p.nombre)}</div>
         <button class="chip mute ${p.mute ? 'active' : ''}" type="button" title="${t('silenciar')}">M</button>
         <button class="chip solo ${p.solo ? 'active' : ''}" type="button" title="${t('solo')}">S</button>
         <input type="range" min="0" max="150" value="${Math.round(p.vol * 100)}" aria-label="${t('volumen')} ${t(p.nombre)}">
@@ -1861,8 +2210,8 @@ function construirReproductor() {
 }
 
 // Arma un .wav de 16 bits a partir de la pista guardada
-function descargarPista(nombre) {
-  const datos = S.datos[nombre];
+async function descargarPista(nombre) {
+  const datos = (await bdPistas(S.cancion.id))[nombre];
   const bytes = datos.length * 2;
   const cab = new DataView(new ArrayBuffer(44));
   const txt = (o, s) => { for (let i = 0; i < 4; i++) cab.setUint8(o + i, s.charCodeAt(i)); };
@@ -1895,7 +2244,7 @@ function dibujarOndas() {
     const g = c.getContext('2d');
     g.scale(dpr, dpr);
     const pk = S.a.peaks[p.nombre];
-    g.fillStyle = cssVar(COLOR_PISTA[p.nombre] || '--brass');
+    g.fillStyle = colorPista(p.nombre);
     g.globalAlpha = p.mute || (haySolo && !p.solo) ? 0.2 : 0.9;
     const barras = Math.floor(w / 2);
     for (let x = 0; x < barras; x++) {
@@ -1994,6 +2343,7 @@ function cuadro() {
   $('playhead').style.left = `${(s / S.dur) * 100}%`;
   $('actual').textContent = fmt(s);
   $('tira').style.transform = `translateX(${$('acordes').clientWidth * 0.25 - s * PPS}px)`;
+  moverLetra(s);
   const ac = S.a.chords;
   let i = acordeActual >= 0 && acordeActual < ac.length && ac[acordeActual].start <= s ? acordeActual : 0;
   while (i < ac.length - 1 && ac[i].end <= s) i++;
@@ -2009,6 +2359,10 @@ requestAnimationFrame(cuadro);
  * Inicio
  * ===================================================================== */
 aplicarNotacion(leerPref('notacion', 'latina'));
+aplicarCalidadLetra(leerPref('calidadLetra', 'normal'));
+aplicarIdiomaLetra(leerPref('idiomaLetra', ''));
+modo = leerPref('modo', 'rapido') === 'estudio' ? 'estudio' : 'rapido';
+document.querySelectorAll('#modos button').forEach((b) => b.setAttribute('aria-pressed', b.dataset.modo === modo ? 'true' : 'false'));
 aplicarTema(leerPref('tema', 'calido'));
 aplicarIdioma(leerPref('idioma', 'es'));
 cargarLista();

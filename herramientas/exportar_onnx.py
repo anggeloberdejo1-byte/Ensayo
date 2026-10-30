@@ -1,23 +1,39 @@
-"""Exporta el núcleo de HTDemucs a ONNX para correrlo en el navegador.
+"""Exporta el núcleo de un modelo Demucs (HTDemucs v4 o HDemucs v3) a ONNX para el navegador.
 
 La STFT/iSTFT se hacen en JavaScript; el modelo recibe el espectrograma
 (real/imag como canales) y el audio, y devuelve ambos ramales ya desnormalizados.
+
+Uso:
+  python exportar_onnx.py htdemucs            salida.onnx
+  python exportar_onnx.py htdemucs_6s         salida.onnx
+  python exportar_onnx.py drumsep:modelo.pt   salida.onnx   (pesos de github.com/inagoy/drumsep)
 """
 import sys
-import types
 import torch
-from demucs.pretrained import get_model
 
-name = sys.argv[1] if len(sys.argv) > 1 else "htdemucs"
-out = sys.argv[2] if len(sys.argv) > 2 else f"{name}-fp32.onnx"
+nombre = sys.argv[1]
+salida = sys.argv[2]
 
-bag = get_model(name)
-model = bag.models[0]
-model.eval()
-L = int(model.segment * model.samplerate)
+if nombre.startswith("drumsep:"):
+    from demucs.hdemucs import HDemucs
+    paquete = torch.load(nombre.split(":", 1)[1], map_location="cpu", weights_only=True)
+    modelo = HDemucs(*paquete["args"], **paquete["kwargs"])
+    modelo.load_state_dict(paquete["state"])
+    largo = 441000  # 10 s: HDemucs acepta cualquier largo
+else:
+    from demucs.pretrained import get_model
+    modelo = get_model(nombre).models[0]
+    largo = int(modelo.segment * modelo.samplerate)  # HTDemucs usa su largo de entrenamiento
+modelo.eval()
+es_v4 = hasattr(modelo, "crosstransformer")
+
+# ONNX Runtime Web no tiene EyeLike: con largo fijo, la matriz identidad de la
+# atención local (LocalState) puede ir como constante.
+_eye = torch.eye
+torch.eye = lambda n, *a, **k: _eye(int(n), *a, **k)
 
 
-class Core(torch.nn.Module):
+class Nucleo(torch.nn.Module):
     def __init__(self, m):
         super().__init__()
         self.m = m
@@ -51,20 +67,21 @@ class Core(torch.nn.Module):
                 emb = m.freq_emb(frs).t()[None, :, :, None].expand_as(x)
                 x = x + m.freq_emb_scale * emb
             saved.append(x)
-        if m.crosstransformer:
-            if m.bottom_channels:
-                b, c, f, t = x.shape
-                x = x.reshape(b, c, f * t)
-                x = m.channel_upsampler(x)
-                x = x.reshape(b, -1, f, t)
-                xt = m.channel_upsampler_t(xt)
-            x, xt = m.crosstransformer(x, xt)
-            if m.bottom_channels:
-                b, c, f, t = x.shape
-                x = x.reshape(b, c, f * t)
-                x = m.channel_downsampler(x)
-                x = x.reshape(b, -1, f, t)
-                xt = m.channel_downsampler_t(xt)
+        if es_v4:
+            if m.crosstransformer:
+                if m.bottom_channels:
+                    b, c, f, t = x.shape
+                    x = m.channel_upsampler(x.reshape(b, c, f * t)).reshape(b, -1, f, t)
+                    xt = m.channel_upsampler_t(xt)
+                x, xt = m.crosstransformer(x, xt)
+                if m.bottom_channels:
+                    b, c, f, t = x.shape
+                    x = m.channel_downsampler(x.reshape(b, c, f * t)).reshape(b, -1, f, t)
+                    xt = m.channel_downsampler_t(xt)
+        else:
+            # HDemucs v3 arranca el decodificador en cero (la señal pasa por los saltos)
+            x = torch.zeros_like(x)
+            xt = torch.zeros_like(x)
         for idx, decode in enumerate(m.decoder):
             skip = saved.pop(-1)
             x, pre = decode(x, skip, lengths.pop(-1))
@@ -80,23 +97,24 @@ class Core(torch.nn.Module):
                     xt, _ = tdec(xt, skip, length_t)
         S = len(m.sources)
         x = x.view(B, S, -1, Fq, T) * std[:, None] + mean[:, None]
-        xt = xt.view(B, S, -1, L) * stdt[:, None] + meant[:, None]
+        xt = xt.view(B, S, -1, largo) * stdt[:, None] + meant[:, None]
         return x, xt
 
 
-core = Core(model).eval()
-mix = torch.randn(1, 2, L)
-z = model._spec(mix)
-mag = model._magnitude(z)
-print("L", L, "mag", tuple(mag.shape), "sources", model.sources, "weights", list(bag.weights) if hasattr(bag, "weights") else None)
+nucleo = Nucleo(modelo).eval()
+torch.manual_seed(0)
+mix = torch.randn(1, 2, largo) * 0.1
+z = modelo._spec(mix)
+mag = modelo._magnitude(z)
+print("largo", largo, "mag", tuple(mag.shape), "fuentes", modelo.sources)
 
 # Comprobar que el núcleo da lo mismo que el modelo completo
 with torch.no_grad():
-    ref = model(mix)
-    x, xt = core(mix, mag)
-    full = xt + model._ispec(model._mask(z, x), L)
-print("max diff vs demucs:", float((full - ref).abs().max()))
+    ref = modelo(mix)
+    x, xt = nucleo(mix, mag)
+    completo = xt + modelo._ispec(modelo._mask(z, x), largo)
+print("diferencia máxima con demucs:", float((completo - ref).abs().max()))
 
-torch.onnx.export(core, (mix, mag), out, input_names=["mix", "mag"], output_names=["spec", "wave"],
+torch.onnx.export(nucleo, (mix, mag), salida, input_names=["mix", "mag"], output_names=["spec", "wave"],
                   opset_version=17, dynamo=False)
-print("exportado", out)
+print("exportado", salida)

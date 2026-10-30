@@ -772,15 +772,26 @@ async function descargar(url, alAvanzar) {
   const cache = await caches.open('ensayo-modelos');
   const guardado = await cache.match(url);
   if (guardado) return guardado.arrayBuffer();
-  const resp = await fetch(url);
-  if (!resp.ok) throw new Error(`No se pudo descargar el modelo (${resp.status})`);
-  const lector = resp.body.getReader();
-  const partes = [];
-  for (;;) {
-    const { done, value } = await lector.read();
-    if (done) break;
-    partes.push(value);
-    alAvanzar(value.length);
+  // Si se corta la conexión (pasa mucho en el celular), se sigue desde donde quedó
+  let partes = [], llevo = 0;
+  for (let intento = 1; ; intento++) {
+    try {
+      const resp = await fetch(url, llevo ? { headers: { Range: `bytes=${llevo}-` } } : {});
+      if (!resp.ok) throw new Error(`No se pudo descargar el modelo (${resp.status})`);
+      if (llevo && resp.status !== 206) { alAvanzar(-llevo); partes = []; llevo = 0; } // el servidor no aceptó continuar
+      const lector = resp.body.getReader();
+      for (;;) {
+        const { done, value } = await lector.read();
+        if (done) break;
+        partes.push(value);
+        llevo += value.length;
+        alAvanzar(value.length);
+      }
+      break;
+    } catch (e) {
+      if (intento >= 4) throw new Error(`Se cortó la descarga del modelo. Revisa la conexión e inténtalo otra vez. (${e.message})`);
+      await new Promise((r) => setTimeout(r, 2000 * intento));
+    }
   }
   const blob = new Blob(partes);
   try { await cache.put(url, new Response(blob)); } catch (e) { /* sin espacio: se descargará otra vez */ }

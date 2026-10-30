@@ -9,7 +9,7 @@
  * versión de CACHE (v1 -> v2 ...) para que los usuarios reciban la versión
  * nueva en vez de la vieja cacheada.
  */
-const CACHE = "ensayo-v2";
+const CACHE = "ensayo-v3";
 const ARCHIVOS = [
   "./",
   "./index.html",

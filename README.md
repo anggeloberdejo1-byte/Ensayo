@@ -1,10 +1,12 @@
 # Ensayo
 
-Separa la voz, la batería, el bajo y más de cualquier canción con IA. Cambia el tempo y el tono, ve los acordes mientras suena, repite secciones y toca con un metrónomo que sigue la canción. By Anggelo Berdejo.
+Separa la voz, la batería, el bajo y más de cualquier canción con IA, directo en el navegador. Cambia la velocidad y el tono, ve los acordes mientras suena, repite secciones y toca con un metrónomo que sigue la canción. By Anggelo Berdejo.
+
+**Abrir la app:** https://anggeloberdejo1-byte.github.io/Ensayo/
 
 ## Qué hace
 
-- **Separación de pistas** con [Demucs](https://github.com/facebookresearch/demucs): 4 pistas (voz, batería, bajo, otros) o 6 pistas (más guitarra y piano). Silenciar, solo, volumen por pista y descarga en .wav.
+- **Separación de pistas** con IA ([HTDemucs](https://github.com/facebookresearch/demucs)): voz, batería, bajo y otros. Silenciar, solo, volumen por pista y descarga en .wav.
 - **Velocidad** del 50 % al 150 % sin cambiar la afinación, y **tono** de −12 a +12 semitonos.
 - **Acordes** en una tira que corre con la música. Se calculan sin la voz ni la batería y con el bajo como guía. Se transponen solos si cambias el tono.
 - **Tonalidad, BPM e inicio de compás.**
@@ -12,24 +14,19 @@ Separa la voz, la batería, el bajo y más de cualquier canción con IA. Cambia 
 - **Metrónomo** sobre los pulsos detectados de la canción.
 - **Ajustes:** español o inglés, 12 paletas de colores y notación Do Re Mi o C D E.
 
-## Cómo usarla
-
-Ensayo necesita correr en una computadora, porque la separación con IA usa el procesador gráfico. Funciona mejor en Mac con chip M.
-
-1. Descarga el repositorio (botón **Code → Download ZIP**) y descomprímelo.
-2. Doble clic en `iniciar.command`. La primera vez instala lo necesario (unos minutos y ~2 GB).
-3. Se abre en el navegador: http://localhost:8765
-
-Requisitos: Python 3.9 o más reciente.
+Todo pasa en tu equipo: la canción no se sube a ningún servidor. La primera vez descarga el modelo de IA (90 MB) y lo guarda; después funciona sin internet. Usa la GPU con WebGPU (Chrome, Edge, Safari reciente); sin GPU también funciona, pero más lento.
 
 ## Archivos
 
-| Archivo | Función |
+| Archivo | Qué es |
 |---|---|
-| `server.py` | Servidor (FastAPI): subir canciones, cola de procesamiento, Demucs |
-| `analysis.py` | BPM, compás, tonalidad, acordes y secciones |
-| `static/engine.js` | Motor de audio: mezcla, velocidad y tono (WSOLA), loops y metrónomo |
-| `static/index.html` | Interfaz |
+| `index.html` | Toda la app (HTML, CSS y JS): interfaz, motor de audio, separador y análisis |
+| `models/htdemucs.onnx` | El modelo de IA (HTDemucs exportado a ONNX, pesos en float16) |
+| `manifest.json`, `sw.js`, íconos | Para instalarla como app y usarla sin internet |
+| `herramientas/` | Scripts para volver a exportar el modelo desde PyTorch |
+| `escritorio/` | Versión de escritorio con servidor Python (también separa en 6 pistas) |
+
+Cada vez que se actualice `index.html`, hay que subir la versión del caché en `sw.js` (`ensayo-v1` → `ensayo-v2`…).
 
 ## Limitaciones
 

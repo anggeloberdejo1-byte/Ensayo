@@ -1,0 +1,17 @@
+{
+  "name": "Ensayo — Separa pistas y ensaya a tu ritmo",
+  "short_name": "Ensayo",
+  "description": "Separa la voz, la batería, el bajo y más de cualquier canción con IA. Velocidad, tono, acordes, secciones y metrónomo. By Anggelo Berdejo.",
+  "lang": "es",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "theme_color": "#f7f0e2",
+  "background_color": "#f7f0e2",
+  "icons": [
+    { "src": "./icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "./icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "./icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

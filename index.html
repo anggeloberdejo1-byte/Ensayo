@@ -1,0 +1,2040 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Ensayo — Separa pistas y ensaya a tu ritmo</title>
+<meta name="description" content="Separa la voz, la batería, el bajo y más de cualquier canción con IA, directo en el navegador. Velocidad, tono, acordes, secciones y metrónomo. By Anggelo Berdejo.">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Ensayo">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#f7f0e2">
+<link rel="apple-touch-icon" href="./apple-touch-icon.png">
+<link rel="icon" type="image/png" href="./icon-192.png">
+<link rel="manifest" href="./manifest.json">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Work+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #241c15;
+    --bg: #f7f0e2;
+    --surface: #fffbf2;
+    --surface-2: #eedfc3;
+    --parchment: #34291e;
+    --parchment-dim: #7a6c58;
+    --brass: #4f8064;
+    --ember: #b14e37;
+    --verdigris: #b8871f;
+    --rust: #93583a;
+    --focus: #c99a2e;
+  }
+
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--bg);
+    color: var(--parchment);
+    font-family: 'Work Sans', sans-serif;
+    -webkit-tap-highlight-color: transparent;
+  }
+  body {
+    min-height: 100vh;
+    background:
+      radial-gradient(ellipse at 20% -10%, color-mix(in srgb, var(--brass) 10%, transparent), transparent 55%),
+      repeating-linear-gradient(100deg, rgba(0,0,0,0.02) 0px, rgba(0,0,0,0.02) 2px, transparent 2px, transparent 5px),
+      var(--bg);
+  }
+
+  .tool { max-width: 1100px; margin: 0 auto; padding: 28px 20px 40px; padding-bottom: calc(40px + env(safe-area-inset-bottom)); }
+
+  header { margin-bottom: 18px; }
+  .top-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+  .eyebrow { font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.18em; color: var(--brass); text-transform: uppercase; margin-bottom: 6px; }
+  h1 { font-family: 'Bebas Neue', sans-serif; font-size: 44px; letter-spacing: 0.03em; margin: 0 0 4px; line-height: 0.95; font-weight: 400; }
+  .subtitle { font-size: 14px; color: var(--parchment-dim); margin: 0; max-width: 56ch; }
+
+  .engrane {
+    flex-shrink: 0; width: 42px; height: 42px; border-radius: 10px;
+    border: 1px solid var(--surface-2); background: var(--surface); color: var(--parchment);
+    display: flex; align-items: center; justify-content: center; cursor: pointer;
+  }
+  .engrane:hover { color: var(--brass); }
+  .engrane svg { width: 22px; height: 22px; }
+
+  /* ---- Ajustes ---- */
+  .ajustes {
+    width: min(520px, calc(100vw - 24px)); max-height: calc(100vh - 40px);
+    border: 1px solid var(--surface-2); border-radius: 14px; padding: 0;
+    background: var(--surface); color: var(--parchment); box-shadow: 0 20px 50px rgba(0,0,0,0.25);
+  }
+  .ajustes::backdrop { background: rgba(20,16,12,0.45); }
+  .ajustes-cabeza {
+    display: flex; align-items: center; justify-content: space-between; padding: 16px 18px 12px;
+    border-bottom: 1px solid var(--surface-2); position: sticky; top: 0; background: var(--surface);
+  }
+  .ajustes-cabeza h2 { font-family: 'Bebas Neue', sans-serif; font-weight: 400; font-size: 28px; letter-spacing: 0.04em; margin: 0; }
+  .ajustes-cuerpo { padding: 16px 18px 20px; }
+  .settings-section + .settings-section { margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--surface-2); }
+  .settings-section-title { font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--parchment-dim); margin: 0 0 10px; }
+  .seg { display: flex; gap: 6px; }
+  .seg button {
+    flex: 1; font-family: 'IBM Plex Mono', monospace; font-size: 12.5px; font-weight: 600; padding: 9px 8px;
+    border: 1px solid var(--surface-2); border-radius: 8px; background: var(--bg); color: var(--parchment-dim); cursor: pointer;
+  }
+  .seg button[aria-pressed="true"] { background: var(--brass); border-color: var(--brass); color: var(--ink); }
+  .theme-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .theme-card { border: 2px solid var(--surface-2); border-radius: 10px; padding: 10px 6px; cursor: pointer; background: var(--bg); text-align: center; font: inherit; color: inherit; }
+  .theme-card.active { border-color: var(--brass); }
+  .theme-card-swatches { display: flex; gap: 4px; justify-content: center; margin-bottom: 6px; }
+  .theme-swatch { width: 16px; height: 16px; border-radius: 50%; border: 1px solid rgba(0,0,0,0.12); }
+  .theme-card-name { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--parchment); }
+  .nota-ajustes { font-size: 13px; color: var(--parchment-dim); margin: 0 0 10px; }
+
+  /* ---- Bloques comunes ---- */
+  .panel { background: var(--surface); border: 1px solid var(--surface-2); border-radius: 10px; padding: 18px; margin-bottom: 16px; }
+  button { font-family: inherit; }
+  button:focus-visible, input:focus-visible, .abrir:focus-within { outline: 2px solid var(--focus); outline-offset: 2px; }
+  input[type=range] { accent-color: var(--brass); }
+  .boton {
+    background: var(--surface-2); border: 1px solid var(--surface-2); color: var(--parchment);
+    font-weight: 600; font-size: 13.5px; padding: 9px 14px; border-radius: 8px; cursor: pointer; white-space: nowrap;
+  }
+  .boton:hover { background: var(--surface); }
+  .boton.principal { background: var(--brass); border-color: var(--brass); color: var(--ink); }
+  .chip {
+    background: var(--surface); border: 1px solid var(--surface-2); color: var(--parchment-dim);
+    font-family: 'IBM Plex Mono', monospace; font-size: 12px; font-weight: 600; padding: 5px 10px; border-radius: 6px; cursor: pointer; line-height: 1.2;
+  }
+  .chip:hover { color: var(--parchment); border-color: var(--parchment-dim); }
+  .chip.active { background: var(--brass); border-color: var(--brass); color: var(--ink); }
+  .label { font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.14em; color: var(--parchment-dim); text-transform: uppercase; }
+
+  /* ---- Biblioteca ---- */
+  .abrir {
+    display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 26px 12px;
+    border: 2px dashed var(--surface-2); border-radius: 10px; cursor: pointer; text-align: center; transition: border-color .15s;
+  }
+  .abrir:hover, .abrir.over { border-color: var(--brass); }
+  .abrir-titulo { font-family: 'Bebas Neue', sans-serif; font-size: 26px; letter-spacing: 0.04em; color: var(--brass); }
+  .abrir-sub { font-size: 13px; color: var(--parchment-dim); }
+  .aviso { font-size: 13px; color: var(--parchment-dim); margin: 12px 0 0; text-align: center; }
+  .lista { display: grid; gap: 10px; }
+  .cancion { display: flex; align-items: center; gap: 12px; background: var(--surface); border: 1px solid var(--surface-2); border-radius: 10px; padding: 12px 14px; }
+  .cancion .t { flex: 1; min-width: 0; }
+  .cancion .nombre { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .cancion .sub { font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: var(--parchment-dim); margin-top: 3px; }
+  .barra { height: 4px; background: var(--surface-2); border-radius: 2px; margin-top: 7px; overflow: hidden; }
+  .barra i { display: block; height: 100%; background: var(--brass); transition: width .4s; }
+  .err { color: var(--ember) !important; }
+  .vacio { color: var(--parchment-dim); text-align: center; padding: 14px; font-size: 14px; }
+
+  /* ---- Reproductor ---- */
+  .cabeza-cancion { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
+  .cabeza-cancion h2 { font-family: 'Bebas Neue', sans-serif; font-weight: 400; font-size: 32px; letter-spacing: 0.03em; margin: 0; flex: 1; min-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1; }
+  .dato { background: var(--surface); border: 1px solid var(--surface-2); border-radius: 8px; padding: 6px 10px; font-size: 13px; }
+  .dato b { font-family: 'IBM Plex Mono', monospace; color: var(--brass); }
+  .dato small { color: var(--parchment-dim); font-family: 'IBM Plex Mono', monospace; font-size: 11px; }
+
+  .acordes { position: relative; height: 96px; padding: 0; overflow: hidden; }
+  .acordes .tira { position: absolute; top: 0; bottom: 0; left: 0; will-change: transform; }
+  .acordes .c { position: absolute; top: 22px; bottom: 12px; display: flex; align-items: center; padding-left: 12px; border-left: 2px solid var(--surface-2); font-weight: 700; font-size: 32px; letter-spacing: -.01em; color: var(--parchment-dim); white-space: nowrap; overflow: hidden; }
+  .acordes .c.ahora { color: var(--parchment); border-left-color: var(--ember); }
+  .acordes .c.nc { font-size: 15px; opacity: .5; }
+  .acordes .cabezal { position: absolute; top: 0; bottom: 0; left: 25%; width: 2px; background: var(--ember); opacity: .8; }
+  .acordes .label { position: absolute; top: 8px; left: 12px; }
+
+  .carril { display: grid; grid-template-columns: 220px 1fr; gap: 12px; align-items: center; }
+  .carril + .carril { margin-top: 8px; }
+  .secciones { position: relative; height: 30px; }
+  .sec { position: absolute; top: 0; bottom: 0; border-radius: 6px; font-size: 12px; font-weight: 600; display: flex; align-items: center; padding: 0 8px; overflow: hidden; white-space: nowrap; cursor: pointer; color: var(--parchment); }
+  .sec.active { outline: 2px solid var(--parchment); outline-offset: 1px; }
+  .pista { display: flex; align-items: center; gap: 6px; }
+  .pista .nm { flex: 1; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+  .pista .punto { width: 10px; height: 10px; border-radius: 50%; }
+  .pista .chip { padding: 4px 8px; }
+  .pista .chip.solo.active { background: var(--focus); border-color: var(--focus); }
+  .pista input { width: 70px; }
+  .onda { position: relative; height: 54px; cursor: crosshair; touch-action: none; }
+  .onda canvas { width: 100%; height: 100%; display: block; }
+  .carriles { position: relative; }
+  .capa { position: absolute; top: 0; bottom: 0; right: 0; pointer-events: none; }
+  .playhead { position: absolute; top: -4px; bottom: -4px; width: 2px; background: var(--parchment); }
+  .zona-loop { position: absolute; top: -4px; bottom: -4px; background: color-mix(in srgb, var(--brass) 16%, transparent); border-left: 2px solid var(--brass); border-right: 2px solid var(--brass); }
+  .zona-loop.off { background: color-mix(in srgb, var(--parchment-dim) 8%, transparent); border-color: var(--parchment-dim); }
+  .eje { display: flex; justify-content: space-between; font-family: 'IBM Plex Mono', monospace; color: var(--parchment-dim); font-size: 11px; margin-top: 6px; }
+
+  .transporte {
+    position: sticky; bottom: 0; z-index: 2; display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+    background: color-mix(in srgb, var(--surface) 94%, transparent); backdrop-filter: blur(8px);
+    margin-bottom: calc(16px + env(safe-area-inset-bottom));
+  }
+  .play { width: 54px; height: 54px; border-radius: 50%; background: var(--brass); color: var(--ink); border: none; font-size: 20px; display: grid; place-items: center; cursor: pointer; flex-shrink: 0; }
+  .tiempo { font-family: 'IBM Plex Mono', monospace; min-width: 110px; color: var(--parchment-dim); font-size: 14px; }
+  .tiempo b { color: var(--parchment); }
+  .grupo { display: flex; align-items: center; gap: 8px; }
+  .valor { font-family: 'IBM Plex Mono', monospace; font-size: 18px; font-weight: 600; color: var(--brass); min-width: 52px; text-align: center; }
+  .sep { width: 1px; height: 34px; background: var(--surface-2); }
+  .descargas { position: relative; }
+  .descargas .menu { position: absolute; right: 0; bottom: 46px; background: var(--surface); border: 1px solid var(--surface-2); border-radius: 10px; padding: 6px; display: grid; min-width: 170px; box-shadow: 0 10px 30px rgba(0,0,0,.15); }
+  .descargas .menu button { background: none; border: none; text-align: left; color: var(--parchment); padding: 8px 10px; border-radius: 6px; font-size: 13px; cursor: pointer; }
+  .descargas .menu button:hover { background: var(--surface-2); }
+
+  .cargando { position: fixed; inset: 0; background: color-mix(in srgb, var(--bg) 88%, transparent); display: grid; place-items: center; z-index: 10; font-family: 'IBM Plex Mono', monospace; font-size: 15px; padding: 20px; text-align: center; }
+  .atajos { color: var(--parchment-dim); font-size: 12px; text-align: center; line-height: 2; }
+  kbd { font-family: 'IBM Plex Mono', monospace; font-size: 11px; background: var(--surface); border: 1px solid var(--surface-2); border-radius: 4px; padding: 1px 5px; }
+  .credit { text-align: center; font-size: 12px; color: var(--parchment-dim); margin-top: 22px; }
+  .credit a { color: var(--brass); }
+
+  @media (max-width: 720px) {
+    .tool { padding: 20px 14px 32px; }
+    h1 { font-size: 36px; }
+    /* Nombre y botones a la izquierda de cada onda, en dos líneas */
+    .carril { grid-template-columns: 92px 1fr; gap: 8px; }
+    .pista { flex-wrap: wrap; gap: 4px; }
+    .pista .nm { flex-basis: 100%; font-size: 13px; }
+    .pista .nm.label { font-size: 10px; letter-spacing: .08em; }
+    .pista input { display: none; }
+    .onda { height: 46px; }
+    .sep { display: none; }
+    .theme-grid { grid-template-columns: repeat(2, 1fr); }
+    .cabeza-cancion h2 { font-size: 26px; min-width: 0; flex-basis: 100%; order: 1; }
+    .cabeza-cancion .dato { order: 2; }
+    .acordes { height: 84px; }
+    .acordes .c { font-size: 26px; }
+    .transporte { position: static; gap: 10px 12px; padding: 12px; }
+    .transporte .grupo { flex-wrap: wrap; }
+    .grupo.velocidad input { width: 110px; }
+    .grupo.final { margin-left: 0 !important; width: 100%; justify-content: flex-end; }
+    .atajos .teclas { display: none; }
+  }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+
+<main class="tool">
+
+  <header>
+    <div class="top-row">
+      <div>
+        <div class="eyebrow" data-i18n="eyebrow">Herramientas para músicos</div>
+        <h1>Ensayo</h1>
+        <p class="subtitle" data-i18n="subtitulo">Separa la voz, la batería, el bajo y más de cualquier canción con IA. Cambia velocidad y tono, y ve los acordes mientras tocas.</p>
+      </div>
+      <button class="engrane" id="abrirAjustes" type="button" data-i18n-aria="ajustes" aria-label="Ajustes">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <dialog class="ajustes" id="ajustes">
+    <div class="ajustes-cabeza">
+      <h2 data-i18n="ajustes">Ajustes</h2>
+      <button class="boton" id="cerrarAjustes" type="button" data-i18n="cerrar">Cerrar</button>
+    </div>
+    <div class="ajustes-cuerpo">
+      <div class="settings-section">
+        <p class="settings-section-title" data-i18n="idiomaT">Idioma</p>
+        <div class="seg" id="idiomas">
+          <button type="button" data-idioma="es" aria-pressed="true">Español</button>
+          <button type="button" data-idioma="en" aria-pressed="false">English</button>
+        </div>
+      </div>
+      <div class="settings-section">
+        <p class="settings-section-title" data-i18n="paleta">Paleta de colores</p>
+        <div class="theme-grid" id="temas"></div>
+      </div>
+      <div class="settings-section">
+        <p class="settings-section-title" data-i18n="nombresNotas">Nombres de las notas</p>
+        <div class="seg" id="notacion">
+          <button type="button" data-notacion="latina" aria-pressed="true">Do Re Mi</button>
+          <button type="button" data-notacion="inglesa" aria-pressed="false">C D E</button>
+        </div>
+      </div>
+      <div class="settings-section">
+        <p class="settings-section-title" data-i18n="modeloT">Modelo de IA</p>
+        <p class="nota-ajustes" id="estadoModelo"></p>
+        <button class="boton" id="borrarModelo" type="button" data-i18n="borrarModelo">Borrar modelo descargado</button>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- ===== Biblioteca ===== -->
+  <section id="biblioteca">
+    <div class="panel">
+      <label class="abrir" id="zona">
+        <span class="abrir-titulo" id="zonaTitulo" data-i18n="abrir">Subir canción</span>
+        <span class="abrir-sub" data-i18n="abrirSub">o arrástrala aquí · mp3, m4a, wav, flac o video</span>
+        <input type="file" id="archivo" accept="audio/*,video/*" multiple hidden>
+      </label>
+      <p class="aviso" data-i18n="aviso">Separa en 4 pistas: voz, batería, bajo y otros. Todo pasa en tu equipo: la canción no se sube a ningún servidor. La primera vez descarga el modelo de IA (90 MB).</p>
+    </div>
+    <div class="lista" id="lista"></div>
+  </section>
+
+  <!-- ===== Reproductor ===== -->
+  <section id="reproductor" hidden>
+    <div class="cabeza-cancion">
+      <button class="boton" id="volver" type="button" data-i18n="volver">← Biblioteca</button>
+      <h2 id="titulo"></h2>
+      <div class="dato" id="datoTono"></div>
+      <div class="dato" id="datoBpm"></div>
+    </div>
+
+    <div class="panel acordes" id="acordes">
+      <div class="label" data-i18n="acordesT">Acordes</div>
+      <div class="tira" id="tira"></div>
+      <div class="cabezal"></div>
+    </div>
+
+    <div class="panel">
+      <div class="carriles" id="carriles">
+        <div class="carril">
+          <div class="pista"><div class="nm label" data-i18n="seccionesT">Secciones</div></div>
+          <div class="secciones" id="secciones"></div>
+        </div>
+        <div id="pistas"></div>
+        <div class="capa" id="capa"><div class="zona-loop" id="zonaLoop" hidden></div><div class="playhead" id="playhead"></div></div>
+      </div>
+      <div class="carril"><div></div><div class="eje" id="eje"></div></div>
+    </div>
+
+    <div class="panel transporte">
+      <button class="play" id="play" type="button" data-i18n-aria="tocar" aria-label="Tocar">▶</button>
+      <div class="tiempo"><b id="actual">0:00</b> / <span id="total">0:00</span></div>
+      <div class="grupo">
+        <button class="chip" id="atras5" type="button">−5 s</button>
+        <button class="chip" id="adelante5" type="button">+5 s</button>
+        <button class="chip" id="loopBtn" type="button" data-i18n="loop">Loop</button>
+      </div>
+      <div class="sep"></div>
+      <div class="grupo velocidad">
+        <span class="label" data-i18n="velocidad">Velocidad</span>
+        <input type="range" id="tempo" min="50" max="150" step="5" value="100">
+        <span class="valor" id="tempoVal">100%</span>
+      </div>
+      <div class="grupo">
+        <span class="label" data-i18n="tono">Tono</span>
+        <button class="chip" id="tonoMenos" type="button">−</button><span class="valor" id="tonoVal">0</span><button class="chip" id="tonoMas" type="button">+</button>
+      </div>
+      <div class="sep"></div>
+      <div class="grupo">
+        <button class="chip" id="click" type="button" data-i18n="metronomo">Metrónomo</button>
+        <input type="range" id="clickVol" min="0" max="100" value="50" style="width:70px" data-i18n-aria="volMetronomo" aria-label="Volumen del metrónomo">
+      </div>
+      <div class="grupo final" style="margin-left:auto">
+        <button class="boton" id="restablecer" type="button" data-i18n="restablecer">Restablecer</button>
+        <div class="descargas"><button class="boton" id="descargarBtn" type="button" data-i18n="descargar">⬇ Pistas</button><div class="menu" id="descargas" hidden></div></div>
+      </div>
+    </div>
+
+    <p class="atajos">
+      <span data-i18n="ayudaOnda">Arrastra sobre las ondas para marcar un loop · toca para saltar</span><br>
+      <span class="teclas">
+        <kbd>Espacio</kbd> <span data-i18n="atajoTocar">tocar</span> ·
+        <kbd>←</kbd><kbd>→</kbd> 5 s ·
+        <kbd>L</kbd> loop ·
+        <kbd>M</kbd> <span data-i18n="atajoMetro">metrónomo</span>
+      </span>
+    </p>
+  </section>
+
+  <p class="credit">
+    <span data-i18n="credito">Hecha por Anggelo Berdejo — El Ñañe</span> ·
+    <a href="https://instagram.com/anggelo.berdejo">@anggelo.berdejo</a> ·
+    <a href="https://anggeloberdejo1-byte.github.io/apps/" data-i18n="otras">Otras herramientas</a>
+  </p>
+</main>
+
+<div class="cargando" id="cargando" hidden></div>
+
+<!-- =====================================================================
+  Motor de audio (AudioWorklet): mezcla las pistas, cambia velocidad y tono
+  y toca el metrónomo. Velocidad: WSOLA. Tono: WSOLA + remuestreo.
+===================================================================== -->
+<script type="text/plain" id="codigoMotor">
+const N = 2048;          // tamaño de ventana
+const HS = N / 2;        // salto de síntesis
+const BUSQUEDA = 512;    // margen para alinear ventanas
+const ANILLO = 8192;
+const MASCARA = ANILLO - 1;
+
+class Motor extends AudioWorkletProcessor {
+  constructor() {
+    super();
+    this.pistas = [];
+    this.volumenes = [];
+    this.largo = 0;
+    this.sonando = false;
+    this.pos = 0;            // posición en la canción original, en muestras
+    this.tempo = 1;
+    this.tono = 1;
+    this.loopA = -1;
+    this.loopB = -1;
+    this.pulsos = [];
+    this.acentos = [];
+    this.sigPulso = 0;
+    this.clickOn = false;
+    this.clickVol = 0.5;
+    this.clickT = -1;
+    this.clickFrec = 1000;
+    this.bloques = 0;
+
+    this.ventana = new Float32Array(N);
+    for (let i = 0; i < N; i++) this.ventana[i] = 0.5 - 0.5 * Math.cos((2 * Math.PI * i) / N);
+    this.acum = [new Float32Array(N), new Float32Array(N)];
+    this.cuadro = [new Float32Array(N), new Float32Array(N)];
+    this.anillo = [new Float32Array(ANILLO), new Float32Array(ANILLO)];
+    this.plantilla = new Float32Array(HS);
+    this.candidato = new Float32Array(HS + 2 * BUSQUEDA);
+    this.una = [new Float32Array(1), new Float32Array(1)];
+
+    this.port.onmessage = (e) => this.mensaje(e.data);
+    this.reiniciar();
+  }
+
+  mensaje(m) {
+    switch (m.tipo) {
+      case 'cargar':
+        this.pistas = m.pistas;
+        this.largo = m.largo;
+        this.volumenes = m.pistas.map(() => 1 / 32768);
+        this.sonando = false;
+        this.ir(0);
+        break;
+      case 'volumenes': this.volumenes = m.volumenes; break;
+      case 'tocar': this.sonando = true; break;
+      case 'pausar': this.sonando = false; break;
+      case 'saltar': this.ir(Math.max(0, Math.min(this.largo - 1, Math.round(m.tiempo * sampleRate)))); break;
+      case 'velocidad':
+        this.tempo = m.tempo;
+        this.tono = m.tono;
+        this.reiniciar();
+        break;
+      case 'loop':
+        this.loopA = m.a == null ? -1 : Math.round(m.a * sampleRate);
+        this.loopB = m.b == null ? -1 : Math.round(m.b * sampleRate);
+        break;
+      case 'pulsos':
+        this.pulsos = m.pulsos.map((t) => t * sampleRate);
+        this.acentos = m.acentos;
+        this.sigPulso = this.buscarPulso(this.pos);
+        break;
+      case 'metronomo': this.clickOn = m.activo; this.clickVol = m.volumen; break;
+    }
+  }
+
+  buscarPulso(p) {
+    let lo = 0, hi = this.pulsos.length;
+    while (lo < hi) {
+      const mid = (lo + hi) >> 1;
+      if (this.pulsos[mid] < p) lo = mid + 1; else hi = mid;
+    }
+    return lo;
+  }
+
+  ir(p) {
+    this.pos = p;
+    this.sigPulso = this.buscarPulso(p);
+    this.reiniciar();
+  }
+
+  reiniciar() {
+    this.acum[0].fill(0);
+    this.acum[1].fill(0);
+    this.escrito = 0;
+    this.leido = 0;
+    this.posAnalisis = this.pos;
+    this.previo = Math.round(this.pos) - HS;
+  }
+
+  // Suma las pistas en [inicio, inicio+cant) dentro de L/R (que deben venir en cero)
+  mezclar(inicio, cant, L, R) {
+    const lo = Math.max(0, -inicio), hi = Math.min(cant, this.largo - inicio);
+    for (let k = 0; k < this.pistas.length; k++) {
+      const g = this.volumenes[k];
+      if (!g) continue;
+      const d = this.pistas[k];
+      for (let j = lo; j < hi; j++) {
+        const i = (inicio + j) * 2;
+        L[j] += d[i] * g;
+        R[j] += d[i + 1] * g;
+      }
+    }
+  }
+
+  mezclarMono(inicio, cant, out) {
+    out.fill(0);
+    const lo = Math.max(0, -inicio), hi = Math.min(cant, this.largo - inicio);
+    for (let k = 0; k < this.pistas.length; k++) {
+      const g = this.volumenes[k];
+      if (!g) continue;
+      const d = this.pistas[k];
+      for (let j = lo; j < hi; j++) {
+        const i = (inicio + j) * 2;
+        out[j] += (d[i] + d[i + 1]) * g;
+      }
+    }
+  }
+
+  // Genera HS muestras más de la etapa que estira el tiempo (WSOLA)
+  ventanaWsola() {
+    const nominal = Math.round(this.posAnalisis);
+    // Buscar el inicio cuyo contenido continúa mejor lo que ya sonó
+    this.mezclarMono(this.previo + HS, HS, this.plantilla);
+    this.mezclarMono(nominal - BUSQUEDA, HS + 2 * BUSQUEDA, this.candidato);
+    let mejor = BUSQUEDA, mejorPuntaje = -Infinity;
+    for (let off = 0; off <= 2 * BUSQUEDA; off += 4) {
+      let prod = 0, energia = 1e-9;
+      for (let j = 0; j < HS; j += 4) {
+        const c = this.candidato[off + j];
+        prod += this.plantilla[j] * c;
+        energia += c * c;
+      }
+      const puntaje = prod / Math.sqrt(energia);
+      if (puntaje > mejorPuntaje) { mejorPuntaje = puntaje; mejor = off; }
+    }
+    const x = nominal - BUSQUEDA + mejor;
+
+    const [fL, fR] = this.cuadro;
+    fL.fill(0); fR.fill(0);
+    this.mezclar(x, N, fL, fR);
+    const [aL, aR] = this.acum;
+    for (let j = 0; j < N; j++) {
+      aL[j] += fL[j] * this.ventana[j];
+      aR[j] += fR[j] * this.ventana[j];
+    }
+    const [rL, rR] = this.anillo;
+    for (let j = 0; j < HS; j++) {
+      rL[(this.escrito + j) & MASCARA] = aL[j];
+      rR[(this.escrito + j) & MASCARA] = aR[j];
+    }
+    this.escrito += HS;
+    aL.copyWithin(0, HS); aL.fill(0, N - HS);
+    aR.copyWithin(0, HS); aR.fill(0, N - HS);
+
+    this.previo = x;
+    this.posAnalisis += (HS * this.tempo) / this.tono;
+  }
+
+  process(inputs, outputs) {
+    const out = outputs[0];
+    const L = out[0], R = out[1] || out[0];
+    const n = L.length;
+    L.fill(0);
+    if (R !== L) R.fill(0);
+    if (!this.sonando || !this.largo) return true;
+
+    const directo = this.tempo === 1 && this.tono === 1;
+    const una = this.una;
+    for (let j = 0; j < n; j++) {
+      if (this.loopB > this.loopA && this.loopA >= 0 && this.pos >= this.loopB) this.ir(this.loopA);
+      if (this.pos >= this.largo) {
+        this.sonando = false;
+        this.ir(0);
+        this.port.postMessage({ tipo: 'fin' });
+        break;
+      }
+      let l, r;
+      if (directo) {
+        una[0][0] = 0; una[1][0] = 0;
+        this.mezclar(Math.floor(this.pos), 1, una[0], una[1]);
+        l = una[0][0]; r = una[1][0];
+      } else {
+        while (this.escrito - Math.floor(this.leido) < 3) this.ventanaWsola();
+        const i = Math.floor(this.leido), f = this.leido - i;
+        const [rL, rR] = this.anillo;
+        l = rL[i & MASCARA] * (1 - f) + rL[(i + 1) & MASCARA] * f;
+        r = rR[i & MASCARA] * (1 - f) + rR[(i + 1) & MASCARA] * f;
+        this.leido += this.tono;
+      }
+
+      while (this.sigPulso < this.pulsos.length && this.pulsos[this.sigPulso] <= this.pos) {
+        if (this.clickOn) {
+          this.clickT = 0;
+          this.clickFrec = this.acentos[this.sigPulso] ? 1760 : 1175;
+        }
+        this.sigPulso++;
+      }
+      if (this.clickT >= 0) {
+        const t = this.clickT / sampleRate;
+        const c = Math.sin(2 * Math.PI * this.clickFrec * t) * Math.exp(-t * 120) * this.clickVol;
+        l += c; r += c;
+        if (++this.clickT > sampleRate * 0.05) this.clickT = -1;
+      }
+
+      L[j] = l;
+      R[j] = r;
+      this.pos += directo ? 1 : this.tempo;
+    }
+
+    if (++this.bloques % 4 === 0) this.port.postMessage({ tipo: 'pos', tiempo: this.pos / sampleRate });
+    return true;
+  }
+}
+
+registerProcessor('motor', Motor);
+</script>
+
+<!-- =====================================================================
+  Separador (Web Worker): corre el modelo HTDemucs en el navegador con
+  ONNX Runtime (GPU con WebGPU, o procesador si no hay) y después analiza
+  BPM, compás, tonalidad, acordes y secciones.
+===================================================================== -->
+<script type="text/plain" id="codigoSeparador">
+const ORT_URL = 'https://cdn.jsdelivr.net/npm/onnxruntime-web@1.27.0/dist/';
+importScripts(ORT_URL + 'ort.webgpu.min.js');
+ort.env.wasm.wasmPaths = ORT_URL;
+
+const FUENTES = ['drums', 'bass', 'other', 'vocals'];
+const NFFT = 4096, SALTO = 1024, MITAD = NFFT / 2;
+const L = 343980;                    // 7.8 s: el largo de segmento con que se entrenó el modelo
+const T = Math.ceil(L / SALTO);      // 336 cuadros
+const RELLENO = (SALTO / 2) * 3;     // relleno extra de demucs para alinear sus dos ramas
+const ESCALA = 1 / Math.sqrt(NFFT);  // normalized=True de torch.stft
+
+let sesion = null;
+let motor = '';
+
+/* ---------- FFT radix 2 ---------- */
+function crearFFT(n) {
+  const bits = Math.log2(n), mitad = n / 2;
+  const rev = new Uint32Array(n);
+  for (let i = 0; i < n; i++) { let r = 0; for (let b = 0; b < bits; b++) r |= ((i >> b) & 1) << (bits - 1 - b); rev[i] = r; }
+  const cs = new Float64Array(mitad), sn = new Float64Array(mitad);
+  for (let k = 0; k < mitad; k++) { cs[k] = Math.cos((2 * Math.PI * k) / n); sn[k] = Math.sin((2 * Math.PI * k) / n); }
+  return (re, im) => {
+    for (let i = 0; i < n; i++) { const j = rev[i]; if (i < j) { let t = re[i]; re[i] = re[j]; re[j] = t; t = im[i]; im[i] = im[j]; im[j] = t; } }
+    for (let tam = 2; tam <= n; tam <<= 1) {
+      const h = tam >> 1, paso = n / tam;
+      for (let i = 0; i < n; i += tam) {
+        for (let j = 0, k = 0; j < h; j++, k += paso) {
+          const a = i + j, b = a + h;
+          const tr = re[b] * cs[k] + im[b] * sn[k], ti = im[b] * cs[k] - re[b] * sn[k];
+          re[b] = re[a] - tr; im[b] = im[a] - ti; re[a] += tr; im[a] += ti;
+        }
+      }
+    }
+  };
+}
+const hann = (n) => { const w = new Float64Array(n); for (let i = 0; i < n; i++) w[i] = 0.5 - 0.5 * Math.cos((2 * Math.PI * i) / n); return w; };
+
+const fft = crearFFT(NFFT);
+const ventana = hann(NFFT);
+const reflejar = (i, n) => {
+  while (i < 0 || i >= n) { if (i < 0) i = -i; if (i >= n) i = 2 * (n - 1) - i; }
+  return i;
+};
+const re = new Float64Array(NFFT), im = new Float64Array(NFFT);
+
+/* ---------- STFT igual a demucs._spec + torch.stft(center, reflect, normalized) ---------- */
+const RELLENADO = T * SALTO + 2 * RELLENO;
+function espectro(canales, mag) {
+  // mag: (1, 4, 2048, T) con canales [re0, im0, re1, im1]
+  for (let c = 0; c < 2; c++) {
+    const x = canales[c];
+    for (let t = 0; t < T; t++) {
+      const inicio = (t + 2) * SALTO; // demucs descarta los 2 primeros cuadros
+      for (let n = 0; n < NFFT; n++) {
+        const j = reflejar(inicio + n - MITAD, RELLENADO) - RELLENO;
+        re[n] = x[reflejar(j, L)] * ventana[n];
+        im[n] = 0;
+      }
+      fft(re, im);
+      const bR = (c * 2) * MITAD * T, bI = (c * 2 + 1) * MITAD * T;
+      for (let k = 0; k < MITAD; k++) {
+        mag[bR + k * T + t] = re[k] * ESCALA;
+        mag[bI + k * T + t] = im[k] * ESCALA;
+      }
+    }
+  }
+}
+
+/* ---------- iSTFT igual a demucs._ispec + torch.istft ---------- */
+const CUADROS = T + 4;
+const LARGO_Y = (CUADROS - 1) * SALTO + NFFT;
+const envolvente = new Float64Array(LARGO_Y);
+for (let f = 0; f < CUADROS; f++) for (let n = 0; n < NFFT; n++) envolvente[f * SALTO + n] += ventana[n] * ventana[n];
+const y = new Float64Array(LARGO_Y);
+
+function espectroInverso(spec, s, c, out) {
+  y.fill(0);
+  const bR = ((s * 4) + c * 2) * MITAD * T, bI = ((s * 4) + c * 2 + 1) * MITAD * T;
+  const norm = 1 / ESCALA;
+  for (let t = 0; t < T; t++) {
+    for (let k = 0; k < MITAD; k++) {
+      re[k] = spec[bR + k * T + t] * norm;
+      im[k] = -spec[bI + k * T + t] * norm; // conjugado: así la FFT directa invierte
+    }
+    re[MITAD] = 0; im[MITAD] = 0;
+    for (let k = 1; k < MITAD; k++) { re[NFFT - k] = re[k]; im[NFFT - k] = -im[k]; }
+    fft(re, im);
+    const off = (t + 2) * SALTO;
+    for (let n = 0; n < NFFT; n++) y[off + n] += (re[n] / NFFT) * ventana[n];
+  }
+  const o = MITAD + RELLENO;
+  for (let i = 0; i < L; i++) {
+    const e = envolvente[o + i];
+    out[i] = e > 1e-11 ? y[o + i] / e : 0;
+  }
+}
+
+/* ---------- Modelo ---------- */
+async function cargarModelo(url) {
+  if (sesion) return;
+  let bytes;
+  const cache = await caches.open('ensayo-modelos');
+  let resp = await cache.match(url);
+  if (resp) {
+    bytes = await resp.arrayBuffer();
+  } else {
+    resp = await fetch(url);
+    if (!resp.ok) throw new Error(`No se pudo descargar el modelo (${resp.status})`);
+    const total = +resp.headers.get('content-length') || 90561419;
+    const lector = resp.body.getReader();
+    const partes = [];
+    let llevo = 0;
+    for (;;) {
+      const { done, value } = await lector.read();
+      if (done) break;
+      partes.push(value);
+      llevo += value.length;
+      postMessage({ tipo: 'progreso', etapa: 'descargando', progreso: Math.min(1, llevo / total) });
+    }
+    const blob = new Blob(partes);
+    try { await cache.put(url, new Response(blob)); } catch (e) { /* sin espacio: se descargará otra vez */ }
+    bytes = await blob.arrayBuffer();
+  }
+  postMessage({ tipo: 'progreso', etapa: 'preparando', progreso: 0 });
+  const errores = [];
+  for (const ep of ['webgpu', 'wasm']) {
+    if (ep === 'webgpu' && !self.navigator.gpu) continue;
+    try {
+      sesion = await ort.InferenceSession.create(bytes, { executionProviders: [ep], graphOptimizationLevel: 'all' });
+      motor = ep;
+      return;
+    } catch (e) {
+      errores.push(`${ep}: ${e.message}`);
+    }
+  }
+  throw new Error('No se pudo cargar el modelo. ' + errores.join(' · '));
+}
+
+async function separar(izq, der) {
+  const largo = izq.length;
+  // Normalizar con la media y la desviación de toda la canción, como demucs.separate
+  let media = 0;
+  for (let i = 0; i < largo; i++) media += (izq[i] + der[i]) / 2;
+  media /= largo;
+  let v = 0;
+  for (let i = 0; i < largo; i++) { const d = (izq[i] + der[i]) / 2 - media; v += d * d; }
+  const desv = Math.sqrt(v / (largo - 1)) + 1e-8;
+  const entrada = [izq, der];
+
+  // Cada segmento se superpone 25 % con el siguiente y se mezcla con una ventana triangular
+  const paso = Math.floor(0.75 * L);
+  const peso = new Float32Array(L);
+  const h = Math.floor(L / 2);
+  for (let i = 0; i < h; i++) peso[i] = (i + 1) / h;
+  for (let i = h; i < L; i++) peso[i] = (L - i) / h;
+
+  const salida = FUENTES.map(() => new Int16Array(largo * 2));
+  // Solo se guarda en flotante la parte que todavía recibe aportes (ahorra memoria en el celular)
+  const pendiente = FUENTES.map(() => [new Float32Array(L), new Float32Array(L)]);
+  const pesoPend = new Float32Array(L);
+  const seg = [new Float32Array(L), new Float32Array(L)];
+  const datosMezcla = new Float32Array(2 * L);
+  const datosMag = new Float32Array(4 * MITAD * T);
+  const tmp = new Float32Array(L);
+  const inicios = [];
+  for (let o = 0; o < largo; o += paso) inicios.push(o);
+
+  for (let n = 0; n < inicios.length; n++) {
+    const inicio = inicios[n];
+    const cant = Math.min(L, largo - inicio);
+    const delta = L - cant, antes = Math.floor(delta / 2);
+    const desde = inicio - antes;
+    for (let c = 0; c < 2; c++) {
+      for (let i = 0; i < L; i++) {
+        const idx = desde + i;
+        seg[c][i] = idx >= 0 && idx < largo ? (entrada[c][idx] - media) / desv : 0;
+      }
+      datosMezcla.set(seg[c], c * L);
+    }
+    espectro(seg, datosMag);
+    const res = await sesion.run({
+      mix: new ort.Tensor('float32', datosMezcla, [1, 2, L]),
+      mag: new ort.Tensor('float32', datosMag, [1, 4, MITAD, T]),
+    });
+    const spec = res.spec.data, onda = res.wave.data;
+    for (let s = 0; s < FUENTES.length; s++) {
+      for (let c = 0; c < 2; c++) {
+        espectroInverso(spec, s, c, tmp);
+        const base = (s * 2 + c) * L;
+        const p = pendiente[s][c];
+        for (let j = 0; j < cant; j++) p[j] += peso[j] * (tmp[antes + j] + onda[base + antes + j]);
+      }
+    }
+    for (let j = 0; j < cant; j++) pesoPend[j] += peso[j];
+    res.spec.dispose?.(); res.wave.dispose?.();
+
+    // Lo que está antes del próximo segmento ya no cambia: pasarlo a 16 bits
+    const listo = n + 1 < inicios.length ? inicios[n + 1] - inicio : cant;
+    for (let s = 0; s < FUENTES.length; s++) {
+      const d = salida[s];
+      for (let c = 0; c < 2; c++) {
+        const p = pendiente[s][c];
+        for (let j = 0; j < listo; j++) {
+          const val = (p[j] / pesoPend[j]) * desv + media;
+          d[(inicio + j) * 2 + c] = Math.max(-32768, Math.min(32767, Math.round(val * 32767)));
+        }
+        p.copyWithin(0, listo); p.fill(0, L - listo);
+      }
+    }
+    pesoPend.copyWithin(0, listo); pesoPend.fill(0, L - listo);
+    postMessage({ tipo: 'progreso', etapa: 'separando', progreso: (n + 1) / inicios.length, motor });
+  }
+  return Object.fromEntries(FUENTES.map((f, s) => [f, salida[s]]));
+}
+
+/* =====================================================================
+ * Análisis musical (a 22.05 kHz, saltos de 512 muestras)
+ * ===================================================================== */
+const ASR = 22050, AHOP = 512;
+const PERFIL_MAYOR = [6.35, 2.23, 3.48, 2.33, 4.38, 4.09, 2.52, 5.19, 2.39, 3.66, 2.29, 2.88];
+const PERFIL_MENOR = [6.33, 2.68, 3.52, 5.38, 2.60, 3.53, 2.54, 4.75, 3.98, 2.69, 3.34, 3.17];
+const CALIDADES = [['maj', [0, 4, 7], 1.0], ['min', [0, 3, 7], 1.0], ['7', [0, 4, 7, 10], 0.94], ['m7', [0, 3, 7, 10], 0.94]];
+
+// Pistas estéreo de 16 bits a 44.1 kHz -> mono a 22.05 kHz
+function mono22(lista) {
+  const n = Math.floor(lista[0].length / 4);
+  const out = new Float32Array(n);
+  for (const d of lista) for (let i = 0; i < n; i++) out[i] += (d[4 * i] + d[4 * i + 1] + d[4 * i + 2] + d[4 * i + 3]) / (4 * 32768);
+  return out;
+}
+
+// Recorre la STFT cuadro por cuadro sin guardarla entera
+function recorrerSTFT(x, n, alCuadro) {
+  const f = crearFFT(n), w = hann(n);
+  const r = new Float64Array(n), i2 = new Float64Array(n), mag = new Float64Array(n / 2 + 1);
+  const total = 1 + Math.floor(x.length / AHOP);
+  for (let t = 0; t < total; t++) {
+    const inicio = t * AHOP - n / 2;
+    for (let i = 0; i < n; i++) { const idx = inicio + i; r[i] = idx >= 0 && idx < x.length ? x[idx] * w[i] : 0; i2[i] = 0; }
+    f(r, i2);
+    for (let k = 0; k <= n / 2; k++) mag[k] = Math.hypot(r[k], i2[k]);
+    alCuadro(t, mag);
+  }
+}
+
+function rmsPorCuadro(x, total, n = 2048) {
+  const out = new Float32Array(total);
+  for (let t = 0; t < total; t++) {
+    const inicio = t * AHOP - n / 2;
+    let s = 0;
+    for (let i = 0; i < n; i++) { const idx = inicio + i; if (idx >= 0 && idx < x.length) s += x[idx] * x[idx]; }
+    out[t] = Math.sqrt(s / n);
+  }
+  return out;
+}
+
+function filtrosMel(n, nMel, fmin, fmax) {
+  const mel = (f) => 2595 * Math.log10(1 + f / 700);
+  const hz = (m) => 700 * (10 ** (m / 2595) - 1);
+  const pts = [];
+  for (let i = 0; i < nMel + 2; i++) pts.push(hz(mel(fmin) + ((mel(fmax) - mel(fmin)) * i) / (nMel + 1)));
+  return Array.from({ length: nMel }, (_, m) => {
+    const w = [];
+    for (let k = 0; k <= n / 2; k++) {
+      const f = (k * ASR) / n;
+      const v = f < pts[m] || f > pts[m + 2] ? 0 : f <= pts[m + 1] ? (f - pts[m]) / (pts[m + 1] - pts[m]) : (pts[m + 2] - f) / (pts[m + 2] - pts[m + 1]);
+      if (v > 0) w.push([k, v]);
+    }
+    return w;
+  });
+}
+
+function mapaCroma(n, fmin, fmax) {
+  const mapa = [];
+  for (let k = 1; k <= n / 2; k++) {
+    const f = (k * ASR) / n;
+    if (f < fmin || f > fmax) continue;
+    mapa.push([k, ((Math.round(69 + 12 * Math.log2(f / 440)) % 12) + 12) % 12]);
+  }
+  return mapa;
+}
+
+/* ---------- Tempo y pulsos (programación dinámica de Ellis, como librosa) ---------- */
+function estimarTempo(ataque) {
+  const n = ataque.length, fps = ASR / AHOP;
+  let media = 0;
+  for (const v of ataque) media += v;
+  media /= n;
+  let mejor = 0, mejorRetardo = Math.round((fps * 60) / 120);
+  for (let r = Math.ceil((fps * 60) / 300); r <= Math.floor((fps * 60) / 40); r++) {
+    let ac = 0;
+    for (let i = r; i < n; i++) ac += (ataque[i] - media) * (ataque[i - r] - media);
+    const bpm = (fps * 60) / r;
+    const previo = Math.exp(-0.5 * Math.log2(bpm / 120) ** 2);
+    if (ac * previo > mejor) { mejor = ac * previo; mejorRetardo = r; }
+  }
+  return (fps * 60) / mejorRetardo;
+}
+
+function seguirPulsos(ataque, bpm) {
+  const n = ataque.length, fps = ASR / AHOP;
+  const periodo = (fps * 60) / bpm;
+  let m = 0, sd = 0;
+  for (const v of ataque) m += v;
+  m /= n;
+  for (const v of ataque) sd += (v - m) ** 2;
+  sd = Math.sqrt(sd / n) || 1;
+  // Puntaje local: envolvente suavizada con una gaussiana del ancho del pulso
+  const media = Math.round(periodo);
+  const g = [];
+  for (let i = -media; i <= media; i++) g.push(Math.exp(-0.5 * ((i * 32) / periodo) ** 2));
+  const local = new Float64Array(n);
+  for (let i = 0; i < n; i++) {
+    let s = 0;
+    for (let j = -media; j <= media; j++) { const idx = i + j; if (idx >= 0 && idx < n) s += (ataque[idx] / sd) * g[j + media]; }
+    local[i] = s;
+  }
+  const acum = new Float64Array(n), atras = new Int32Array(n).fill(-1);
+  const lejos = Math.round(2 * periodo), cerca = Math.round(periodo / 2);
+  for (let i = 0; i < n; i++) {
+    let mejor = -Infinity, arg = -1;
+    for (let p = Math.max(0, i - lejos); p <= i - cerca; p++) {
+      const sc = acum[p] - 100 * Math.log((i - p) / periodo) ** 2;
+      if (sc > mejor) { mejor = sc; arg = p; }
+    }
+    acum[i] = local[i] + (arg >= 0 ? mejor : 0);
+    atras[i] = arg;
+  }
+  // Último pulso: el último máximo local que supera la mitad de la mediana de los máximos
+  const maximos = [];
+  for (let i = 1; i < n - 1; i++) if (acum[i] > acum[i - 1] && acum[i] >= acum[i + 1]) maximos.push(acum[i]);
+  maximos.sort((a, b) => a - b);
+  const med = maximos.length ? maximos[Math.floor(maximos.length / 2)] : 0;
+  let ultimo = n - 1;
+  for (let i = n - 2; i > 0; i--) if (acum[i] > acum[i - 1] && acum[i] >= acum[i + 1] && acum[i] >= 0.5 * med) { ultimo = i; break; }
+  const pulsos = [];
+  for (let i = ultimo; i >= 0; i = atras[i]) pulsos.unshift(i);
+  // Quitar pulsos débiles en los extremos (silencio al inicio o al final)
+  let rms = 0;
+  for (const v of local) rms += v * v;
+  rms = Math.sqrt(rms / n);
+  while (pulsos.length && local[pulsos[0]] < 0.5 * rms) pulsos.shift();
+  while (pulsos.length && local[pulsos[pulsos.length - 1]] < 0.5 * rms) pulsos.pop();
+  return pulsos;
+}
+
+/* ---------- Matrices: filas = rasgos, columnas = tiempo ---------- */
+function promediarEntre(filas, idx) {
+  return filas.map((f) => {
+    const out = new Float64Array(idx.length - 1);
+    for (let j = 0; j < idx.length - 1; j++) {
+      let s = 0;
+      for (let t = idx[j]; t < idx[j + 1]; t++) s += f[t];
+      out[j] = s / Math.max(1, idx[j + 1] - idx[j]);
+    }
+    return out;
+  });
+}
+function estandarizar(filas) {
+  return filas.map((f) => {
+    let m = 0;
+    for (const v of f) m += v;
+    m /= f.length;
+    let s = 0;
+    for (const v of f) s += (v - m) ** 2;
+    s = Math.sqrt(s / f.length) + 1e-8;
+    return Array.from(f, (v) => (v - m) / s);
+  });
+}
+
+function detectarTonalidad(cromaMedia) {
+  const corr = (a, b) => {
+    const ma = a.reduce((x, z) => x + z) / 12, mb = b.reduce((x, z) => x + z) / 12;
+    let num = 0, da = 0, db = 0;
+    for (let i = 0; i < 12; i++) { num += (a[i] - ma) * (b[i] - mb); da += (a[i] - ma) ** 2; db += (b[i] - mb) ** 2; }
+    return num / Math.sqrt(da * db + 1e-12);
+  };
+  let mejor = { r: -2, root: 0, mode: 'maj' };
+  for (let k = 0; k < 12; k++) {
+    for (const [modo, perfil] of [['maj', PERFIL_MAYOR], ['min', PERFIL_MENOR]]) {
+      const r = corr(cromaMedia, perfil.map((_, i) => perfil[(i - k + 12) % 12]));
+      if (r > mejor.r) mejor = { r, root: k, mode: modo };
+    }
+  }
+  return { root: mejor.root, mode: mejor.mode, confidence: Math.round(mejor.r * 1000) / 1000 };
+}
+
+function detectarAcordes(cromaP, bajoP, energiaP, limites) {
+  const etiquetas = [], plantillas = [], pesos = [];
+  for (const [q, intervalos, w] of CALIDADES) {
+    for (let raiz = 0; raiz < 12; raiz++) {
+      const t = new Array(12).fill(0);
+      for (const i of intervalos) t[(raiz + i) % 12] = 1;
+      etiquetas.push([raiz, q]);
+      plantillas.push(t.map((v) => v / Math.sqrt(intervalos.length)));
+      pesos.push(w);
+    }
+  }
+  const K = etiquetas.length, n = cromaP[0].length;
+  const logp = [];
+  for (let j = 0; j < n; j++) {
+    let nc = 0, bmax = 1e-8;
+    for (let p = 0; p < 12; p++) { nc += cromaP[p][j] ** 2; bmax = Math.max(bmax, bajoP[p][j]); }
+    nc = Math.sqrt(nc) + 1e-8;
+    const sc = new Float64Array(K);
+    let mx = -Infinity;
+    for (let k = 0; k < K; k++) {
+      let d = 0;
+      for (let p = 0; p < 12; p++) d += plantillas[k][p] * (cromaP[p][j] / nc);
+      // La nota más fuerte del bajo favorece los acordes con esa raíz
+      sc[k] = 18 * (d * pesos[k] + 0.12 * (bajoP[etiquetas[k][0]][j] / bmax));
+      if (sc[k] > mx) mx = sc[k];
+    }
+    let z = 0;
+    for (let k = 0; k < K; k++) z += Math.exp(sc[k] - mx);
+    logp.push(Array.from(sc, (v) => v - mx - Math.log(z)));
+  }
+  // Viterbi: 70 % de probabilidad de seguir en el mismo acorde
+  const quedarse = Math.log(0.7), cambiar = Math.log(0.3 / (K - 1));
+  let previo = logp[0].slice();
+  const atras = [];
+  for (let j = 1; j < n; j++) {
+    let mejorPrevio = 0;
+    for (let k = 1; k < K; k++) if (previo[k] > previo[mejorPrevio]) mejorPrevio = k;
+    const actual = new Array(K), bk = new Int32Array(K);
+    for (let k = 0; k < K; k++) {
+      const a = previo[k] + quedarse, b = previo[mejorPrevio] + cambiar;
+      if (a >= b || mejorPrevio === k) { actual[k] = a + logp[j][k]; bk[k] = k; } else { actual[k] = b + logp[j][k]; bk[k] = mejorPrevio; }
+    }
+    atras.push(bk);
+    previo = actual;
+  }
+  const camino = new Int32Array(n);
+  camino[n - 1] = previo.indexOf(Math.max(...previo));
+  for (let j = n - 1; j > 0; j--) camino[j - 1] = atras[j - 1][camino[j]];
+
+  const orden = Array.from(energiaP).sort((a, b) => a - b);
+  const p90 = orden[Math.floor(0.9 * (orden.length - 1))];
+  const out = [];
+  for (let j = 0; j < n; j++) {
+    const [root, quality] = energiaP[j] < 0.08 * p90 ? [-1, 'N'] : etiquetas[camino[j]];
+    const ultimo = out[out.length - 1];
+    if (ultimo && ultimo.root === root && ultimo.quality === quality) ultimo.end = limites[j + 1];
+    else out.push({ start: limites[j], end: limites[j + 1], root, quality });
+  }
+  return out;
+}
+
+/* ---------- Secciones ---------- */
+function novedad(cols, ancho = 4) {
+  const n = cols.length;
+  const unit = cols.map((c) => { const nr = Math.sqrt(c.reduce((s, v) => s + v * v, 0)) + 1e-8; return c.map((v) => v / nr); });
+  const sim = (i, j) => { i = Math.min(n - 1, Math.max(0, i)); j = Math.min(n - 1, Math.max(0, j)); let d = 0; for (let k = 0; k < unit[i].length; k++) d += unit[i][k] * unit[j][k]; return d; };
+  const g = [];
+  for (let i = 0; i < 2 * ancho; i++) g.push(Math.exp(-0.5 * (-1.5 + (3 * i) / (2 * ancho - 1)) ** 2));
+  const out = new Float64Array(n);
+  for (let i = 0; i < n; i++) {
+    let s = 0;
+    for (let a = 0; a < 2 * ancho; a++) for (let b = 0; b < 2 * ancho; b++) {
+      s += ((a < ancho) === (b < ancho) ? 1 : -1) * g[a] * g[b] * sim(i - ancho + a, i - ancho + b);
+    }
+    out[i] = s;
+  }
+  return out;
+}
+
+// Agrupa secciones parecidas (enlace promedio) y corta al 45 % de la distancia máxima
+function agrupar(puntos, fraccion) {
+  const n = puntos.length;
+  if (n < 2) return [0];
+  const D = puntos.map((p) => puntos.map((q) => Math.sqrt(p.reduce((s, v, i) => s + (v - q[i]) ** 2, 0))));
+  let grupos = puntos.map((_, i) => [i]);
+  const uniones = [], historia = [];
+  const prom = (A, B) => { let s = 0; for (const a of A) for (const b of B) s += D[a][b]; return s / (A.length * B.length); };
+  while (grupos.length > 1) {
+    let par = [0, 1], md = Infinity;
+    for (let i = 0; i < grupos.length; i++) for (let j = i + 1; j < grupos.length; j++) {
+      const d = prom(grupos[i], grupos[j]);
+      if (d < md) { md = d; par = [i, j]; }
+    }
+    uniones.push(md);
+    historia.push(grupos.map((g) => g.slice()));
+    const [i, j] = par;
+    grupos = grupos.filter((_, k) => k !== i && k !== j).concat([grupos[i].concat(grupos[j])]);
+  }
+  const umbral = fraccion * Math.max(...uniones);
+  const estado = historia[uniones.findIndex((u) => u > umbral)];
+  if (!estado) return new Array(n).fill(0);
+  const out = new Array(n);
+  estado.forEach((g, k) => g.forEach((i) => (out[i] = k)));
+  return out;
+}
+
+function nombrarSecciones(segs) {
+  const cuenta = {}, energia = {};
+  for (const s of segs) { cuenta[s.label] = (cuenta[s.label] || 0) + 1; (energia[s.label] = energia[s.label] || []).push(s.energy); }
+  const mediaE = (l) => energia[l].reduce((a, b) => a + b) / energia[l].length;
+  const repetidas = Object.keys(cuenta).filter((l) => cuenta[l] > 1);
+  const coro = repetidas.length ? repetidas.reduce((a, b) => (mediaE(b) > mediaE(a) ? b : a)) : null;
+  const otras = repetidas.filter((l) => l !== coro);
+  const estrofa = otras.length ? otras.reduce((a, b) => (cuenta[b] > cuenta[a] ? b : a)) : null;
+  segs.forEach((s, i) => {
+    const l = s.label;
+    if (l === coro) s.name = 'Coro';
+    else if (l === estrofa) s.name = 'Estrofa';
+    else if (i === 0 && cuenta[l] === 1) s.name = 'Intro';
+    else if (i === segs.length - 1 && cuenta[l] === 1) s.name = 'Final';
+    else s.name = cuenta[l] === 1 ? 'Puente' : `Parte ${l}`;
+  });
+  return segs;
+}
+
+function detectarSecciones(rasgos, pesos, energia, tiemposPulso, fase, duracion) {
+  // rasgos: filas x pulsos; pesos: importancia de cada fila
+  const n = rasgos[0].length;
+  const inicios = [];
+  for (let b = fase; b < n; b += 4) inicios.push(b);
+  if (inicios.length < 8) return [{ start: 0, end: duracion, label: 'A', name: 'Canción', energy: 1 }];
+  const bordes = [0, ...inicios.slice(1), n];  // la anacrusa se une al primer compás
+  const energiaCompas = promediarEntre([energia], bordes)[0];
+  // Los compases casi en silencio al inicio o al final no cuentan para buscar cambios
+  const medE = Array.from(energiaCompas).sort((a, b) => a - b)[Math.floor(energiaCompas.length / 2)];
+  let primero = 0, ultimo = energiaCompas.length;
+  while (primero < ultimo - 1 && energiaCompas[primero] < 0.15 * medE) primero++;
+  while (ultimo > primero + 1 && energiaCompas[ultimo - 1] < 0.15 * medE) ultimo--;
+  let compases = promediarEntre(rasgos, bordes).map((f) => f.slice(primero, ultimo));
+  compases = estandarizar(compases).map((f, i) => f.map((v) => pesos[i] * Math.max(-3, Math.min(3, v))));
+  const nb = compases[0].length;
+  const cols = Array.from({ length: nb }, (_, j) => compases.map((f) => f[j]));
+  const nov = novedad(cols);
+  // Normalizar sin los bordes, donde la curva siempre sale alta
+  const dentro = Array.from(nov).slice(4, Math.max(5, nb - 4));
+  let m = 0, s = 0;
+  for (const v of dentro) m += v;
+  m /= dentro.length;
+  for (const v of dentro) s += (v - m) ** 2;
+  s = Math.sqrt(s / dentro.length) + 1e-8;
+  const z = Array.from(nov, (v) => (v - m) / s);
+  const candidatos = [];
+  for (let i = 2; i < nb - 1; i++) if (z[i] >= z[i - 1] && z[i] >= z[i + 1] && z[i] > 0.3) candidatos.push(i);
+  candidatos.sort((a, b) => z[b] - z[a]);
+  const cortes = [];
+  for (const i of candidatos) if (i >= 4 && nb - i >= 4 && cortes.every((c) => Math.abs(i - c) >= 4)) cortes.push(i);
+  const locales = [0, ...cortes.sort((a, b) => a - b), nb];
+  const medias = [];
+  for (let k = 0; k < locales.length - 1; k++) {
+    medias.push(compases.map((f) => { let t = 0; for (let j = locales[k]; j < locales[k + 1]; j++) t += f[j]; return t / (locales[k + 1] - locales[k]); }));
+  }
+  // De vuelta a compases de toda la canción (los bordes en silencio se pegan a la sección vecina)
+  const cortesCompas = locales.map((c) => c + primero);
+  cortesCompas[0] = 0;
+  cortesCompas[cortesCompas.length - 1] = energiaCompas.length;
+  const grupos = agrupar(medias, 0.45);
+  const eMax = Math.max(...energia) + 1e-8;
+  const letras = {}, segs = [];
+  for (let k = 0; k < cortesCompas.length - 1; k++) {
+    const g = grupos[k];
+    if (!(g in letras)) letras[g] = 'ABCDEFGHIJKLMNOP'[Object.keys(letras).length];
+    const a = bordes[cortesCompas[k]], b = bordes[cortesCompas[k + 1]];
+    let e = 0;
+    for (let j = a; j < b; j++) e += energia[j];
+    segs.push({
+      start: a === 0 ? 0 : tiemposPulso[a],
+      end: b >= n ? duracion : tiemposPulso[b],
+      label: letras[g],
+      energy: Math.round((e / Math.max(1, b - a) / eMax) * 1000) / 1000,
+    });
+  }
+  return nombrarSecciones(segs);
+}
+
+function picos(pista, n = 1500) {
+  const largo = pista.length / 2, tam = Math.ceil(largo / n);
+  const out = [];
+  for (let b = 0; b < n; b++) {
+    let m = 0;
+    for (let i = b * tam; i < Math.min(largo, (b + 1) * tam); i++) m = Math.max(m, Math.abs(pista[2 * i]), Math.abs(pista[2 * i + 1]));
+    out.push(Math.min(100, Math.round((m / 32767) * 100)));
+  }
+  return out;
+}
+
+function analizar(pistas) {
+  const nombres = Object.keys(pistas);
+  const mezcla = mono22(Object.values(pistas));
+  const duracion = mezcla.length / ASR;
+  const armonia = mono22(nombres.filter((n) => n !== 'drums' && n !== 'vocals').map((n) => pistas[n]));
+  const bajo = mono22([pistas.bass]);
+  const golpes = mono22([pistas.drums, pistas.bass]);
+  const total = 1 + Math.floor(mezcla.length / AHOP);
+
+  // Bandas mel de la mezcla: ataques y timbre (MFCC)
+  const mels = filtrosMel(2048, 40, 30, 8000);
+  const logmel = Array.from({ length: 40 }, () => new Float64Array(total));
+  const ataque = new Float64Array(total);
+  recorrerSTFT(mezcla, 2048, (t, mag) => {
+    for (let m = 0; m < 40; m++) {
+      let p = 0;
+      for (const [k, w] of mels[m]) p += w * mag[k] * mag[k];
+      logmel[m][t] = 10 * Math.log10(Math.max(p, 1e-10));
+    }
+    if (t > 0) {
+      let f = 0;
+      for (let m = 0; m < 40; m++) f += Math.max(0, logmel[m][t] - logmel[m][t - 1]);
+      ataque[t] = f / 40;
+    }
+  });
+  // Golpes graves (bombo y bajo): sirven para encontrar el inicio del compás
+  const ataqueGrave = new Float64Array(total);
+  let anterior = null;
+  recorrerSTFT(golpes, 2048, (t, mag) => {
+    const actual = [];
+    for (let k = 1; (k * ASR) / 2048 < 200; k++) actual.push(Math.log(1e-6 + mag[k]));
+    if (anterior) { let f = 0; for (let i = 0; i < actual.length; i++) f += Math.max(0, actual[i] - anterior[i]); ataqueGrave[t] = f; }
+    anterior = actual;
+  });
+  const croma = Array.from({ length: 12 }, () => new Float64Array(total));
+  const mc = mapaCroma(4096, 80, 4000);
+  recorrerSTFT(armonia, 4096, (t, mag) => {
+    for (const [k, pc] of mc) croma[pc][t] += mag[k] * mag[k];
+    let mx = 1e-12;
+    for (let p = 0; p < 12; p++) { croma[p][t] = Math.sqrt(croma[p][t]); mx = Math.max(mx, croma[p][t]); }
+    for (let p = 0; p < 12; p++) croma[p][t] /= mx;
+  });
+  const cromaBajo = Array.from({ length: 12 }, () => new Float64Array(total));
+  const mb = mapaCroma(8192, 35, 300);
+  recorrerSTFT(bajo, 8192, (t, mag) => { for (const [k, pc] of mb) cromaBajo[pc][t] += mag[k] * mag[k]; });
+
+  const rmsArmonia = rmsPorCuadro(armonia, total), rmsMezcla = rmsPorCuadro(mezcla, total);
+  const energiaPistas = nombres.map((n) => Array.from(rmsPorCuadro(mono22([pistas[n]]), total), (v) => Math.log(v + 1e-4)));
+  const mfcc = [];
+  for (let c = 1; c <= 13; c++) {
+    const fila = new Float64Array(total);
+    for (let t = 0; t < total; t++) { let s = 0; for (let m = 0; m < 40; m++) s += logmel[m][t] * Math.cos((Math.PI * c * (m + 0.5)) / 40); fila[t] = s; }
+    mfcc.push(fila);
+  }
+
+  // Pulsos y BPM (pendiente de la recta pulso -> tiempo)
+  const tempo0 = estimarTempo(ataque);
+  const cuadrosPulso = seguirPulsos(ataque, tempo0).filter((f) => f > 0 && f < total);
+  const tiemposPulso = cuadrosPulso.map((f) => (f * AHOP) / ASR);
+  let bpm = tempo0;
+  if (tiemposPulso.length > 2) {
+    const nP = tiemposPulso.length, xm = (nP - 1) / 2, ym = tiemposPulso.reduce((a, b) => a + b) / nP;
+    let num = 0, den = 0;
+    tiemposPulso.forEach((tp, i) => { num += (i - xm) * (tp - ym); den += (i - xm) ** 2; });
+    bpm = 60 / (num / den);
+  }
+
+  // Todo por pulso
+  const idx = [0, ...cuadrosPulso, total];
+  const limites = idx.map((f) => (f * AHOP) / ASR);
+  limites[limites.length - 1] = duracion;
+  const cromaP = promediarEntre(croma, idx);
+  const bajoP = promediarEntre(cromaBajo, idx);
+  const [energiaP] = promediarEntre([rmsArmonia], idx);
+  const [energiaMezclaP] = promediarEntre([rmsMezcla], idx);
+  const cromaMedia = croma.map((f) => f.reduce((a, b) => a + b) / total);
+
+  // Inicio de compás (4/4): la fase con más golpes graves y más cambios de acorde
+  let fase = 0;
+  if (cuadrosPulso.length >= 8) {
+    const grave = cuadrosPulso.map((f) => ataqueGrave[f]);
+    const cambio = cuadrosPulso.map((_, i) => { let d = 0; for (let p = 0; p < 12; p++) d += (cromaP[p][i + 1] - cromaP[p][i]) ** 2; return Math.sqrt(d); });
+    const media = (a) => a.reduce((x, z) => x + z, 0) / a.length || 1;
+    const mG = media(grave), mC = media(cambio);
+    let mejor = -Infinity;
+    for (let p = 0; p < 4; p++) {
+      let sc = 0, c = 0;
+      for (let i = p; i < cuadrosPulso.length; i += 4) { sc += grave[i] / mG + cambio[i] / mC; c++; }
+      if (sc / c > mejor) { mejor = sc / c; fase = p; }
+    }
+  }
+
+  const tonalidad = detectarTonalidad(cromaMedia);
+  const acordes = detectarAcordes(cromaP, bajoP, energiaP, limites);
+
+  // Lo que más marca las secciones es qué instrumentos suenan y con cuánta fuerza
+  const pistasP = promediarEntre(energiaPistas, idx), mfccP = promediarEntre(mfcc, idx);
+  const pesos = [...pistasP.map(() => 2), ...mfccP.map(() => 0.7), ...cromaP.map(() => 0.3)];
+  // El primer bloque es lo que suena antes del primer pulso; las secciones van por pulso
+  const rasgos = [...pistasP, ...mfccP, ...cromaP].map((f) => Array.from(f).slice(1).map((v) => (Number.isFinite(v) ? v : 0)));
+  const secciones = detectarSecciones(rasgos, pesos, Array.from(energiaMezclaP).slice(1), tiemposPulso, fase, duracion);
+
+  return {
+    duration: duracion,
+    bpm: Math.round(bpm * 10) / 10,
+    key: tonalidad,
+    beats: tiemposPulso.map((tp) => Math.round(tp * 1000) / 1000),
+    downbeat_phase: fase,
+    chords: acordes,
+    sections: secciones,
+    stems: nombres,
+    peaks: Object.fromEntries(nombres.map((n) => [n, picos(pistas[n])])),
+  };
+}
+
+onmessage = async (e) => {
+  const m = e.data;
+  try {
+    if (m.tipo === 'separar') {
+      await cargarModelo(m.urlModelo);
+      const t0 = performance.now();
+      const pistas = await separar(m.izquierda, m.derecha);
+      postMessage({ tipo: 'progreso', etapa: 'analizando', progreso: 0, motor });
+      const analisis = analizar(pistas);
+      postMessage({ tipo: 'listo', pistas, analisis, motor, segundos: (performance.now() - t0) / 1000 }, Object.values(pistas).map((p) => p.buffer));
+    }
+  } catch (err) {
+    postMessage({ tipo: 'error', mensaje: err.message || String(err) });
+  }
+};
+</script>
+
+<script>
+/* =====================================================================
+ * Textos
+ * ===================================================================== */
+const TEXTOS = {
+  es: {
+    eyebrow: 'Herramientas para músicos',
+    subtitulo: 'Separa la voz, la batería, el bajo y más de cualquier canción con IA. Cambia velocidad y tono, y ve los acordes mientras tocas.',
+    ajustes: 'Ajustes', cerrar: 'Cerrar', idiomaT: 'Idioma', paleta: 'Paleta de colores', nombresNotas: 'Nombres de las notas',
+    modeloT: 'Modelo de IA', modeloGuardado: 'Descargado y guardado en este equipo (90 MB). Funciona sin internet.',
+    modeloNo: 'Todavía no se descarga. Se descarga solo la primera vez que separas una canción (90 MB).',
+    borrarModelo: 'Borrar modelo descargado', modeloBorrado: 'Modelo borrado.',
+    abrir: 'Subir canción', abrirSub: 'o arrástrala aquí · mp3, m4a, wav, flac o video', subiendo: 'Leyendo',
+    aviso: 'Separa en 4 pistas: voz, batería, bajo y otros. Todo pasa en tu equipo: la canción no se sube a ningún servidor. La primera vez descarga el modelo de IA (90 MB).',
+    vacio: 'Todavía no hay canciones. Sube una para empezar.', abrirBtn: 'Abrir', borrar: 'Borrar',
+    borrarConfirma: '¿Borrar "{t}" y sus pistas?', lista: '4 pistas · {d} · lista', errorT: 'Error',
+    noLeyo: 'No se pudo leer el archivo. Prueba con mp3, m4a o wav.', noAbrio: 'No se pudo abrir la canción',
+    enCola: 'En cola', leyendo: 'Leyendo el audio', descargando: 'Descargando el modelo de IA (solo la primera vez)',
+    preparando: 'Preparando el modelo', separando: 'Separando pistas', analizando: 'Analizando tempo, tonalidad y acordes',
+    conGpu: 'con la GPU', sinGpu: 'sin GPU, va a tardar más',
+    cargando: 'Cargando…', abrirCancion: 'Abrir la canción',
+    volver: '← Biblioteca', acordesT: 'Acordes', seccionesT: 'Secciones',
+    tocar: 'Tocar', pausa: 'Pausa', loop: 'Loop', velocidad: 'Velocidad', tono: 'Tono', metronomo: 'Metrónomo', volMetronomo: 'Volumen del metrónomo',
+    restablecer: 'Restablecer', descargar: '⬇ Pistas', marcaPrimero: 'Primero arrastra sobre las ondas o toca una sección para marcar la zona.',
+    ayudaOnda: 'Toca una sección para repetirla · arrastra sobre las ondas para marcar un loop · toca para saltar', atajoTocar: 'tocar', atajoMetro: 'metrónomo',
+    tonalidad: 'Tonalidad', mayor: 'mayor', menor: 'menor', original: 'original', silenciar: 'Silenciar', solo: 'Solo', volumen: 'Volumen',
+    vocals: 'Voz', drums: 'Batería', bass: 'Bajo', guitar: 'Guitarra', piano: 'Piano', other: 'Otros',
+    'sec:Intro': 'Intro', 'sec:Estrofa': 'Estrofa', 'sec:Coro': 'Coro', 'sec:Puente': 'Puente', 'sec:Final': 'Final', 'sec:Canción': 'Canción', 'sec:Parte': 'Parte',
+    credito: 'Hecha por Anggelo Berdejo — El Ñañe', otras: 'Otras herramientas',
+  },
+  en: {
+    eyebrow: 'Tools for musicians',
+    subtitulo: 'Split vocals, drums, bass and more from any song with AI. Change speed and key, and see the chords as you play.',
+    ajustes: 'Settings', cerrar: 'Close', idiomaT: 'Language', paleta: 'Color palette', nombresNotas: 'Note names',
+    modeloT: 'AI model', modeloGuardado: 'Downloaded and saved on this device (90 MB). Works offline.',
+    modeloNo: 'Not downloaded yet. It downloads the first time you split a song (90 MB).',
+    borrarModelo: 'Delete downloaded model', modeloBorrado: 'Model deleted.',
+    abrir: 'Upload a song', abrirSub: 'or drop it here · mp3, m4a, wav, flac or video', subiendo: 'Reading',
+    aviso: 'Splits into 4 stems: vocals, drums, bass and other. Everything happens on your device: the song is never uploaded. The first time it downloads the AI model (90 MB).',
+    vacio: 'No songs yet. Upload one to get started.', abrirBtn: 'Open', borrar: 'Delete',
+    borrarConfirma: 'Delete "{t}" and its stems?', lista: '4 stems · {d} · ready', errorT: 'Error',
+    noLeyo: 'Could not read the file. Try mp3, m4a or wav.', noAbrio: 'Could not open the song',
+    enCola: 'Queued', leyendo: 'Reading audio', descargando: 'Downloading the AI model (first time only)',
+    preparando: 'Preparing the model', separando: 'Splitting stems', analizando: 'Analyzing tempo, key and chords',
+    conGpu: 'on the GPU', sinGpu: 'no GPU, this will take longer',
+    cargando: 'Loading…', abrirCancion: 'Open the song',
+    volver: '← Library', acordesT: 'Chords', seccionesT: 'Sections',
+    tocar: 'Play', pausa: 'Pause', loop: 'Loop', velocidad: 'Speed', tono: 'Key', metronomo: 'Metronome', volMetronomo: 'Metronome volume',
+    restablecer: 'Reset', descargar: '⬇ Stems', marcaPrimero: 'First drag over the waveforms or tap a section to mark the zone.',
+    ayudaOnda: 'Tap a section to loop it · drag over the waveforms to mark a loop · tap to jump', atajoTocar: 'play', atajoMetro: 'metronome',
+    tonalidad: 'Key', mayor: 'major', menor: 'minor', original: 'original', silenciar: 'Mute', solo: 'Solo', volumen: 'Volume',
+    vocals: 'Vocals', drums: 'Drums', bass: 'Bass', guitar: 'Guitar', piano: 'Piano', other: 'Other',
+    'sec:Intro': 'Intro', 'sec:Estrofa': 'Verse', 'sec:Coro': 'Chorus', 'sec:Puente': 'Bridge', 'sec:Final': 'Outro', 'sec:Canción': 'Song', 'sec:Parte': 'Part',
+    credito: 'Built by Anggelo Berdejo — El Ñañe', otras: 'More tools',
+  },
+};
+
+function guardarPref(k, v) { try { localStorage.setItem('ensayo:' + k, JSON.stringify(v)); } catch (e) {} }
+function leerPref(k, def) {
+  try { const v = localStorage.getItem('ensayo:' + k); return v === null ? def : JSON.parse(v); } catch (e) { return def; }
+}
+
+let idioma = 'es';
+const t = (k, vars) => {
+  let s = (TEXTOS[idioma] && TEXTOS[idioma][k]) || TEXTOS.es[k] || k;
+  if (vars) for (const v in vars) s = s.replace('{' + v + '}', vars[v]);
+  return s;
+};
+
+function aplicarIdioma(nuevo) {
+  idioma = TEXTOS[nuevo] ? nuevo : 'es';
+  document.documentElement.lang = idioma;
+  document.querySelectorAll('[data-i18n]').forEach((el) => { el.textContent = t(el.dataset.i18n); });
+  document.querySelectorAll('[data-i18n-aria]').forEach((el) => el.setAttribute('aria-label', t(el.dataset.i18nAria)));
+  document.querySelectorAll('#idiomas button').forEach((b) => b.setAttribute('aria-pressed', b.dataset.idioma === idioma ? 'true' : 'false'));
+  guardarPref('idioma', idioma);
+  pintarTemas();
+  pintarLista();
+  if (S.a) construirReproductor();
+}
+
+/* =====================================================================
+ * Paletas (las mismas de Velocidad Pro y el Metrónomo multipercusión)
+ * ===================================================================== */
+const TEMAS = {
+  calido: { es: 'Cálido', en: 'Warm', vars: { ink: '#241c15', bg: '#f7f0e2', surface: '#fffbf2', 'surface-2': '#eedfc3', parchment: '#34291e', 'parchment-dim': '#7a6c58', brass: '#4f8064', ember: '#b14e37', verdigris: '#b8871f', rust: '#93583a', focus: '#c99a2e' } },
+  dia: { es: 'Día', en: 'Day', vars: { ink: '#1a2331', bg: '#f3f9ff', surface: '#ffffff', 'surface-2': '#e1edf9', parchment: '#1a2331', 'parchment-dim': '#5c7089', brass: '#2f8fd1', ember: '#ef8354', verdigris: '#2bb3a3', rust: '#ef8354', focus: '#2f8fd1' } },
+  noche: { es: 'Noche', en: 'Night', vars: { ink: '#0b1220', bg: '#0b1220', surface: '#101a2c', 'surface-2': '#182640', parchment: '#e8f0fb', 'parchment-dim': '#7791b3', brass: '#4fd8ff', ember: '#7c93ff', verdigris: '#4fd8ff', rust: '#7c93ff', focus: '#7c93ff' } },
+  feliz: { es: 'Feliz', en: 'Happy', vars: { ink: '#3a2b1a', bg: '#fff6e9', surface: '#fffdf7', 'surface-2': '#ffe8c2', parchment: '#3a2b1a', 'parchment-dim': '#9c7d55', brass: '#ff6f59', ember: '#2ec4b6', verdigris: '#2ec4b6', rust: '#ff6f59', focus: '#ffb400' } },
+  serio: { es: 'Serio', en: 'Serious', vars: { ink: '#1b1e22', bg: '#1b1e22', surface: '#24282e', 'surface-2': '#2f343b', parchment: '#e6e8eb', 'parchment-dim': '#8a939e', brass: '#8fa1b3', ember: '#c9a27a', verdigris: '#5c6773', rust: '#9aa5b1', focus: '#9aa5b1' } },
+  grafito: { es: 'Grafito y oro', en: 'Graphite & gold', vars: { ink: '#14161a', bg: '#121417', surface: '#1b1e23', 'surface-2': '#272b31', parchment: '#ece8df', 'parchment-dim': '#8f949b', brass: '#c9a96e', ember: '#d06a52', verdigris: '#7fa38c', rust: '#a8744f', focus: '#e3d3a8' } },
+  vino: { es: 'Vino tinto', en: 'Red wine', vars: { ink: '#1a0f11', bg: '#1a1012', surface: '#251719', 'surface-2': '#362224', parchment: '#f2e7de', 'parchment-dim': '#a8918a', brass: '#c49a5b', ember: '#d0566a', verdigris: '#8a9a6e', rust: '#c2714f', focus: '#e0c9a6' } },
+  pizarra: { es: 'Pizarra', en: 'Slate', vars: { ink: '#f5f7f9', bg: '#eceff2', surface: '#f9fafb', 'surface-2': '#dbe1e7', parchment: '#1f2933', 'parchment-dim': '#5f6b78', brass: '#2f4a63', ember: '#a3503a', verdigris: '#5b7f6b', rust: '#8a6d4b', focus: '#7b8fa6' } },
+  lofi: { es: 'Lo-fi', en: 'Lo-fi', vars: { ink: '#1e1b2e', bg: '#1e1b2e', surface: '#28243b', 'surface-2': '#353050', parchment: '#ece6f5', 'parchment-dim': '#9b93b6', brass: '#a493ff', ember: '#ff9fb2', verdigris: '#7fd1c7', rust: '#ffc48c', focus: '#f5e17a' } },
+  atardecer: { es: 'Atardecer', en: 'Sunset', vars: { ink: '#fffaf6', bg: '#fdf0ea', surface: '#fffaf7', 'surface-2': '#f5dcd1', parchment: '#3d2c33', 'parchment-dim': '#957c83', brass: '#c05e52', ember: '#7f6bb8', verdigris: '#d99a5c', rust: '#b97a92', focus: '#e0b04f' } },
+  oceano: { es: 'Océano', en: 'Ocean', vars: { ink: '#0f2027', bg: '#0f2027', surface: '#16303a', 'surface-2': '#1f404c', parchment: '#e3f2f1', 'parchment-dim': '#86aeb0', brass: '#5cc8b5', ember: '#f2a65a', verdigris: '#8fc9ea', rust: '#e98a8a', focus: '#f3dd7d' } },
+  matcha: { es: 'Matcha', en: 'Matcha', vars: { ink: '#fbfcf8', bg: '#eff3e9', surface: '#fbfcf8', 'surface-2': '#dce5d0', parchment: '#2b3326', 'parchment-dim': '#6d7b62', brass: '#5f8a4e', ember: '#c4775e', verdigris: '#8aa64b', rust: '#9b7650', focus: '#d1a94a' } },
+};
+let tema = 'calido';
+
+function aplicarTema(clave) {
+  tema = TEMAS[clave] ? clave : 'calido';
+  const vars = TEMAS[tema].vars;
+  Object.keys(vars).forEach((k) => document.documentElement.style.setProperty('--' + k, vars[k]));
+  document.querySelector('meta[name="theme-color"]').setAttribute('content', vars.bg);
+  guardarPref('tema', tema);
+  pintarTemas();
+  if (S.a) { pintarSecciones(); dibujarOndas(); }
+}
+
+function pintarTemas() {
+  const caja = $('temas');
+  caja.innerHTML = '';
+  Object.keys(TEMAS).forEach((k) => {
+    const v = TEMAS[k].vars;
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'theme-card' + (k === tema ? ' active' : '');
+    b.setAttribute('aria-pressed', k === tema ? 'true' : 'false');
+    const sw = document.createElement('div');
+    sw.className = 'theme-card-swatches';
+    for (const c of [v.bg, v.brass, v.ember]) {
+      const s = document.createElement('span');
+      s.className = 'theme-swatch';
+      s.style.background = c;
+      sw.appendChild(s);
+    }
+    const n = document.createElement('div');
+    n.className = 'theme-card-name';
+    n.textContent = TEMAS[k][idioma] || TEMAS[k].es;
+    b.append(sw, n);
+    b.onclick = () => aplicarTema(k);
+    caja.appendChild(b);
+  });
+}
+
+/* =====================================================================
+ * Notación
+ * ===================================================================== */
+const NOMBRES = {
+  inglesa: { s: ['C', 'C♯', 'D', 'D♯', 'E', 'F', 'F♯', 'G', 'G♯', 'A', 'A♯', 'B'], b: ['C', 'D♭', 'D', 'E♭', 'E', 'F', 'G♭', 'G', 'A♭', 'A', 'B♭', 'B'] },
+  latina: { s: ['Do', 'Do♯', 'Re', 'Re♯', 'Mi', 'Fa', 'Fa♯', 'Sol', 'Sol♯', 'La', 'La♯', 'Si'], b: ['Do', 'Re♭', 'Re', 'Mi♭', 'Mi', 'Fa', 'Sol♭', 'Sol', 'La♭', 'La', 'Si♭', 'Si'] },
+};
+const CALIDAD = { maj: '', min: 'm', '7': '7', m7: 'm7' };
+let notacion = 'latina';
+
+function aplicarNotacion(n) {
+  notacion = NOMBRES[n] ? n : 'latina';
+  document.querySelectorAll('#notacion button').forEach((b) => b.setAttribute('aria-pressed', b.dataset.notacion === notacion ? 'true' : 'false'));
+  guardarPref('notacion', notacion);
+  if (S.a) { pintarDatos(); construirAcordes(); }
+}
+
+const usaBemoles = (raiz, modo) => [5, 10, 3, 8, 1, 6].includes(modo === 'min' ? (raiz + 3) % 12 : raiz);
+const nota = (pc, bemoles) => NOMBRES[notacion][bemoles ? 'b' : 's'][((pc % 12) + 12) % 12];
+
+/* =====================================================================
+ * Estado
+ * ===================================================================== */
+const $ = (id) => document.getElementById(id);
+const fmt = (s) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
+const cssVar = (v) => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const COLOR_PISTA = { vocals: '--ember', drums: '--verdigris', bass: '--brass', guitar: '--rust', piano: '--focus', other: '--parchment-dim' };
+const COLOR_SECCION = ['--brass', '--ember', '--verdigris', '--rust', '--focus', '--parchment-dim'];
+const ORDEN_PISTAS = ['vocals', 'drums', 'bass', 'other'];
+const URL_MODELO = new URL('./models/htdemucs.onnx', location.href).href;
+
+const S = {
+  cancion: null, a: null, pistas: [], datos: null, sonando: false, tiempo: 0, dur: 0,
+  tempo: 1, semis: 0, loop: null, loopOn: false, clickOn: false, clickVol: 0.5,
+};
+
+/* =====================================================================
+ * Base de datos local (IndexedDB): las canciones quedan guardadas en el equipo
+ * ===================================================================== */
+let bdPromesa = null;
+function bd() {
+  if (!bdPromesa) {
+    bdPromesa = new Promise((ok, mal) => {
+      const r = indexedDB.open('ensayo', 1);
+      r.onupgradeneeded = () => {
+        r.result.createObjectStore('canciones', { keyPath: 'id' });
+        r.result.createObjectStore('pistas');
+      };
+      r.onsuccess = () => ok(r.result);
+      r.onerror = () => mal(r.error);
+    });
+  }
+  return bdPromesa;
+}
+async function bdHacer(almacen, modo, fn) {
+  const db = await bd();
+  return new Promise((ok, mal) => {
+    const tx = db.transaction(almacen, modo);
+    const r = fn(tx.objectStore(almacen));
+    tx.oncomplete = () => ok(r && r.result);
+    tx.onerror = () => mal(tx.error);
+    tx.onabort = () => mal(tx.error || new Error('Sin espacio para guardar'));
+  });
+}
+const bdTodas = () => bdHacer('canciones', 'readonly', (s) => s.getAll());
+const bdCancion = (id) => bdHacer('canciones', 'readonly', (s) => s.get(id));
+const bdPistas = (id) => bdHacer('pistas', 'readonly', (s) => s.get(id));
+async function bdGuardar(cancion, pistas) {
+  await bdHacer('pistas', 'readwrite', (s) => s.put(pistas, cancion.id));
+  await bdHacer('canciones', 'readwrite', (s) => s.put(cancion));
+}
+async function bdBorrar(id) {
+  await bdHacer('canciones', 'readwrite', (s) => s.delete(id));
+  await bdHacer('pistas', 'readwrite', (s) => s.delete(id));
+}
+
+/* =====================================================================
+ * Biblioteca y cola de procesamiento
+ * ===================================================================== */
+let canciones = [];
+const trabajos = [];  // { id, titulo, archivo, etapa, progreso, motor, error }
+let trabajando = false;
+let separador = null;
+
+async function cargarLista() {
+  try { canciones = await bdTodas(); } catch (e) { canciones = []; }
+  canciones.sort((a, b) => b.creada - a.creada);
+  pintarLista();
+}
+
+function pintarLista() {
+  const lista = $('lista');
+  lista.innerHTML = '';
+  if (!canciones.length && !trabajos.length) { lista.innerHTML = `<div class="vacio">${t('vacio')}</div>`; return; }
+  for (const j of trabajos) {
+    const el = document.createElement('div');
+    el.className = 'cancion';
+    const extra = j.motor ? ` · ${t(j.motor === 'webgpu' ? 'conGpu' : 'sinGpu')}` : '';
+    el.innerHTML = `
+      <div class="t">
+        <div class="nombre"></div>
+        <div class="sub ${j.error ? 'err' : ''}"></div>
+        ${j.error ? '' : `<div class="barra"><i style="width:${(j.progreso || 0) * 100}%"></i></div>`}
+      </div>
+      ${j.error ? '<button class="chip borrar" type="button">✕</button>' : ''}`;
+    el.querySelector('.nombre').textContent = j.titulo;
+    el.querySelector('.sub').textContent = j.error ? `${t('errorT')}: ${j.error}` : `${t(j.etapa)}… ${Math.round((j.progreso || 0) * 100)}%${extra}`;
+    if (j.error) el.querySelector('.borrar').onclick = () => { trabajos.splice(trabajos.indexOf(j), 1); pintarLista(); };
+    lista.appendChild(el);
+  }
+  for (const c of canciones) {
+    const el = document.createElement('div');
+    el.className = 'cancion';
+    el.innerHTML = `
+      <div class="t"><div class="nombre"></div><div class="sub"></div></div>
+      <button class="boton principal" type="button"></button>
+      <button class="chip borrar" type="button">✕</button>`;
+    el.querySelector('.nombre').textContent = c.titulo;
+    el.querySelector('.sub').textContent = t('lista', { d: fmt(c.duracion) });
+    const abrir = el.querySelector('.principal');
+    abrir.textContent = t('abrirBtn');
+    abrir.onclick = () => abrirCancion(c.id);
+    const borrar = el.querySelector('.borrar');
+    borrar.title = t('borrar');
+    borrar.onclick = async () => {
+      if (!confirm(t('borrarConfirma', { t: c.titulo }))) return;
+      await bdBorrar(c.id);
+      cargarLista();
+    };
+    lista.appendChild(el);
+  }
+}
+
+function agregarArchivo(archivo) {
+  trabajos.push({ id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6), titulo: archivo.name.replace(/\.[^.]+$/, ''), archivo, etapa: 'enCola', progreso: 0 });
+  pintarLista();
+  procesarCola();
+}
+
+async function procesarCola() {
+  if (trabajando) return;
+  const j = trabajos.find((x) => !x.error);
+  if (!j) return;
+  trabajando = true;
+  try {
+    j.etapa = 'leyendo'; pintarLista();
+    // Decodificar a 44.1 kHz (el navegador convierte la frecuencia si hace falta)
+    let audio;
+    try {
+      const ctx = new OfflineAudioContext(2, 44100, 44100);
+      audio = await ctx.decodeAudioData(await j.archivo.arrayBuffer());
+    } catch (e) {
+      throw new Error(t('noLeyo'));
+    }
+    const izquierda = new Float32Array(audio.getChannelData(0));
+    const derecha = audio.numberOfChannels > 1 ? new Float32Array(audio.getChannelData(1)) : new Float32Array(izquierda);
+    audio = null;
+    j.archivo = null;
+
+    if (!separador) separador = new Worker(URL.createObjectURL(new Blob([$('codigoSeparador').textContent], { type: 'text/javascript' })));
+    const r = await new Promise((ok, mal) => {
+      separador.onmessage = (e) => {
+        const m = e.data;
+        if (m.tipo === 'progreso') { j.etapa = m.etapa; j.progreso = m.progreso; if (m.motor) j.motor = m.motor; pintarLista(); }
+        else if (m.tipo === 'listo') ok(m);
+        else if (m.tipo === 'error') mal(new Error(m.mensaje));
+      };
+      separador.onerror = (e) => mal(new Error(e.message || 'Error en el separador'));
+      separador.postMessage({ tipo: 'separar', izquierda, derecha, urlModelo: URL_MODELO }, [izquierda.buffer, derecha.buffer]);
+    });
+    const cancion = { id: j.id, titulo: j.titulo, creada: Date.now(), duracion: r.analisis.duration, analisis: r.analisis, segundos: r.segundos, motor: r.motor };
+    await bdGuardar(cancion, r.pistas);
+    trabajos.splice(trabajos.indexOf(j), 1);
+    await cargarLista();
+    pintarEstadoModelo();
+  } catch (err) {
+    j.error = err.message;
+    // Si el separador falló, se crea uno nuevo para la próxima canción
+    if (separador) { separador.terminate(); separador = null; }
+    pintarLista();
+  }
+  trabajando = false;
+  procesarCola();
+}
+
+const zona = $('zona');
+$('archivo').onchange = (e) => { for (const f of e.target.files) agregarArchivo(f); e.target.value = ''; };
+zona.ondragover = (e) => { e.preventDefault(); zona.classList.add('over'); };
+zona.ondragleave = () => zona.classList.remove('over');
+zona.ondrop = (e) => { e.preventDefault(); zona.classList.remove('over'); for (const f of e.dataTransfer.files) agregarArchivo(f); };
+
+async function pintarEstadoModelo() {
+  let hay = false;
+  try { hay = !!(await (await caches.open('ensayo-modelos')).match(URL_MODELO)); } catch (e) {}
+  $('estadoModelo').textContent = t(hay ? 'modeloGuardado' : 'modeloNo');
+  $('borrarModelo').hidden = !hay;
+}
+$('borrarModelo').onclick = async () => {
+  try { await caches.delete('ensayo-modelos'); } catch (e) {}
+  if (separador) { separador.terminate(); separador = null; }
+  pintarEstadoModelo();
+};
+
+/* =====================================================================
+ * Motor de audio
+ * ===================================================================== */
+let actx = null, nodo = null;
+
+async function prepararAudio() {
+  if (actx) return;
+  actx = new AudioContext({ sampleRate: 44100, latencyHint: 'interactive' });
+  const url = URL.createObjectURL(new Blob([$('codigoMotor').textContent], { type: 'text/javascript' }));
+  await actx.audioWorklet.addModule(url);
+  nodo = new AudioWorkletNode(actx, 'motor', { outputChannelCount: [2] });
+  nodo.connect(actx.destination);
+  nodo.port.onmessage = (e) => {
+    if (e.data.tipo === 'pos') S.tiempo = e.data.tiempo;
+    if (e.data.tipo === 'fin') { S.sonando = false; S.tiempo = 0; pintarPlay(); }
+  };
+}
+
+async function abrirCancion(id) {
+  const c = $('cargando');
+  c.hidden = false;
+  c.textContent = t('cargando');
+  try {
+    await prepararAudio();
+    const cancion = await bdCancion(id);
+    const datos = await bdPistas(id);
+    const a = cancion.analisis;
+    const nombres = ORDEN_PISTAS.filter((n) => datos[n]);
+    const pistas = nombres.map((n) => datos[n]);
+    const largo = Math.min(...pistas.map((p) => p.length / 2));
+    // Al motor van copias: las originales se quedan para descargar
+    const copias = pistas.map((p) => p.slice());
+    nodo.port.postMessage({ tipo: 'cargar', pistas: copias, largo }, copias.map((p) => p.buffer));
+
+    Object.assign(S, { cancion, a, datos, sonando: false, tiempo: 0, dur: largo / 44100, loop: null, loopOn: false, tempo: 1, semis: 0 });
+    S.pistas = nombres.map((n) => ({ nombre: n, vol: 1, mute: false, solo: false }));
+    const fase = a.downbeat_phase;
+    nodo.port.postMessage({ tipo: 'pulsos', pulsos: a.beats, acentos: a.beats.map((_, i) => (((i - fase) % 4) + 4) % 4 === 0) });
+    enviarClick();
+    $('biblioteca').hidden = true;
+    $('reproductor').hidden = false;
+    enviarVelocidad();
+    construirReproductor();
+    history.replaceState(null, '', `#${id}`);
+    scrollTo(0, 0);
+  } catch (err) {
+    alert(`${t('noAbrio')}: ${err.message}`);
+  } finally {
+    c.hidden = true;
+  }
+}
+
+function enviarVolumenes() {
+  const haySolo = S.pistas.some((p) => p.solo);
+  nodo.port.postMessage({ tipo: 'volumenes', volumenes: S.pistas.map((p) => (p.mute || (haySolo && !p.solo) ? 0 : p.vol / 32768)) });
+  dibujarOndas();
+}
+function enviarVelocidad() {
+  nodo.port.postMessage({ tipo: 'velocidad', tempo: S.tempo, tono: Math.pow(2, S.semis / 12) });
+  $('tempo').value = Math.round(S.tempo * 100);
+  $('tempoVal').textContent = `${Math.round(S.tempo * 100)}%`;
+  $('tonoVal').textContent = (S.semis > 0 ? '+' : '') + S.semis;
+  pintarDatos();
+  construirAcordes();
+}
+function enviarLoop() {
+  const on = S.loopOn && S.loop;
+  nodo.port.postMessage({ tipo: 'loop', a: on ? S.loop.a : null, b: on ? S.loop.b : null });
+  $('loopBtn').classList.toggle('active', !!on);
+  const z = $('zonaLoop');
+  z.hidden = !S.loop;
+  z.classList.toggle('off', !on);
+  if (S.loop) {
+    z.style.left = `${(S.loop.a / S.dur) * 100}%`;
+    z.style.width = `${((S.loop.b - S.loop.a) / S.dur) * 100}%`;
+  }
+  document.querySelectorAll('.sec').forEach((el) => {
+    el.classList.toggle('active', !!on && Math.abs(+el.dataset.a - S.loop.a) < 0.01 && Math.abs(+el.dataset.b - S.loop.b) < 0.01);
+  });
+}
+function enviarClick() {
+  nodo.port.postMessage({ tipo: 'metronomo', activo: S.clickOn, volumen: S.clickVol });
+  $('click').classList.toggle('active', S.clickOn);
+}
+function saltar(s) {
+  S.tiempo = Math.max(0, Math.min(S.dur - 0.05, s));
+  nodo.port.postMessage({ tipo: 'saltar', tiempo: S.tiempo });
+}
+async function tocarPausar() {
+  await actx.resume();
+  S.sonando = !S.sonando;
+  nodo.port.postMessage({ tipo: S.sonando ? 'tocar' : 'pausar' });
+  pintarPlay();
+}
+function pintarPlay() {
+  $('play').textContent = S.sonando ? '❚❚' : '▶';
+  $('play').setAttribute('aria-label', t(S.sonando ? 'pausa' : 'tocar'));
+}
+
+/* =====================================================================
+ * Tonalidad, acordes y secciones
+ * ===================================================================== */
+function tonalidadActual() {
+  const k = S.a.key;
+  const raiz = (k.root + S.semis + 120) % 12;
+  return { raiz, modo: k.mode, bemoles: usaBemoles(raiz, k.mode) };
+}
+function nombreAcorde(c) {
+  if (c.root < 0) return 'N.C.';
+  return nota(c.root + S.semis, tonalidadActual().bemoles) + CALIDAD[c.quality];
+}
+function pintarDatos() {
+  if (!S.a) return;
+  const k = tonalidadActual();
+  const orig = S.a.key;
+  $('datoTono').innerHTML = `${t('tonalidad')} <b>${nota(k.raiz, k.bemoles)} ${t(k.modo === 'min' ? 'menor' : 'mayor')}</b>`
+    + (S.semis ? ` <small>· ${t('original')} ${nota(orig.root, usaBemoles(orig.root, orig.mode))}${orig.mode === 'min' ? 'm' : ''}</small>` : '');
+  const bpm = S.a.bpm * S.tempo;
+  $('datoBpm').innerHTML = `<b>${bpm.toFixed(bpm % 1 ? 1 : 0)}</b> BPM` + (S.tempo !== 1 ? ` <small>(${t('original')} ${S.a.bpm})</small>` : '') + ' <small>· 4/4</small>';
+}
+
+const PPS = 90; // píxeles por segundo en la tira de acordes
+let acordeActual = -1;
+
+function construirAcordes() {
+  if (!S.a) return;
+  const tira = $('tira');
+  tira.innerHTML = '';
+  acordeActual = -1;
+  S.acordesEl = S.a.chords.map((c) => {
+    const el = document.createElement('div');
+    el.className = 'c' + (c.root < 0 ? ' nc' : '');
+    el.style.left = `${c.start * PPS}px`;
+    el.style.width = `${(c.end - c.start) * PPS}px`;
+    el.textContent = nombreAcorde(c);
+    tira.appendChild(el);
+    return el;
+  });
+}
+
+function nombreSeccion(n) {
+  const m = n.match(/^Parte (\w+)$/);
+  return m ? `${t('sec:Parte')} ${m[1]}` : t('sec:' + n);
+}
+
+function pintarSecciones() {
+  const caja = $('secciones');
+  caja.innerHTML = '';
+  const letras = [...new Set(S.a.sections.map((s) => s.label))];
+  for (const s of S.a.sections) {
+    const el = document.createElement('div');
+    el.className = 'sec';
+    el.dataset.a = s.start; el.dataset.b = s.end;
+    el.style.left = `${(s.start / S.dur) * 100}%`;
+    el.style.width = `calc(${((s.end - s.start) / S.dur) * 100}% - 3px)`;
+    const color = COLOR_SECCION[letras.indexOf(s.label) % COLOR_SECCION.length];
+    el.style.background = `color-mix(in srgb, var(${color}) 30%, var(--surface))`;
+    el.style.borderLeft = `3px solid var(${color})`;
+    el.textContent = nombreSeccion(s.name);
+    el.title = `${nombreSeccion(s.name)} (${fmt(s.start)}–${fmt(s.end)})`;
+    el.onclick = () => {
+      const misma = S.loopOn && S.loop && Math.abs(S.loop.a - s.start) < 0.01 && Math.abs(S.loop.b - s.end) < 0.01;
+      if (misma) S.loopOn = false;
+      else { S.loop = { a: s.start, b: s.end }; S.loopOn = true; saltar(s.start); }
+      enviarLoop();
+    };
+    caja.appendChild(el);
+  }
+}
+
+/* =====================================================================
+ * Reproductor
+ * ===================================================================== */
+function construirReproductor() {
+  $('titulo').textContent = S.cancion.titulo;
+  pintarDatos();
+  construirAcordes();
+  pintarSecciones();
+
+  const pistas = $('pistas');
+  pistas.innerHTML = '';
+  S.pistas.forEach((p) => {
+    const carril = document.createElement('div');
+    carril.className = 'carril';
+    carril.innerHTML = `
+      <div class="pista">
+        <div class="nm"><span class="punto" style="background:var(${COLOR_PISTA[p.nombre] || '--brass'})"></span>${t(p.nombre)}</div>
+        <button class="chip mute ${p.mute ? 'active' : ''}" type="button" title="${t('silenciar')}">M</button>
+        <button class="chip solo ${p.solo ? 'active' : ''}" type="button" title="${t('solo')}">S</button>
+        <input type="range" min="0" max="150" value="${Math.round(p.vol * 100)}" aria-label="${t('volumen')} ${t(p.nombre)}">
+      </div>
+      <div class="onda"><canvas></canvas></div>`;
+    const [mb, sb] = carril.querySelectorAll('button');
+    mb.onclick = () => { p.mute = !p.mute; mb.classList.toggle('active', p.mute); enviarVolumenes(); };
+    sb.onclick = () => { p.solo = !p.solo; sb.classList.toggle('active', p.solo); enviarVolumenes(); };
+    carril.querySelector('input').oninput = (e) => { p.vol = e.target.value / 100; enviarVolumenes(); };
+    p.canvas = carril.querySelector('canvas');
+    pistas.appendChild(carril);
+  });
+
+  const eje = $('eje');
+  eje.innerHTML = '';
+  for (let i = 0; i <= 6; i++) eje.insertAdjacentHTML('beforeend', `<span>${fmt((S.dur * i) / 6)}</span>`);
+  $('total').textContent = fmt(S.dur);
+  const menu = $('descargas');
+  menu.innerHTML = '';
+  for (const p of S.pistas) {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.textContent = t(p.nombre);
+    b.onclick = () => descargarPista(p.nombre);
+    menu.appendChild(b);
+  }
+
+  ubicarCapa();
+  enviarVolumenes();
+  enviarLoop();
+  pintarPlay();
+}
+
+// Arma un .wav de 16 bits a partir de la pista guardada
+function descargarPista(nombre) {
+  const datos = S.datos[nombre];
+  const bytes = datos.length * 2;
+  const cab = new DataView(new ArrayBuffer(44));
+  const txt = (o, s) => { for (let i = 0; i < 4; i++) cab.setUint8(o + i, s.charCodeAt(i)); };
+  txt(0, 'RIFF'); cab.setUint32(4, 36 + bytes, true); txt(8, 'WAVE'); txt(12, 'fmt ');
+  cab.setUint32(16, 16, true); cab.setUint16(20, 1, true); cab.setUint16(22, 2, true);
+  cab.setUint32(24, 44100, true); cab.setUint32(28, 44100 * 4, true); cab.setUint16(32, 4, true); cab.setUint16(34, 16, true);
+  txt(36, 'data'); cab.setUint32(40, bytes, true);
+  const url = URL.createObjectURL(new Blob([cab.buffer, datos.buffer], { type: 'audio/wav' }));
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `${S.cancion.titulo} - ${t(nombre)}.wav`;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 10000);
+}
+
+function ubicarCapa() {
+  const onda = document.querySelector('.onda');
+  if (!onda) return;
+  $('capa').style.left = `${onda.getBoundingClientRect().left - $('carriles').getBoundingClientRect().left}px`;
+}
+
+function dibujarOndas() {
+  const haySolo = S.pistas.some((p) => p.solo);
+  for (const p of S.pistas) {
+    const c = p.canvas;
+    if (!c) continue;
+    const dpr = devicePixelRatio || 1;
+    const w = c.clientWidth, h = c.clientHeight;
+    c.width = w * dpr; c.height = h * dpr;
+    const g = c.getContext('2d');
+    g.scale(dpr, dpr);
+    const pk = S.a.peaks[p.nombre];
+    g.fillStyle = cssVar(COLOR_PISTA[p.nombre] || '--brass');
+    g.globalAlpha = p.mute || (haySolo && !p.solo) ? 0.2 : 0.9;
+    const barras = Math.floor(w / 2);
+    for (let x = 0; x < barras; x++) {
+      const i0 = Math.floor((x / barras) * pk.length), i1 = Math.max(i0 + 1, Math.floor(((x + 1) / barras) * pk.length));
+      let m = 0;
+      for (let i = i0; i < i1; i++) m = Math.max(m, pk[i]);
+      const bh = Math.max(1, (m / 100) * h * Math.min(p.vol, 1.5) / 1.1);
+      g.fillRect(x * 2, (h - bh) / 2, 1.4, bh);
+    }
+  }
+}
+
+/* =====================================================================
+ * Controles
+ * ===================================================================== */
+$('volver').onclick = () => {
+  if (S.sonando) tocarPausar();
+  $('reproductor').hidden = true;
+  $('biblioteca').hidden = false;
+  history.replaceState(null, '', location.pathname);
+  cargarLista();
+};
+$('play').onclick = tocarPausar;
+$('atras5').onclick = () => saltar(S.tiempo - 5);
+$('adelante5').onclick = () => saltar(S.tiempo + 5);
+$('loopBtn').onclick = () => {
+  if (!S.loop) { alert(t('marcaPrimero')); return; }
+  S.loopOn = !S.loopOn; enviarLoop();
+};
+$('tempo').oninput = (e) => { S.tempo = e.target.value / 100; enviarVelocidad(); };
+$('tempo').ondblclick = () => { S.tempo = 1; enviarVelocidad(); };
+$('tonoMenos').onclick = () => { S.semis = Math.max(-12, S.semis - 1); enviarVelocidad(); };
+$('tonoMas').onclick = () => { S.semis = Math.min(12, S.semis + 1); enviarVelocidad(); };
+$('click').onclick = () => { S.clickOn = !S.clickOn; enviarClick(); };
+$('clickVol').oninput = (e) => { S.clickVol = e.target.value / 100; enviarClick(); };
+$('restablecer').onclick = () => {
+  S.tempo = 1; S.semis = 0; enviarVelocidad();
+  S.pistas.forEach((p) => { p.mute = false; p.solo = false; p.vol = 1; });
+  construirReproductor();
+};
+$('descargarBtn').onclick = (e) => { e.stopPropagation(); $('descargas').hidden = !$('descargas').hidden; };
+document.addEventListener('click', () => { $('descargas').hidden = true; });
+
+$('abrirAjustes').onclick = () => { pintarEstadoModelo(); $('ajustes').showModal(); };
+$('cerrarAjustes').onclick = () => $('ajustes').close();
+$('ajustes').addEventListener('click', (e) => { if (e.target === $('ajustes')) $('ajustes').close(); });
+document.querySelectorAll('#idiomas button').forEach((b) => b.onclick = () => aplicarIdioma(b.dataset.idioma));
+document.querySelectorAll('#notacion button').forEach((b) => b.onclick = () => aplicarNotacion(b.dataset.notacion));
+
+// Tocar la onda = saltar; arrastrar = marcar loop
+$('pistas').addEventListener('pointerdown', (e) => {
+  const onda = e.target.closest('.onda');
+  if (!onda) return;
+  const r = onda.getBoundingClientRect();
+  const aTiempo = (x) => Math.max(0, Math.min(1, (x - r.left) / r.width)) * S.dur;
+  const x0 = e.clientX, t0 = aTiempo(x0);
+  let arrastrando = false;
+  const mover = (ev) => {
+    if (Math.abs(ev.clientX - x0) > 6) arrastrando = true;
+    if (arrastrando) {
+      const t1 = aTiempo(ev.clientX);
+      S.loop = { a: Math.min(t0, t1), b: Math.max(t0, t1) };
+      S.loopOn = true;
+      enviarLoop();
+    }
+  };
+  const soltar = () => {
+    removeEventListener('pointermove', mover);
+    removeEventListener('pointerup', soltar);
+    removeEventListener('pointercancel', soltar);
+    if (!arrastrando) saltar(t0);
+    else if (S.loop.b - S.loop.a < 0.3) { S.loop = null; S.loopOn = false; enviarLoop(); }
+    else saltar(S.loop.a);
+  };
+  addEventListener('pointermove', mover);
+  addEventListener('pointerup', soltar);
+  addEventListener('pointercancel', soltar);
+});
+
+document.addEventListener('keydown', (e) => {
+  if ($('reproductor').hidden || $('ajustes').open || (e.target.tagName === 'INPUT' && e.target.type !== 'range')) return;
+  if (e.code === 'Space') { e.preventDefault(); tocarPausar(); }
+  else if (e.code === 'ArrowLeft') { e.preventDefault(); saltar(S.tiempo - 5); }
+  else if (e.code === 'ArrowRight') { e.preventDefault(); saltar(S.tiempo + 5); }
+  else if (e.code === 'KeyL') $('loopBtn').click();
+  else if (e.code === 'KeyM') $('click').click();
+});
+
+addEventListener('resize', () => { if (S.a) { ubicarCapa(); dibujarOndas(); } });
+
+// Animación: cabezal y tira de acordes
+function cuadro() {
+  requestAnimationFrame(cuadro);
+  if (!S.a || $('reproductor').hidden) return;
+  const s = S.tiempo;
+  $('playhead').style.left = `${(s / S.dur) * 100}%`;
+  $('actual').textContent = fmt(s);
+  $('tira').style.transform = `translateX(${$('acordes').clientWidth * 0.25 - s * PPS}px)`;
+  const ac = S.a.chords;
+  let i = acordeActual >= 0 && acordeActual < ac.length && ac[acordeActual].start <= s ? acordeActual : 0;
+  while (i < ac.length - 1 && ac[i].end <= s) i++;
+  if (i !== acordeActual) {
+    if (S.acordesEl[acordeActual]) S.acordesEl[acordeActual].classList.remove('ahora');
+    if (S.acordesEl[i]) S.acordesEl[i].classList.add('ahora');
+    acordeActual = i;
+  }
+}
+requestAnimationFrame(cuadro);
+
+/* =====================================================================
+ * Inicio
+ * ===================================================================== */
+aplicarNotacion(leerPref('notacion', 'latina'));
+aplicarTema(leerPref('tema', 'calido'));
+aplicarIdioma(leerPref('idioma', 'es'));
+cargarLista();
+// Pedir que el navegador no borre las canciones guardadas cuando falte espacio
+if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
+
+const inicial = location.hash.slice(1);
+if (inicial) {
+  // El navegador pide un toque del usuario antes de activar el audio
+  bdCancion(inicial).then((c) => {
+    if (!c) return;
+    const capa = $('cargando');
+    capa.hidden = false;
+    capa.innerHTML = '';
+    const b = document.createElement('button');
+    b.className = 'boton principal';
+    b.style.cssText = 'font-size:16px;padding:12px 20px';
+    b.textContent = `${t('abrirCancion')}: ${c.titulo}`;
+    b.onclick = () => abrirCancion(inicial);
+    capa.appendChild(b);
+  }).catch(() => {});
+}
+
+if ('serviceWorker' in navigator && location.protocol === 'https:') {
+  navigator.serviceWorker.register('./sw.js').catch(() => {});
+}
+</script>
+</body>
+</html>

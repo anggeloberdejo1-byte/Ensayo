@@ -1,0 +1,6 @@
+.venv/
+songs/
+__pycache__/
+*.pyc
+.DS_Store
+.claude/

@@ -1,0 +1,933 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Ensayo — Separa pistas y ensaya a tu ritmo</title>
+<meta name="description" content="Separa voz, batería, bajo y más de cualquier canción. Tempo, tono, acordes, secciones y metrónomo. By Anggelo Berdejo.">
+<meta name="theme-color" content="#f7f0e2">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Work+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #241c15;
+    --bg: #f7f0e2;
+    --surface: #fffbf2;
+    --surface-2: #eedfc3;
+    --parchment: #34291e;
+    --parchment-dim: #7a6c58;
+    --brass: #4f8064;
+    --ember: #b14e37;
+    --verdigris: #b8871f;
+    --rust: #93583a;
+    --focus: #c99a2e;
+  }
+
+  * { box-sizing: border-box; }
+  [hidden], .hidden { display: none !important; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--bg);
+    color: var(--parchment);
+    font-family: 'Work Sans', sans-serif;
+    -webkit-tap-highlight-color: transparent;
+  }
+  body {
+    min-height: 100vh;
+    background:
+      radial-gradient(ellipse at 20% -10%, color-mix(in srgb, var(--brass) 10%, transparent), transparent 55%),
+      repeating-linear-gradient(100deg, rgba(0,0,0,0.02) 0px, rgba(0,0,0,0.02) 2px, transparent 2px, transparent 5px),
+      var(--bg);
+  }
+
+  .tool { max-width: 1100px; margin: 0 auto; padding: 28px 20px 40px; padding-bottom: calc(40px + env(safe-area-inset-bottom)); }
+
+  header { margin-bottom: 18px; }
+  .top-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+  .eyebrow { font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.18em; color: var(--brass); text-transform: uppercase; margin-bottom: 6px; }
+  h1 { font-family: 'Bebas Neue', sans-serif; font-size: 44px; letter-spacing: 0.03em; margin: 0 0 4px; line-height: 0.95; font-weight: 400; }
+  .subtitle { font-size: 14px; color: var(--parchment-dim); margin: 0; max-width: 56ch; }
+
+  .engrane {
+    flex-shrink: 0; width: 42px; height: 42px; border-radius: 10px;
+    border: 1px solid var(--surface-2); background: var(--surface); color: var(--parchment);
+    display: flex; align-items: center; justify-content: center; cursor: pointer;
+  }
+  .engrane:hover { color: var(--brass); }
+  .engrane svg { width: 22px; height: 22px; }
+
+  /* ---- Ajustes ---- */
+  .ajustes {
+    width: min(520px, calc(100vw - 24px)); max-height: calc(100vh - 40px);
+    border: 1px solid var(--surface-2); border-radius: 14px; padding: 0;
+    background: var(--surface); color: var(--parchment); box-shadow: 0 20px 50px rgba(0,0,0,0.25);
+  }
+  .ajustes::backdrop { background: rgba(20,16,12,0.45); }
+  .ajustes-cabeza {
+    display: flex; align-items: center; justify-content: space-between; padding: 16px 18px 12px;
+    border-bottom: 1px solid var(--surface-2); position: sticky; top: 0; background: var(--surface);
+  }
+  .ajustes-cabeza h2 { font-family: 'Bebas Neue', sans-serif; font-weight: 400; font-size: 28px; letter-spacing: 0.04em; margin: 0; }
+  .ajustes-cuerpo { padding: 16px 18px 20px; }
+  .settings-section + .settings-section { margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--surface-2); }
+  .settings-section-title { font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--parchment-dim); margin: 0 0 10px; }
+  .seg { display: flex; gap: 6px; }
+  .seg button {
+    flex: 1; font-family: 'IBM Plex Mono', monospace; font-size: 12.5px; font-weight: 600; padding: 9px 8px;
+    border: 1px solid var(--surface-2); border-radius: 8px; background: var(--bg); color: var(--parchment-dim); cursor: pointer;
+  }
+  .seg button[aria-pressed="true"] { background: var(--brass); border-color: var(--brass); color: var(--ink); }
+  .theme-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .theme-card { border: 2px solid var(--surface-2); border-radius: 10px; padding: 10px 6px; cursor: pointer; background: var(--bg); text-align: center; font: inherit; color: inherit; }
+  .theme-card.active { border-color: var(--brass); }
+  .theme-card-swatches { display: flex; gap: 4px; justify-content: center; margin-bottom: 6px; }
+  .theme-swatch { width: 16px; height: 16px; border-radius: 50%; border: 1px solid rgba(0,0,0,0.12); }
+  .theme-card-name { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--parchment); }
+
+  /* ---- Bloques comunes ---- */
+  .panel { background: var(--surface); border: 1px solid var(--surface-2); border-radius: 10px; padding: 18px; margin-bottom: 16px; }
+  button { font-family: inherit; }
+  button:focus-visible, input:focus-visible, .abrir:focus-within { outline: 2px solid var(--focus); outline-offset: 2px; }
+  input[type=range] { accent-color: var(--brass); }
+  .boton {
+    background: var(--surface-2); border: 1px solid var(--surface-2); color: var(--parchment);
+    font-weight: 600; font-size: 13.5px; padding: 9px 14px; border-radius: 8px; cursor: pointer; white-space: nowrap;
+  }
+  .boton:hover { background: var(--surface); }
+  .boton.principal { background: var(--brass); border-color: var(--brass); color: var(--ink); }
+  .chip {
+    background: var(--surface); border: 1px solid var(--surface-2); color: var(--parchment-dim);
+    font-family: 'IBM Plex Mono', monospace; font-size: 12px; font-weight: 600; padding: 5px 10px; border-radius: 6px; cursor: pointer; line-height: 1.2;
+  }
+  .chip:hover { color: var(--parchment); border-color: var(--parchment-dim); }
+  .chip.active { background: var(--brass); border-color: var(--brass); color: var(--ink); }
+  .label { font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.14em; color: var(--parchment-dim); text-transform: uppercase; }
+  .mono { font-family: 'IBM Plex Mono', monospace; font-size: 13px; font-weight: 600; }
+
+  /* ---- Biblioteca ---- */
+  .abrir {
+    display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 26px 12px;
+    border: 2px dashed var(--surface-2); border-radius: 10px; cursor: pointer; text-align: center; transition: border-color .15s;
+  }
+  .abrir:hover, .abrir.over { border-color: var(--brass); }
+  .abrir-titulo { font-family: 'Bebas Neue', sans-serif; font-size: 26px; letter-spacing: 0.04em; color: var(--brass); }
+  .abrir-sub { font-size: 13px; color: var(--parchment-dim); }
+  .modelos { margin-top: 14px; }
+  .modelos .seg button { text-align: left; font-family: 'Work Sans', sans-serif; font-size: 13px; line-height: 1.3; padding: 10px 12px; }
+  .modelos .seg button b { display: block; font-family: 'IBM Plex Mono', monospace; font-size: 12px; letter-spacing: .06em; text-transform: uppercase; }
+  .lista { display: grid; gap: 10px; }
+  .cancion { display: flex; align-items: center; gap: 12px; background: var(--surface); border: 1px solid var(--surface-2); border-radius: 10px; padding: 12px 14px; }
+  .cancion .t { flex: 1; min-width: 0; }
+  .cancion .nombre { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .cancion .sub { font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: var(--parchment-dim); margin-top: 3px; }
+  .barra { height: 4px; background: var(--surface-2); border-radius: 2px; margin-top: 7px; overflow: hidden; }
+  .barra i { display: block; height: 100%; background: var(--brass); transition: width .4s; }
+  .err { color: var(--ember) !important; }
+  .vacio { color: var(--parchment-dim); text-align: center; padding: 14px; font-size: 14px; }
+
+  /* ---- Reproductor ---- */
+  .cabeza-cancion { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
+  .cabeza-cancion h2 { font-family: 'Bebas Neue', sans-serif; font-weight: 400; font-size: 32px; letter-spacing: 0.03em; margin: 0; flex: 1; min-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1; }
+  .dato { background: var(--surface); border: 1px solid var(--surface-2); border-radius: 8px; padding: 6px 10px; font-size: 13px; }
+  .dato b { font-family: 'IBM Plex Mono', monospace; color: var(--brass); }
+  .dato small { color: var(--parchment-dim); font-family: 'IBM Plex Mono', monospace; font-size: 11px; }
+
+  .acordes { position: relative; height: 96px; padding: 0; overflow: hidden; }
+  .acordes .tira { position: absolute; top: 0; bottom: 0; left: 0; will-change: transform; }
+  .acordes .c { position: absolute; top: 22px; bottom: 12px; display: flex; align-items: center; padding-left: 12px; border-left: 2px solid var(--surface-2); font-weight: 700; font-size: 32px; letter-spacing: -.01em; color: var(--parchment-dim); white-space: nowrap; overflow: hidden; }
+  .acordes .c.now { color: var(--parchment); border-left-color: var(--ember); }
+  .acordes .c.nc { font-size: 20px; opacity: .5; }
+  .acordes .cabezal { position: absolute; top: 0; bottom: 0; left: 25%; width: 2px; background: var(--ember); opacity: .8; }
+  .acordes .label { position: absolute; top: 8px; left: 12px; }
+
+  .lane { display: grid; grid-template-columns: 220px 1fr; gap: 12px; align-items: center; }
+  .lane + .lane { margin-top: 8px; }
+  .secciones { position: relative; height: 30px; }
+  .sec { position: absolute; top: 0; bottom: 0; border-radius: 6px; font-size: 12px; font-weight: 600; display: flex; align-items: center; padding: 0 8px; overflow: hidden; white-space: nowrap; cursor: pointer; color: var(--parchment); }
+  .sec.active { outline: 2px solid var(--parchment); outline-offset: 1px; }
+  .pista { display: flex; align-items: center; gap: 6px; }
+  .pista .nm { flex: 1; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+  .pista .punto { width: 10px; height: 10px; border-radius: 50%; }
+  .pista .chip { padding: 4px 8px; }
+  .pista .chip.solo.active { background: var(--focus); border-color: var(--focus); }
+  .pista input { width: 70px; }
+  .onda { position: relative; height: 54px; cursor: crosshair; }
+  .onda canvas { width: 100%; height: 100%; display: block; }
+  .carriles { position: relative; }
+  .capa { position: absolute; top: 0; bottom: 0; right: 0; pointer-events: none; }
+  .playhead { position: absolute; top: -4px; bottom: -4px; width: 2px; background: var(--parchment); }
+  .zona-loop { position: absolute; top: -4px; bottom: -4px; background: color-mix(in srgb, var(--brass) 16%, transparent); border-left: 2px solid var(--brass); border-right: 2px solid var(--brass); }
+  .zona-loop.off { background: color-mix(in srgb, var(--parchment-dim) 8%, transparent); border-color: var(--parchment-dim); }
+  .eje { display: flex; justify-content: space-between; font-family: 'IBM Plex Mono', monospace; color: var(--parchment-dim); font-size: 11px; margin-top: 6px; }
+
+  .transporte {
+    position: sticky; bottom: 0; z-index: 2; display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+    background: color-mix(in srgb, var(--surface) 94%, transparent); backdrop-filter: blur(8px);
+  }
+  .play { width: 54px; height: 54px; border-radius: 50%; background: var(--brass); color: var(--ink); border: none; font-size: 20px; display: grid; place-items: center; cursor: pointer; }
+  .tiempo { font-family: 'IBM Plex Mono', monospace; min-width: 110px; color: var(--parchment-dim); font-size: 14px; }
+  .tiempo b { color: var(--parchment); }
+  .grupo { display: flex; align-items: center; gap: 8px; }
+  .valor { font-family: 'IBM Plex Mono', monospace; font-size: 18px; font-weight: 600; color: var(--brass); min-width: 52px; text-align: center; }
+  .sep { width: 1px; height: 34px; background: var(--surface-2); }
+  .descargas { position: relative; }
+  .descargas .menu { position: absolute; right: 0; bottom: 46px; background: var(--surface); border: 1px solid var(--surface-2); border-radius: 10px; padding: 6px; display: grid; min-width: 170px; box-shadow: 0 10px 30px rgba(0,0,0,.15); }
+  .descargas .menu a { color: var(--parchment); text-decoration: none; padding: 7px 10px; border-radius: 6px; font-size: 13px; }
+  .descargas .menu a:hover { background: var(--surface-2); }
+
+  .cargando { position: fixed; inset: 0; background: color-mix(in srgb, var(--bg) 88%, transparent); display: grid; place-items: center; z-index: 10; font-family: 'IBM Plex Mono', monospace; font-size: 15px; }
+  .atajos { color: var(--parchment-dim); font-size: 12px; text-align: center; line-height: 2; }
+  kbd { font-family: 'IBM Plex Mono', monospace; font-size: 11px; background: var(--surface); border: 1px solid var(--surface-2); border-radius: 4px; padding: 1px 5px; }
+  .credit { text-align: center; font-size: 12px; color: var(--parchment-dim); margin-top: 22px; }
+  .credit a { color: var(--brass); }
+
+  @media (max-width: 720px) {
+    h1 { font-size: 36px; }
+    .lane { grid-template-columns: 1fr; gap: 4px; }
+    .capa { left: 0 !important; }
+    .sep { display: none; }
+    .theme-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+
+<main class="tool">
+
+  <header>
+    <div class="top-row">
+      <div>
+        <div class="eyebrow" data-i18n="eyebrow">Herramientas para músicos</div>
+        <h1>Ensayo</h1>
+        <p class="subtitle" data-i18n="subtitulo">Separa la voz, la batería, el bajo y más de cualquier canción. Cambia tempo y tono, y ve los acordes mientras tocas.</p>
+      </div>
+      <button class="engrane" id="abrirAjustes" type="button" data-i18n-aria="ajustes" aria-label="Ajustes">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <dialog class="ajustes" id="ajustes">
+    <div class="ajustes-cabeza">
+      <h2 data-i18n="ajustes">Ajustes</h2>
+      <button class="boton" id="cerrarAjustes" type="button" data-i18n="cerrar">Cerrar</button>
+    </div>
+    <div class="ajustes-cuerpo">
+      <div class="settings-section">
+        <p class="settings-section-title" data-i18n="idiomaT">Idioma</p>
+        <div class="seg" id="idiomas">
+          <button type="button" data-idioma="es" aria-pressed="true">Español</button>
+          <button type="button" data-idioma="en" aria-pressed="false">English</button>
+        </div>
+      </div>
+      <div class="settings-section">
+        <p class="settings-section-title" data-i18n="paleta">Paleta de colores</p>
+        <div class="theme-grid" id="temas"></div>
+      </div>
+      <div class="settings-section">
+        <p class="settings-section-title" data-i18n="nombresNotas">Nombres de las notas</p>
+        <div class="seg" id="notacion">
+          <button type="button" data-notacion="latina" aria-pressed="true">Do Re Mi</button>
+          <button type="button" data-notacion="inglesa" aria-pressed="false">C D E</button>
+        </div>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- ===== Biblioteca ===== -->
+  <section id="biblioteca">
+    <div class="panel">
+      <label class="abrir" id="zona">
+        <span class="abrir-titulo" id="zonaTitulo" data-i18n="abrir">Subir canción</span>
+        <span class="abrir-sub" data-i18n="abrirSub">o arrástrala aquí · mp3, m4a, wav, flac o video</span>
+        <input type="file" id="archivo" accept="audio/*,video/*" multiple hidden>
+      </label>
+      <div class="modelos">
+        <p class="settings-section-title" data-i18n="separarEn">Separar en</p>
+        <div class="seg" id="modelos">
+          <button type="button" data-modelo="4" aria-pressed="true"><b data-i18n="m4">4 pistas</b><span data-i18n="m4sub">Voz, batería, bajo y otros · mejor calidad</span></button>
+          <button type="button" data-modelo="6" aria-pressed="false"><b data-i18n="m6">6 pistas</b><span data-i18n="m6sub">Además guitarra y piano</span></button>
+        </div>
+      </div>
+    </div>
+    <div class="lista" id="lista"></div>
+  </section>
+
+  <!-- ===== Reproductor ===== -->
+  <section id="reproductor" hidden>
+    <div class="cabeza-cancion">
+      <button class="boton" id="volver" type="button" data-i18n="volver">← Biblioteca</button>
+      <h2 id="titulo"></h2>
+      <div class="dato" id="datoTono"></div>
+      <div class="dato" id="datoBpm"></div>
+    </div>
+
+    <div class="panel acordes" id="acordes">
+      <div class="label" data-i18n="acordesT">Acordes</div>
+      <div class="tira" id="tira"></div>
+      <div class="cabezal"></div>
+    </div>
+
+    <div class="panel">
+      <div class="carriles" id="carriles">
+        <div class="lane">
+          <div class="pista"><div class="nm label" data-i18n="seccionesT">Secciones · toca para repetir</div></div>
+          <div class="secciones" id="secciones"></div>
+        </div>
+        <div id="pistas"></div>
+        <div class="capa" id="capa"><div class="zona-loop" id="zonaLoop" hidden></div><div class="playhead" id="playhead"></div></div>
+      </div>
+      <div class="lane"><div></div><div class="eje" id="eje"></div></div>
+    </div>
+
+    <div class="panel transporte">
+      <button class="play" id="play" type="button" data-i18n-aria="tocar" aria-label="Tocar">▶</button>
+      <div class="tiempo"><b id="actual">0:00</b> / <span id="total">0:00</span></div>
+      <div class="grupo">
+        <button class="chip" id="atras5" type="button">−5 s</button>
+        <button class="chip" id="adelante5" type="button">+5 s</button>
+        <button class="chip" id="loopBtn" type="button" data-i18n="loop">Loop</button>
+      </div>
+      <div class="sep"></div>
+      <div class="grupo">
+        <span class="label" data-i18n="velocidad">Velocidad</span>
+        <input type="range" id="tempo" min="50" max="150" step="5" value="100">
+        <span class="valor" id="tempoVal">100%</span>
+      </div>
+      <div class="grupo">
+        <span class="label" data-i18n="tono">Tono</span>
+        <button class="chip" id="tonoMenos" type="button">−</button><span class="valor" id="tonoVal">0</span><button class="chip" id="tonoMas" type="button">+</button>
+      </div>
+      <div class="sep"></div>
+      <div class="grupo">
+        <button class="chip" id="click" type="button" data-i18n="metronomo">Metrónomo</button>
+        <input type="range" id="clickVol" min="0" max="100" value="50" style="width:70px" data-i18n-aria="volMetronomo" aria-label="Volumen del metrónomo">
+      </div>
+      <div class="grupo" style="margin-left:auto">
+        <button class="boton" id="restablecer" type="button" data-i18n="restablecer">Restablecer</button>
+        <div class="descargas"><button class="boton" id="descargarBtn" type="button" data-i18n="descargar">⬇ Pistas</button><div class="menu" id="descargas" hidden></div></div>
+      </div>
+    </div>
+
+    <p class="atajos">
+      <span data-i18n="ayudaOnda">Arrastra sobre las ondas para marcar un loop · toca para saltar</span><br>
+      <kbd>Espacio</kbd> <span data-i18n="atajoTocar">tocar</span> ·
+      <kbd>←</kbd><kbd>→</kbd> 5 s ·
+      <kbd>L</kbd> loop ·
+      <kbd>M</kbd> <span data-i18n="atajoMetro">metrónomo</span>
+    </p>
+  </section>
+
+  <p class="credit">
+    <span data-i18n="credito">Hecha por Anggelo Berdejo — El Ñañe</span> ·
+    <a href="https://instagram.com/anggelo.berdejo">@anggelo.berdejo</a> ·
+    <a href="https://anggeloberdejo1-byte.github.io/apps/" data-i18n="otras">Otras herramientas</a>
+  </p>
+</main>
+
+<div class="cargando" id="cargando" hidden></div>
+
+<script>
+/* =====================================================================
+ * Textos
+ * ===================================================================== */
+const TEXTOS = {
+  es: {
+    eyebrow: 'Herramientas para músicos',
+    subtitulo: 'Separa la voz, la batería, el bajo y más de cualquier canción. Cambia tempo y tono, y ve los acordes mientras tocas.',
+    ajustes: 'Ajustes', cerrar: 'Cerrar', idiomaT: 'Idioma', paleta: 'Paleta de colores', nombresNotas: 'Nombres de las notas',
+    abrir: 'Subir canción', abrirSub: 'o arrástrala aquí · mp3, m4a, wav, flac o video', subiendo: 'Subiendo',
+    separarEn: 'Separar en', m4: '4 pistas', m4sub: 'Voz, batería, bajo y otros · mejor calidad', m6: '6 pistas', m6sub: 'Además guitarra y piano',
+    vacio: 'Todavía no hay canciones. Sube una para empezar.', abrirBtn: 'Abrir', borrar: 'Borrar',
+    borrarConfirma: '¿Borrar "{t}" y sus pistas?', pistasListas: '{n} pistas · lista', errorT: 'Error',
+    noSubio: 'No se pudo subir', noAbrio: 'No se pudo abrir la canción',
+    'st:En cola': 'En cola', 'st:Decodificando audio': 'Leyendo el audio', 'st:Separando pistas con IA': 'Separando pistas con IA',
+    'st:Guardando pistas': 'Guardando pistas', 'st:Analizando tempo, tonalidad y acordes': 'Analizando tempo, tonalidad y acordes',
+    'st:Interrumpido': 'Interrumpido',
+    cargando: 'Cargando…', cargandoPistas: 'Cargando pistas… {i}/{n}', abrirCancion: 'Abrir la canción',
+    volver: '← Biblioteca', acordesT: 'Acordes', seccionesT: 'Secciones · toca para repetir',
+    tocar: 'Tocar', pausa: 'Pausa', loop: 'Loop', velocidad: 'Velocidad', tono: 'Tono', metronomo: 'Metrónomo', volMetronomo: 'Volumen del metrónomo',
+    restablecer: 'Restablecer', descargar: '⬇ Pistas', marcaPrimero: 'Primero arrastra sobre las ondas o toca una sección para marcar la zona.',
+    ayudaOnda: 'Arrastra sobre las ondas para marcar un loop · toca para saltar', atajoTocar: 'tocar', atajoMetro: 'metrónomo',
+    tonalidad: 'Tonalidad', mayor: 'mayor', menor: 'menor', original: 'original', silenciar: 'Silenciar', solo: 'Solo', volumen: 'Volumen',
+    vocals: 'Voz', drums: 'Batería', bass: 'Bajo', guitar: 'Guitarra', piano: 'Piano', other: 'Otros',
+    'sec:Intro': 'Intro', 'sec:Estrofa': 'Estrofa', 'sec:Coro': 'Coro', 'sec:Puente': 'Puente', 'sec:Final': 'Final', 'sec:Canción': 'Canción', 'sec:Parte': 'Parte',
+    credito: 'Hecha por Anggelo Berdejo — El Ñañe', otras: 'Otras herramientas',
+  },
+  en: {
+    eyebrow: 'Tools for musicians',
+    subtitulo: 'Split vocals, drums, bass and more from any song. Change tempo and key, and see the chords as you play.',
+    ajustes: 'Settings', cerrar: 'Close', idiomaT: 'Language', paleta: 'Color palette', nombresNotas: 'Note names',
+    abrir: 'Upload a song', abrirSub: 'or drop it here · mp3, m4a, wav, flac or video', subiendo: 'Uploading',
+    separarEn: 'Split into', m4: '4 stems', m4sub: 'Vocals, drums, bass and other · best quality', m6: '6 stems', m6sub: 'Plus guitar and piano',
+    vacio: 'No songs yet. Upload one to get started.', abrirBtn: 'Open', borrar: 'Delete',
+    borrarConfirma: 'Delete "{t}" and its stems?', pistasListas: '{n} stems · ready', errorT: 'Error',
+    noSubio: 'Upload failed', noAbrio: 'Could not open the song',
+    'st:En cola': 'Queued', 'st:Decodificando audio': 'Reading audio', 'st:Separando pistas con IA': 'Splitting stems with AI',
+    'st:Guardando pistas': 'Saving stems', 'st:Analizando tempo, tonalidad y acordes': 'Analyzing tempo, key and chords',
+    'st:Interrumpido': 'Interrupted',
+    cargando: 'Loading…', cargandoPistas: 'Loading stems… {i}/{n}', abrirCancion: 'Open the song',
+    volver: '← Library', acordesT: 'Chords', seccionesT: 'Sections · tap to loop',
+    tocar: 'Play', pausa: 'Pause', loop: 'Loop', velocidad: 'Speed', tono: 'Key', metronomo: 'Metronome', volMetronomo: 'Metronome volume',
+    restablecer: 'Reset', descargar: '⬇ Stems', marcaPrimero: 'First drag over the waveforms or tap a section to mark the zone.',
+    ayudaOnda: 'Drag over the waveforms to mark a loop · tap to jump', atajoTocar: 'play', atajoMetro: 'metronome',
+    tonalidad: 'Key', mayor: 'major', menor: 'minor', original: 'original', silenciar: 'Mute', solo: 'Solo', volumen: 'Volume',
+    vocals: 'Vocals', drums: 'Drums', bass: 'Bass', guitar: 'Guitar', piano: 'Piano', other: 'Other',
+    'sec:Intro': 'Intro', 'sec:Estrofa': 'Verse', 'sec:Coro': 'Chorus', 'sec:Puente': 'Bridge', 'sec:Final': 'Outro', 'sec:Canción': 'Song', 'sec:Parte': 'Part',
+    credito: 'Built by Anggelo Berdejo — El Ñañe', otras: 'More tools',
+  },
+};
+
+function guardarPref(k, v) { try { localStorage.setItem('ensayo:' + k, JSON.stringify(v)); } catch (e) {} }
+function leerPref(k, def) {
+  try { const v = localStorage.getItem('ensayo:' + k); return v === null ? def : JSON.parse(v); } catch (e) { return def; }
+}
+
+let idioma = 'es';
+const t = (k, vars) => {
+  let s = (TEXTOS[idioma] && TEXTOS[idioma][k]) || TEXTOS.es[k] || k;
+  if (vars) for (const v in vars) s = s.replace('{' + v + '}', vars[v]);
+  return s;
+};
+
+function aplicarIdioma(nuevo) {
+  idioma = TEXTOS[nuevo] ? nuevo : 'es';
+  document.documentElement.lang = idioma;
+  document.querySelectorAll('[data-i18n]').forEach((el) => { el.textContent = t(el.dataset.i18n); });
+  document.querySelectorAll('[data-i18n-aria]').forEach((el) => el.setAttribute('aria-label', t(el.dataset.i18nAria)));
+  document.querySelectorAll('#idiomas button').forEach((b) => b.setAttribute('aria-pressed', b.dataset.idioma === idioma ? 'true' : 'false'));
+  guardarPref('idioma', idioma);
+  pintarTemas();
+  refrescarLista();
+  if (S.a) construirReproductor();
+}
+
+/* =====================================================================
+ * Paletas (las mismas de Velocidad Pro y el Metrónomo multipercusión)
+ * ===================================================================== */
+const TEMAS = {
+  calido: { es: 'Cálido', en: 'Warm', vars: { ink: '#241c15', bg: '#f7f0e2', surface: '#fffbf2', 'surface-2': '#eedfc3', parchment: '#34291e', 'parchment-dim': '#7a6c58', brass: '#4f8064', ember: '#b14e37', verdigris: '#b8871f', rust: '#93583a', focus: '#c99a2e' } },
+  dia: { es: 'Día', en: 'Day', vars: { ink: '#1a2331', bg: '#f3f9ff', surface: '#ffffff', 'surface-2': '#e1edf9', parchment: '#1a2331', 'parchment-dim': '#5c7089', brass: '#2f8fd1', ember: '#ef8354', verdigris: '#2bb3a3', rust: '#ef8354', focus: '#2f8fd1' } },
+  noche: { es: 'Noche', en: 'Night', vars: { ink: '#0b1220', bg: '#0b1220', surface: '#101a2c', 'surface-2': '#182640', parchment: '#e8f0fb', 'parchment-dim': '#7791b3', brass: '#4fd8ff', ember: '#7c93ff', verdigris: '#4fd8ff', rust: '#7c93ff', focus: '#7c93ff' } },
+  feliz: { es: 'Feliz', en: 'Happy', vars: { ink: '#3a2b1a', bg: '#fff6e9', surface: '#fffdf7', 'surface-2': '#ffe8c2', parchment: '#3a2b1a', 'parchment-dim': '#9c7d55', brass: '#ff6f59', ember: '#2ec4b6', verdigris: '#2ec4b6', rust: '#ff6f59', focus: '#ffb400' } },
+  serio: { es: 'Serio', en: 'Serious', vars: { ink: '#1b1e22', bg: '#1b1e22', surface: '#24282e', 'surface-2': '#2f343b', parchment: '#e6e8eb', 'parchment-dim': '#8a939e', brass: '#8fa1b3', ember: '#c9a27a', verdigris: '#5c6773', rust: '#9aa5b1', focus: '#9aa5b1' } },
+  grafito: { es: 'Grafito y oro', en: 'Graphite & gold', vars: { ink: '#14161a', bg: '#121417', surface: '#1b1e23', 'surface-2': '#272b31', parchment: '#ece8df', 'parchment-dim': '#8f949b', brass: '#c9a96e', ember: '#d06a52', verdigris: '#7fa38c', rust: '#a8744f', focus: '#e3d3a8' } },
+  vino: { es: 'Vino tinto', en: 'Red wine', vars: { ink: '#1a0f11', bg: '#1a1012', surface: '#251719', 'surface-2': '#362224', parchment: '#f2e7de', 'parchment-dim': '#a8918a', brass: '#c49a5b', ember: '#d0566a', verdigris: '#8a9a6e', rust: '#c2714f', focus: '#e0c9a6' } },
+  pizarra: { es: 'Pizarra', en: 'Slate', vars: { ink: '#f5f7f9', bg: '#eceff2', surface: '#f9fafb', 'surface-2': '#dbe1e7', parchment: '#1f2933', 'parchment-dim': '#5f6b78', brass: '#2f4a63', ember: '#a3503a', verdigris: '#5b7f6b', rust: '#8a6d4b', focus: '#7b8fa6' } },
+  lofi: { es: 'Lo-fi', en: 'Lo-fi', vars: { ink: '#1e1b2e', bg: '#1e1b2e', surface: '#28243b', 'surface-2': '#353050', parchment: '#ece6f5', 'parchment-dim': '#9b93b6', brass: '#a493ff', ember: '#ff9fb2', verdigris: '#7fd1c7', rust: '#ffc48c', focus: '#f5e17a' } },
+  atardecer: { es: 'Atardecer', en: 'Sunset', vars: { ink: '#fffaf6', bg: '#fdf0ea', surface: '#fffaf7', 'surface-2': '#f5dcd1', parchment: '#3d2c33', 'parchment-dim': '#957c83', brass: '#c05e52', ember: '#7f6bb8', verdigris: '#d99a5c', rust: '#b97a92', focus: '#e0b04f' } },
+  oceano: { es: 'Océano', en: 'Ocean', vars: { ink: '#0f2027', bg: '#0f2027', surface: '#16303a', 'surface-2': '#1f404c', parchment: '#e3f2f1', 'parchment-dim': '#86aeb0', brass: '#5cc8b5', ember: '#f2a65a', verdigris: '#8fc9ea', rust: '#e98a8a', focus: '#f3dd7d' } },
+  matcha: { es: 'Matcha', en: 'Matcha', vars: { ink: '#fbfcf8', bg: '#eff3e9', surface: '#fbfcf8', 'surface-2': '#dce5d0', parchment: '#2b3326', 'parchment-dim': '#6d7b62', brass: '#5f8a4e', ember: '#c4775e', verdigris: '#8aa64b', rust: '#9b7650', focus: '#d1a94a' } },
+};
+let tema = 'calido';
+
+function aplicarTema(clave) {
+  tema = TEMAS[clave] ? clave : 'calido';
+  const vars = TEMAS[tema].vars;
+  Object.keys(vars).forEach((k) => document.documentElement.style.setProperty('--' + k, vars[k]));
+  document.querySelector('meta[name="theme-color"]').setAttribute('content', vars.bg);
+  guardarPref('tema', tema);
+  pintarTemas();
+  if (S.a) { pintarSecciones(); dibujarOndas(); }
+}
+
+function pintarTemas() {
+  const caja = $('temas');
+  caja.innerHTML = '';
+  Object.keys(TEMAS).forEach((k) => {
+    const v = TEMAS[k].vars;
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'theme-card' + (k === tema ? ' active' : '');
+    b.setAttribute('aria-pressed', k === tema ? 'true' : 'false');
+    const sw = document.createElement('div');
+    sw.className = 'theme-card-swatches';
+    for (const c of [v.bg, v.brass, v.ember]) {
+      const s = document.createElement('span');
+      s.className = 'theme-swatch';
+      s.style.background = c;
+      sw.appendChild(s);
+    }
+    const n = document.createElement('div');
+    n.className = 'theme-card-name';
+    n.textContent = TEMAS[k][idioma] || TEMAS[k].es;
+    b.append(sw, n);
+    b.onclick = () => aplicarTema(k);
+    caja.appendChild(b);
+  });
+}
+
+/* =====================================================================
+ * Notación
+ * ===================================================================== */
+const NOMBRES = {
+  inglesa: { s: ['C', 'C♯', 'D', 'D♯', 'E', 'F', 'F♯', 'G', 'G♯', 'A', 'A♯', 'B'], b: ['C', 'D♭', 'D', 'E♭', 'E', 'F', 'G♭', 'G', 'A♭', 'A', 'B♭', 'B'] },
+  latina: { s: ['Do', 'Do♯', 'Re', 'Re♯', 'Mi', 'Fa', 'Fa♯', 'Sol', 'Sol♯', 'La', 'La♯', 'Si'], b: ['Do', 'Re♭', 'Re', 'Mi♭', 'Mi', 'Fa', 'Sol♭', 'Sol', 'La♭', 'La', 'Si♭', 'Si'] },
+};
+const CALIDAD = { maj: '', min: 'm', '7': '7', m7: 'm7' };
+let notacion = 'latina';
+
+function aplicarNotacion(n) {
+  notacion = NOMBRES[n] ? n : 'latina';
+  document.querySelectorAll('#notacion button').forEach((b) => b.setAttribute('aria-pressed', b.dataset.notacion === notacion ? 'true' : 'false'));
+  guardarPref('notacion', notacion);
+  if (S.a) { pintarDatos(); construirAcordes(); }
+}
+
+const usaBemoles = (root, mode) => [5, 10, 3, 8, 1, 6].includes(mode === 'min' ? (root + 3) % 12 : root);
+const nota = (pc, bemoles) => NOMBRES[notacion][bemoles ? 'b' : 's'][((pc % 12) + 12) % 12];
+
+/* =====================================================================
+ * Estado
+ * ===================================================================== */
+const $ = (id) => document.getElementById(id);
+const fmt = (s) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
+const escapar = (s) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const cssVar = (v) => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const COLOR_PISTA = { vocals: '--ember', drums: '--verdigris', bass: '--brass', guitar: '--rust', piano: '--focus', other: '--parchment-dim' };
+const COLOR_SECCION = ['--brass', '--ember', '--verdigris', '--rust', '--focus', '--parchment-dim'];
+
+const S = {
+  song: null, a: null, pistas: [], sonando: false, tiempo: 0, dur: 0,
+  tempo: 1, semis: 0, loop: null, loopOn: false, clickOn: false, clickVol: 0.5,
+};
+let modelo = '4';
+
+/* =====================================================================
+ * Biblioteca
+ * ===================================================================== */
+let ultimaLista = [];
+let sondeo = null;
+
+async function cargarLista() {
+  try { ultimaLista = await fetch('/api/songs').then((r) => r.json()); } catch (e) { return; }
+  refrescarLista();
+  clearTimeout(sondeo);
+  if (ultimaLista.some((s) => s.status.stage !== 'Listo' && !s.status.error)) sondeo = setTimeout(cargarLista, 1500);
+}
+
+function refrescarLista() {
+  const lista = $('lista');
+  lista.innerHTML = ultimaLista.length ? '' : `<div class="vacio">${t('vacio')}</div>`;
+  for (const s of ultimaLista) {
+    const st = s.status;
+    const lista_ = st.stage === 'Listo';
+    const el = document.createElement('div');
+    el.className = 'cancion';
+    el.innerHTML = `
+      <div class="t">
+        <div class="nombre"></div>
+        <div class="sub ${st.error ? 'err' : ''}">${st.error ? t('errorT') + ': ' + escapar(st.error)
+          : lista_ ? t('pistasListas', { n: s.model }) : `${t('st:' + st.stage)}… ${Math.round(st.progress * 100)}%`}</div>
+        ${!lista_ && !st.error ? `<div class="barra"><i style="width:${st.progress * 100}%"></i></div>` : ''}
+      </div>
+      ${lista_ ? `<button class="boton principal" type="button">${t('abrirBtn')}</button>` : ''}
+      <button class="chip borrar" type="button" title="${t('borrar')}">✕</button>`;
+    el.querySelector('.nombre').textContent = s.title;
+    if (lista_) el.querySelector('.principal').onclick = () => abrirCancion(s.id);
+    el.querySelector('.borrar').onclick = async () => {
+      if (!confirm(t('borrarConfirma', { t: s.title }))) return;
+      const r = await fetch(`/api/songs/${s.id}`, { method: 'DELETE' });
+      if (!r.ok) alert((await r.json()).detail);
+      cargarLista();
+    };
+    lista.appendChild(el);
+  }
+}
+
+async function subir(file) {
+  const fd = new FormData();
+  fd.append('file', file);
+  fd.append('model', modelo);
+  $('zonaTitulo').textContent = `${t('subiendo')} ${file.name}…`;
+  const r = await fetch('/api/songs', { method: 'POST', body: fd });
+  $('zonaTitulo').textContent = t('abrir');
+  if (!r.ok) alert(`${t('noSubio')}: ${await r.text()}`);
+  cargarLista();
+}
+
+const zona = $('zona');
+$('archivo').onchange = (e) => { for (const f of e.target.files) subir(f); e.target.value = ''; };
+zona.ondragover = (e) => { e.preventDefault(); zona.classList.add('over'); };
+zona.ondragleave = () => zona.classList.remove('over');
+zona.ondrop = (e) => { e.preventDefault(); zona.classList.remove('over'); for (const f of e.dataTransfer.files) subir(f); };
+document.querySelectorAll('#modelos button').forEach((b) => b.onclick = () => {
+  modelo = b.dataset.modelo;
+  document.querySelectorAll('#modelos button').forEach((x) => x.setAttribute('aria-pressed', x === b ? 'true' : 'false'));
+  guardarPref('modelo', modelo);
+});
+
+/* =====================================================================
+ * Motor de audio
+ * ===================================================================== */
+let actx = null, nodo = null;
+
+async function prepararAudio() {
+  if (actx) return;
+  actx = new AudioContext({ sampleRate: 44100, latencyHint: 'interactive' });
+  await actx.audioWorklet.addModule('/static/engine.js');
+  nodo = new AudioWorkletNode(actx, 'engine', { outputChannelCount: [2] });
+  nodo.connect(actx.destination);
+  nodo.port.onmessage = (e) => {
+    if (e.data.type === 'pos') S.tiempo = e.data.time;
+    if (e.data.type === 'ended') { S.sonando = false; S.tiempo = 0; pintarPlay(); }
+  };
+}
+
+function leerWav(buf) {
+  const v = new DataView(buf);
+  let p = 12;
+  while (p + 8 <= buf.byteLength) {
+    const id = String.fromCharCode(v.getUint8(p), v.getUint8(p + 1), v.getUint8(p + 2), v.getUint8(p + 3));
+    const size = v.getUint32(p + 4, true);
+    if (id === 'data') return new Int16Array(buf, p + 8, Math.floor(Math.min(size, buf.byteLength - p - 8) / 2));
+    p += 8 + size + (size & 1);
+  }
+  throw new Error('WAV sin datos');
+}
+
+async function abrirCancion(id) {
+  const c = $('cargando');
+  c.hidden = false;
+  c.textContent = t('cargando');
+  try {
+    await prepararAudio();
+    const song = await fetch(`/api/songs/${id}`).then((r) => r.json());
+    const a = song.analysis;
+    const stems = [];
+    for (let i = 0; i < a.stems.length; i++) {
+      c.textContent = t('cargandoPistas', { i: i + 1, n: a.stems.length });
+      stems.push(leerWav(await fetch(`/files/${id}/stems/${a.stems[i]}.wav`).then((r) => r.arrayBuffer())));
+    }
+    const len = Math.min(...stems.map((s) => s.length / 2));
+    nodo.port.postMessage({ type: 'load', stems, len }, stems.map((s) => s.buffer));
+
+    Object.assign(S, { song, a, sonando: false, tiempo: 0, dur: len / 44100, loop: null, loopOn: false, tempo: 1, semis: 0 });
+    S.pistas = a.stems.map((n) => ({ name: n, vol: 1, mute: false, solo: false }));
+    const fase = a.downbeat_phase;
+    nodo.port.postMessage({ type: 'beats', beats: a.beats, accents: a.beats.map((_, i) => (i - fase) % 4 === 0) });
+    enviarClick();
+    $('biblioteca').hidden = true;
+    $('reproductor').hidden = false;
+    enviarVelocidad();
+    construirReproductor();
+    history.replaceState(null, '', `#${id}`);
+  } catch (err) {
+    alert(`${t('noAbrio')}: ${err.message}`);
+  } finally {
+    c.hidden = true;
+  }
+}
+
+function enviarVolumenes() {
+  const haySolo = S.pistas.some((p) => p.solo);
+  nodo.port.postMessage({ type: 'gains', gains: S.pistas.map((p) => (p.mute || (haySolo && !p.solo) ? 0 : p.vol / 32768)) });
+  dibujarOndas();
+}
+function enviarVelocidad() {
+  nodo.port.postMessage({ type: 'rate', tempo: S.tempo, pitch: Math.pow(2, S.semis / 12) });
+  $('tempo').value = Math.round(S.tempo * 100);
+  $('tempoVal').textContent = `${Math.round(S.tempo * 100)}%`;
+  $('tonoVal').textContent = (S.semis > 0 ? '+' : '') + S.semis;
+  pintarDatos();
+  construirAcordes();
+}
+function enviarLoop() {
+  const on = S.loopOn && S.loop;
+  nodo.port.postMessage({ type: 'loop', a: on ? S.loop.a : null, b: on ? S.loop.b : null });
+  $('loopBtn').classList.toggle('active', !!on);
+  const z = $('zonaLoop');
+  z.hidden = !S.loop;
+  z.classList.toggle('off', !on);
+  if (S.loop) {
+    z.style.left = `${(S.loop.a / S.dur) * 100}%`;
+    z.style.width = `${((S.loop.b - S.loop.a) / S.dur) * 100}%`;
+  }
+  document.querySelectorAll('.sec').forEach((el) => {
+    el.classList.toggle('active', !!on && Math.abs(+el.dataset.a - S.loop.a) < 0.01 && Math.abs(+el.dataset.b - S.loop.b) < 0.01);
+  });
+}
+function enviarClick() {
+  nodo.port.postMessage({ type: 'click', on: S.clickOn, vol: S.clickVol });
+  $('click').classList.toggle('active', S.clickOn);
+}
+function saltar(s) {
+  S.tiempo = Math.max(0, Math.min(S.dur - 0.05, s));
+  nodo.port.postMessage({ type: 'seek', time: S.tiempo });
+}
+async function tocarPausar() {
+  await actx.resume();
+  S.sonando = !S.sonando;
+  nodo.port.postMessage({ type: S.sonando ? 'play' : 'pause' });
+  pintarPlay();
+}
+function pintarPlay() {
+  $('play').textContent = S.sonando ? '❚❚' : '▶';
+  $('play').setAttribute('aria-label', t(S.sonando ? 'pausa' : 'tocar'));
+}
+
+/* =====================================================================
+ * Tonalidad, acordes y secciones
+ * ===================================================================== */
+function tonalidadActual() {
+  const k = S.a.key;
+  const root = (k.root + S.semis + 120) % 12;
+  return { root, mode: k.mode, bemoles: usaBemoles(root, k.mode) };
+}
+function nombreAcorde(c) {
+  if (c.root < 0) return 'N.C.';
+  return nota(c.root + S.semis, tonalidadActual().bemoles) + CALIDAD[c.quality];
+}
+function pintarDatos() {
+  if (!S.a) return;
+  const k = tonalidadActual();
+  const orig = S.a.key;
+  $('datoTono').innerHTML = `${t('tonalidad')} <b>${nota(k.root, k.bemoles)} ${t(k.mode === 'min' ? 'menor' : 'mayor')}</b>`
+    + (S.semis ? ` <small>· ${t('original')} ${nota(orig.root, usaBemoles(orig.root, orig.mode))}${orig.mode === 'min' ? 'm' : ''}</small>` : '');
+  const bpm = S.a.bpm * S.tempo;
+  $('datoBpm').innerHTML = `<b>${bpm.toFixed(bpm % 1 ? 1 : 0)}</b> BPM` + (S.tempo !== 1 ? ` <small>(${t('original')} ${S.a.bpm})</small>` : '') + ' <small>· 4/4</small>';
+}
+
+const PPS = 90; // píxeles por segundo en la tira de acordes
+let acordeActual = -1;
+
+function construirAcordes() {
+  if (!S.a) return;
+  const tira = $('tira');
+  tira.innerHTML = '';
+  acordeActual = -1;
+  S.acordesEl = S.a.chords.map((c) => {
+    const el = document.createElement('div');
+    el.className = 'c' + (c.root < 0 ? ' nc' : '');
+    el.style.left = `${c.start * PPS}px`;
+    el.style.width = `${(c.end - c.start) * PPS}px`;
+    el.textContent = nombreAcorde(c);
+    tira.appendChild(el);
+    return el;
+  });
+}
+
+function nombreSeccion(n) {
+  const m = n.match(/^Parte (\w+)$/);
+  return m ? `${t('sec:Parte')} ${m[1]}` : t('sec:' + n);
+}
+
+function pintarSecciones() {
+  const caja = $('secciones');
+  caja.innerHTML = '';
+  const letras = [...new Set(S.a.sections.map((s) => s.label))];
+  for (const s of S.a.sections) {
+    const el = document.createElement('div');
+    el.className = 'sec';
+    el.dataset.a = s.start; el.dataset.b = s.end;
+    el.style.left = `${(s.start / S.dur) * 100}%`;
+    el.style.width = `calc(${((s.end - s.start) / S.dur) * 100}% - 3px)`;
+    const color = COLOR_SECCION[letras.indexOf(s.label) % COLOR_SECCION.length];
+    el.style.background = `color-mix(in srgb, var(${color}) 30%, var(--surface))`;
+    el.style.borderLeft = `3px solid var(${color})`;
+    el.textContent = nombreSeccion(s.name);
+    el.title = `${nombreSeccion(s.name)} (${fmt(s.start)}–${fmt(s.end)})`;
+    el.onclick = () => {
+      const misma = S.loopOn && S.loop && Math.abs(S.loop.a - s.start) < 0.01 && Math.abs(S.loop.b - s.end) < 0.01;
+      if (misma) S.loopOn = false;
+      else { S.loop = { a: s.start, b: s.end }; S.loopOn = true; saltar(s.start); }
+      enviarLoop();
+    };
+    caja.appendChild(el);
+  }
+}
+
+/* =====================================================================
+ * Reproductor
+ * ===================================================================== */
+function construirReproductor() {
+  $('titulo').textContent = S.song.title;
+  pintarDatos();
+  construirAcordes();
+  pintarSecciones();
+
+  const pistas = $('pistas');
+  pistas.innerHTML = '';
+  S.pistas.forEach((p) => {
+    const lane = document.createElement('div');
+    lane.className = 'lane';
+    lane.innerHTML = `
+      <div class="pista">
+        <div class="nm"><span class="punto" style="background:var(${COLOR_PISTA[p.name] || '--brass'})"></span>${t(p.name)}</div>
+        <button class="chip mute ${p.mute ? 'active' : ''}" type="button" title="${t('silenciar')}">M</button>
+        <button class="chip solo ${p.solo ? 'active' : ''}" type="button" title="${t('solo')}">S</button>
+        <input type="range" min="0" max="150" value="${Math.round(p.vol * 100)}" aria-label="${t('volumen')} ${t(p.name)}">
+      </div>
+      <div class="onda"><canvas></canvas></div>`;
+    const [mb, sb] = lane.querySelectorAll('button');
+    mb.onclick = () => { p.mute = !p.mute; mb.classList.toggle('active', p.mute); enviarVolumenes(); };
+    sb.onclick = () => { p.solo = !p.solo; sb.classList.toggle('active', p.solo); enviarVolumenes(); };
+    lane.querySelector('input').oninput = (e) => { p.vol = e.target.value / 100; enviarVolumenes(); };
+    p.canvas = lane.querySelector('canvas');
+    pistas.appendChild(lane);
+  });
+
+  const eje = $('eje');
+  eje.innerHTML = '';
+  for (let i = 0; i <= 6; i++) eje.insertAdjacentHTML('beforeend', `<span>${fmt((S.dur * i) / 6)}</span>`);
+  $('total').textContent = fmt(S.dur);
+  $('descargas').innerHTML = S.pistas.map((p) =>
+    `<a href="/files/${S.song.id}/stems/${p.name}.wav" download="${escapar(S.song.title)} - ${t(p.name)}.wav">${t(p.name)}</a>`).join('');
+
+  ubicarCapa();
+  enviarVolumenes();
+  enviarLoop();
+  pintarPlay();
+}
+
+function ubicarCapa() {
+  const onda = document.querySelector('.onda');
+  if (!onda) return;
+  $('capa').style.left = `${onda.getBoundingClientRect().left - $('carriles').getBoundingClientRect().left}px`;
+}
+
+function dibujarOndas() {
+  const haySolo = S.pistas.some((p) => p.solo);
+  for (const p of S.pistas) {
+    const c = p.canvas;
+    if (!c) continue;
+    const dpr = devicePixelRatio || 1;
+    const w = c.clientWidth, h = c.clientHeight;
+    c.width = w * dpr; c.height = h * dpr;
+    const g = c.getContext('2d');
+    g.scale(dpr, dpr);
+    const picos = S.a.peaks[p.name];
+    g.fillStyle = cssVar(COLOR_PISTA[p.name] || '--brass');
+    g.globalAlpha = p.mute || (haySolo && !p.solo) ? 0.2 : 0.9;
+    const barras = Math.floor(w / 2);
+    for (let x = 0; x < barras; x++) {
+      const i0 = Math.floor((x / barras) * picos.length), i1 = Math.max(i0 + 1, Math.floor(((x + 1) / barras) * picos.length));
+      let m = 0;
+      for (let i = i0; i < i1; i++) m = Math.max(m, picos[i]);
+      const bh = Math.max(1, (m / 100) * h * Math.min(p.vol, 1.5) / 1.1);
+      g.fillRect(x * 2, (h - bh) / 2, 1.4, bh);
+    }
+  }
+}
+
+/* =====================================================================
+ * Controles
+ * ===================================================================== */
+$('volver').onclick = () => {
+  if (S.sonando) tocarPausar();
+  $('reproductor').hidden = true;
+  $('biblioteca').hidden = false;
+  history.replaceState(null, '', '#');
+  cargarLista();
+};
+$('play').onclick = tocarPausar;
+$('atras5').onclick = () => saltar(S.tiempo - 5);
+$('adelante5').onclick = () => saltar(S.tiempo + 5);
+$('loopBtn').onclick = () => {
+  if (!S.loop) { alert(t('marcaPrimero')); return; }
+  S.loopOn = !S.loopOn; enviarLoop();
+};
+$('tempo').oninput = (e) => { S.tempo = e.target.value / 100; enviarVelocidad(); };
+$('tempo').ondblclick = () => { S.tempo = 1; enviarVelocidad(); };
+$('tonoMenos').onclick = () => { S.semis = Math.max(-12, S.semis - 1); enviarVelocidad(); };
+$('tonoMas').onclick = () => { S.semis = Math.min(12, S.semis + 1); enviarVelocidad(); };
+$('click').onclick = () => { S.clickOn = !S.clickOn; enviarClick(); };
+$('clickVol').oninput = (e) => { S.clickVol = e.target.value / 100; enviarClick(); };
+$('restablecer').onclick = () => {
+  S.tempo = 1; S.semis = 0; enviarVelocidad();
+  S.pistas.forEach((p) => { p.mute = false; p.solo = false; p.vol = 1; });
+  construirReproductor();
+};
+$('descargarBtn').onclick = (e) => { e.stopPropagation(); $('descargas').hidden = !$('descargas').hidden; };
+document.addEventListener('click', () => { $('descargas').hidden = true; });
+
+$('abrirAjustes').onclick = () => $('ajustes').showModal();
+$('cerrarAjustes').onclick = () => $('ajustes').close();
+$('ajustes').addEventListener('click', (e) => { if (e.target === $('ajustes')) $('ajustes').close(); });
+document.querySelectorAll('#idiomas button').forEach((b) => b.onclick = () => aplicarIdioma(b.dataset.idioma));
+document.querySelectorAll('#notacion button').forEach((b) => b.onclick = () => aplicarNotacion(b.dataset.notacion));
+
+// Tocar la onda = saltar; arrastrar = marcar loop
+$('pistas').addEventListener('pointerdown', (e) => {
+  const onda = e.target.closest('.onda');
+  if (!onda) return;
+  const r = onda.getBoundingClientRect();
+  const aTiempo = (x) => Math.max(0, Math.min(1, (x - r.left) / r.width)) * S.dur;
+  const x0 = e.clientX, t0 = aTiempo(x0);
+  let arrastrando = false;
+  const mover = (ev) => {
+    if (Math.abs(ev.clientX - x0) > 4) arrastrando = true;
+    if (arrastrando) {
+      const t1 = aTiempo(ev.clientX);
+      S.loop = { a: Math.min(t0, t1), b: Math.max(t0, t1) };
+      S.loopOn = true;
+      enviarLoop();
+    }
+  };
+  const soltar = () => {
+    removeEventListener('pointermove', mover);
+    removeEventListener('pointerup', soltar);
+    if (!arrastrando) saltar(t0);
+    else if (S.loop.b - S.loop.a < 0.3) { S.loop = null; S.loopOn = false; enviarLoop(); }
+    else saltar(S.loop.a);
+  };
+  addEventListener('pointermove', mover);
+  addEventListener('pointerup', soltar);
+});
+
+document.addEventListener('keydown', (e) => {
+  if ($('reproductor').hidden || $('ajustes').open || (e.target.tagName === 'INPUT' && e.target.type !== 'range')) return;
+  if (e.code === 'Space') { e.preventDefault(); tocarPausar(); }
+  else if (e.code === 'ArrowLeft') { e.preventDefault(); saltar(S.tiempo - 5); }
+  else if (e.code === 'ArrowRight') { e.preventDefault(); saltar(S.tiempo + 5); }
+  else if (e.code === 'KeyL') $('loopBtn').click();
+  else if (e.code === 'KeyM') $('click').click();
+});
+
+addEventListener('resize', () => { if (S.a) { ubicarCapa(); dibujarOndas(); } });
+
+// Animación: cabezal y tira de acordes
+function cuadro() {
+  requestAnimationFrame(cuadro);
+  if (!S.a || $('reproductor').hidden) return;
+  const s = S.tiempo;
+  $('playhead').style.left = `${(s / S.dur) * 100}%`;
+  $('actual').textContent = fmt(s);
+  $('tira').style.transform = `translateX(${$('acordes').clientWidth * 0.25 - s * PPS}px)`;
+  const ac = S.a.chords;
+  let i = acordeActual >= 0 && acordeActual < ac.length && ac[acordeActual].start <= s ? acordeActual : 0;
+  while (i < ac.length - 1 && ac[i].end <= s) i++;
+  if (i !== acordeActual) {
+    if (S.acordesEl[acordeActual]) S.acordesEl[acordeActual].classList.remove('now');
+    if (S.acordesEl[i]) S.acordesEl[i].classList.add('now');
+    acordeActual = i;
+  }
+}
+requestAnimationFrame(cuadro);
+
+/* =====================================================================
+ * Inicio
+ * ===================================================================== */
+modelo = leerPref('modelo', '4');
+document.querySelectorAll('#modelos button').forEach((b) => b.setAttribute('aria-pressed', b.dataset.modelo === modelo ? 'true' : 'false'));
+notacion = leerPref('notacion', 'latina');
+aplicarNotacion(notacion);
+aplicarTema(leerPref('tema', 'calido'));
+aplicarIdioma(leerPref('idioma', 'es'));
+cargarLista();
+
+const inicial = location.hash.slice(1);
+if (/^[0-9a-f]{12}$/.test(inicial)) {
+  // El navegador pide un gesto del usuario antes de activar el audio
+  const c = $('cargando');
+  c.hidden = false;
+  c.innerHTML = `<button class="boton principal" type="button" style="font-size:16px;padding:12px 20px">${t('abrirCancion')}</button>`;
+  c.querySelector('button').onclick = () => abrirCancion(inicial);
+}
+</script>
+</body>
+</html>

@@ -10,7 +10,9 @@ Separa la voz, la batería, el bajo y más de cualquier canción con IA, directo
   - **Rápido · 4 pistas:** voz, batería, bajo y otros ([HTDemucs](https://github.com/facebookresearch/demucs)).
   - **Estudio · 9 pistas:** voz, bombo, redoblante, toms, platillos, bajo, guitarra, piano y otros (HTDemucs 6 pistas + [drumsep](https://github.com/inagoy/drumsep) para las piezas de la batería).
   - Silenciar, solo, volumen por pista y descarga en .wav.
-- **Letra sincronizada** con IA ([Whisper](https://github.com/openai/whisper) vía [Transformers.js](https://github.com/huggingface/transformers.js)): escucha la voz separada y va marcando cada palabra mientras suena. Toca una línea para saltar ahí.
+- **Letra sincronizada** con IA ([Whisper](https://github.com/openai/whisper) vía [Transformers.js](https://github.com/huggingface/transformers.js)): escucha solo las partes donde se canta y va llenando cada palabra de color mientras suena. Toca una línea para saltar ahí.
+  - **Tu propia letra:** pégala (o carga un .txt) al subir la canción o desde el reproductor; la IA solo pone los tiempos y se ve tu texto tal cual. Un archivo .lrc ya trae los tiempos.
+  - **Karaoke a pantalla completa** (botón Karaoke o tecla K).
 - **Velocidad** del 50 % al 150 % sin cambiar la afinación, y **tono** de −12 a +12 semitonos.
 - **Acordes** en una tira que corre con la música. Se calculan sin la voz ni la batería y con el bajo como guía. Se transponen solos si cambias el tono.
 - **Tonalidad, BPM e inicio de compás.**

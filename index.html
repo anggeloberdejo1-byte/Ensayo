@@ -194,8 +194,27 @@
   .linea { margin: 0; padding: 4px 8px; cursor: pointer; border-radius: 8px; line-height: 1.35; overflow-wrap: anywhere; }
   .linea:hover { background: var(--surface-2); }
   .linea.previa, .linea.siguiente { font-size: 15px; color: var(--parchment-dim); min-height: 1.35em; }
-  .linea.actual { font-size: 26px; font-weight: 700; color: var(--parchment-dim); min-height: 1.35em; }
-  .linea.actual .dicha { color: var(--ember); }
+  .linea.actual { font-size: 26px; font-weight: 700; min-height: 1.35em; }
+  .linea.actual span, .k-linea.actual span {
+    background: linear-gradient(90deg, var(--ember) var(--p, 0%), var(--parchment-dim) var(--p, 0%));
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .letra-acciones { position: absolute; top: 6px; right: 8px; display: flex; gap: 6px; }
+  .karaoke { position: fixed; inset: 0; z-index: 20; background: var(--bg); display: flex; flex-direction: column; padding: 24px; padding-bottom: calc(24px + env(safe-area-inset-bottom)); }
+  .k-cabeza { display: flex; align-items: center; gap: 12px; }
+  .k-cabeza h2 { flex: 1; margin: 0; font-family: 'Bebas Neue', sans-serif; font-weight: 400; font-size: 26px; letter-spacing: .04em; color: var(--parchment-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .k-lineas { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 2.5vh; text-align: center; }
+  .k-linea { margin: 0; cursor: pointer; font-weight: 700; line-height: 1.2; overflow-wrap: anywhere; }
+  .k-linea.previa { font-size: clamp(18px, 3.2vw, 34px); color: var(--parchment-dim); opacity: .5; }
+  .k-linea.actual { font-size: clamp(32px, 7vw, 84px); min-height: 1.2em; }
+  .k-linea.siguiente { font-size: clamp(20px, 4vw, 44px); color: var(--parchment-dim); }
+  .k-linea.despues { font-size: clamp(18px, 3.2vw, 34px); color: var(--parchment-dim); opacity: .6; }
+  .dialogo-letra textarea, .letra-inicio textarea { width: 100%; min-height: 220px; resize: vertical; font: 14px/1.5 'Work Sans', sans-serif; color: var(--parchment); background: var(--bg); border: 1px solid var(--surface-2); border-radius: 8px; padding: 10px; }
+  .letra-inicio { margin-top: 12px; }
+  .letra-inicio summary { cursor: pointer; font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--parchment-dim); }
+  .letra-inicio textarea { min-height: 120px; margin-top: 8px; }
+  .fila-botones { display: flex; gap: 8px; justify-content: flex-end; margin-top: 10px; flex-wrap: wrap; align-items: center; }
+  .fila-botones .izq { margin-right: auto; }
   .letra-vacia { display: grid; gap: 8px; justify-items: center; padding: 4px 0 2px; }
   .letra-vacia .sub { font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: var(--parchment-dim); }
   .letra-vacia .barra { width: min(320px, 100%); }
@@ -235,6 +254,7 @@
     .acordes { height: 84px; }
     .acordes .c { font-size: 26px; }
     .linea.actual { font-size: 21px; }
+    .letra-acciones { position: static; justify-content: center; flex-wrap: wrap; margin-bottom: 8px; }
     .transporte { position: static; gap: 10px 12px; padding: 12px; }
     .transporte .grupo { flex-wrap: wrap; }
     .grupo.velocidad input { width: 110px; }
@@ -322,6 +342,13 @@
           <button type="button" data-modo="estudio" aria-pressed="false"><b data-i18n="modoEstudio">Estudio · 9 pistas</b><span data-i18n="modoEstudioSub">Voz, bombo, redoblante, toms, platillos, bajo, guitarra, piano y otros</span></button>
         </div>
       </div>
+      <details class="letra-inicio">
+        <summary data-i18n="letraInicioT">Letra (opcional)</summary>
+        <textarea id="textoLetraInicio" data-i18n-ph="letraPh" placeholder="Pega aquí la letra de la canción que vas a subir. La app la pone en pantalla al ritmo de la voz."></textarea>
+        <div class="fila-botones">
+          <label class="chip izq"><span data-i18n="cargarTxt">Cargar .txt o .lrc</span><input type="file" id="archivoLetraInicio" accept=".txt,.lrc,text/plain" hidden></label>
+        </div>
+      </details>
       <p class="aviso" data-i18n="aviso">Todo pasa en tu equipo: la canción no se sube a ningún servidor. La primera vez descarga los modelos de IA (90 MB el rápido, 230 MB el de estudio) y quedan guardados.</p>
     </div>
     <div class="lista" id="lista"></div>
@@ -344,8 +371,16 @@
 
     <div class="panel letra" id="panelLetra">
       <div class="label" data-i18n="letraT">Letra</div>
+      <div class="letra-acciones" id="letraAcciones" hidden>
+        <button class="chip" id="abrirKaraoke" type="button" data-i18n="karaoke">Karaoke ⛶</button>
+        <button class="chip" id="editarLetra" type="button" data-i18n="editarLetra">Editar letra</button>
+        <button class="chip" id="rehacerLetra" type="button" data-i18n="otraVez">Volver a sacar</button>
+      </div>
       <div class="letra-vacia" id="letraVacia">
-        <button class="boton principal" id="sacarLetra" type="button" data-i18n="sacarLetra">Sacar la letra</button>
+        <div class="fila-botones" style="justify-content:center;margin:0">
+          <button class="boton principal" id="sacarLetra" type="button" data-i18n="sacarLetra">Sacar la letra</button>
+          <button class="boton" id="pegarLetra" type="button" data-i18n="pegarLetra">Pegar la letra</button>
+        </div>
         <div class="barra" id="letraBarra" hidden><i></i></div>
         <span class="sub" id="letraEstado" data-i18n="letraNota">La IA escucha la voz separada y escribe la letra con el tiempo de cada palabra.</span>
       </div>
@@ -422,6 +457,35 @@
     </p>
   </div>
 </main>
+
+<dialog class="ajustes dialogo-letra" id="dialogoLetra">
+  <div class="ajustes-cabeza">
+    <h2 data-i18n="letraT">Letra</h2>
+    <button class="boton" id="cancelarLetra" type="button" data-i18n="cerrar">Cerrar</button>
+  </div>
+  <div class="ajustes-cuerpo">
+    <p class="nota-ajustes" data-i18n="pegarNota">Pega la letra, una línea por renglón. La IA escucha la voz para saber cuándo se canta cada palabra. Un archivo .lrc ya trae los tiempos.</p>
+    <textarea id="textoLetraPlayer" data-i18n-ph="letraPh"></textarea>
+    <div class="fila-botones">
+      <label class="chip izq"><span data-i18n="cargarTxt">Cargar .txt o .lrc</span><input type="file" id="archivoLetraPlayer" accept=".txt,.lrc,text/plain" hidden></label>
+      <button class="boton principal" id="usarLetra" type="button" data-i18n="usarLetra">Sincronizar</button>
+    </div>
+  </div>
+</dialog>
+
+<div class="karaoke" id="karaoke" hidden>
+  <div class="k-cabeza">
+    <button class="play" id="kPlay" type="button" data-i18n-aria="tocar" aria-label="Tocar">▶</button>
+    <h2 id="kTitulo"></h2>
+    <button class="boton" id="cerrarKaraoke" type="button" data-i18n="cerrar">Cerrar</button>
+  </div>
+  <div class="k-lineas">
+    <p class="k-linea previa" id="kPrevia"></p>
+    <p class="k-linea actual" id="kActual"></p>
+    <p class="k-linea siguiente" id="kSiguiente"></p>
+    <p class="k-linea despues" id="kDespues"></p>
+  </div>
+</div>
 
 <div class="cargando" id="cargando" hidden></div>
 
@@ -1447,8 +1511,36 @@ const CONFIG = {
 const SIN_GPU = { encoder_model: 'fp32', decoder_model_merged: 'q8' };
 let asr = null, actual = '';
 
+const limpiar = (w) => w.trim().toLowerCase().replace(/[^\p{L}\p{N}]/gu, '');
+// ¿Whisper se trabó repitiendo? Más de 6 veces la misma palabra seguida, o más de 6 palabras por segundo
+function trabado(ws, dur) {
+  let seguidas = 1;
+  for (let i = 1; i < ws.length; i++) {
+    seguidas = limpiar(ws[i].t) === limpiar(ws[i - 1].t) ? seguidas + 1 : 1;
+    if (seguidas > 6) return true;
+  }
+  return ws.length / Math.max(dur, 1) > 6;
+}
+
+async function transcribir(audio, a, z, idioma, nivel) {
+  const r = await asr(audio.slice(Math.floor(a * 16000), Math.floor(z * 16000)), {
+    return_timestamps: 'word', language: idioma || null, task: 'transcribe', ...(nivel ? { repetition_penalty: 1.3 } : {}),
+  });
+  const ws = (r.chunks || [])
+    .filter((w) => /[\p{L}\p{N}]/u.test(w.text))
+    .map((w) => ({ t: w.text, a: a + w.timestamp[0], b: a + (w.timestamp[1] ?? w.timestamp[0] + 0.3) }));
+  if (!trabado(ws, z - a)) return ws;
+  // Se trabó: repetir en dos mitades, castigando las repeticiones
+  if (nivel < 2 && z - a > 4) {
+    const m = (a + z) / 2;
+    return [...await transcribir(audio, a, m, idioma, nivel + 1), ...await transcribir(audio, m, z, idioma, nivel + 1)];
+  }
+  // Último recurso: dejar como mucho 4 repeticiones seguidas
+  return ws.filter((w, i) => i < 4 || !ws.slice(i - 4, i).every((x) => limpiar(x.t) === limpiar(w.t)));
+}
+
 onmessage = async (e) => {
-  const { audio, calidad, idioma } = e.data;
+  const { audio, partes, calidad, idioma } = e.data;
   try {
     if (!asr || actual !== calidad) {
       if (asr) { await asr.dispose(); asr = null; }
@@ -1467,9 +1559,13 @@ onmessage = async (e) => {
       });
       actual = calidad;
     }
-    postMessage({ tipo: 'progreso', etapa: 'escuchandoLetra', progreso: 0 });
-    const r = await asr(audio, { return_timestamps: 'word', chunk_length_s: 30, stride_length_s: 5, language: idioma || null, task: 'transcribe' });
-    postMessage({ tipo: 'listo', palabras: (r.chunks || []).map((c) => ({ t: c.text, a: c.timestamp[0], b: c.timestamp[1] ?? c.timestamp[0] + 0.3 })) });
+    // Solo se escuchan las partes donde hay voz (en las partes sin voz Whisper inventa texto)
+    const palabras = [];
+    for (let i = 0; i < partes.length; i++) {
+      postMessage({ tipo: 'progreso', etapa: 'escuchandoLetra', progreso: i / partes.length });
+      palabras.push(...await transcribir(audio, partes[i][0], partes[i][1], idioma, 0));
+    }
+    postMessage({ tipo: 'listo', palabras });
   } catch (err) {
     postMessage({ tipo: 'error', mensaje: err.message || String(err) });
   }
@@ -1512,6 +1608,9 @@ const TEXTOS = {
     letraT: 'Letra', sacarLetra: 'Sacar la letra', letraNota: 'La IA escucha la voz separada y escribe la letra con el tiempo de cada palabra.',
     descargandoLetra: 'Descargando el modelo de letra (solo la primera vez)', escuchandoLetra: 'Escuchando la voz y escribiendo la letra',
     sinLetra: 'No se encontró letra cantada en esta canción.', ocultarLetra: 'Ocultar letra', otraVez: 'Volver a sacar',
+    karaoke: 'Karaoke ⛶', editarLetra: 'Editar letra', pegarLetra: 'Pegar la letra', usarLetra: 'Sincronizar', cargarTxt: 'Cargar .txt o .lrc',
+    letraInicioT: 'Letra (opcional)', letraPh: 'Pega aquí la letra, una línea por renglón. La app la pone en pantalla al ritmo de la voz.',
+    pegarNota: 'Pega la letra, una línea por renglón. La IA escucha la voz para saber cuándo se canta cada palabra. Un archivo .lrc ya trae los tiempos.',
     letraCalidadT: 'Letra: precisión', calidadNormal: 'Normal · 205 MB', calidadAlta: 'Alta · 410 MB', letraIdiomaT: 'Letra: idioma de la canción', automatico: 'Auto',
   },
   en: {
@@ -1545,6 +1644,9 @@ const TEXTOS = {
     letraT: 'Lyrics', sacarLetra: 'Get the lyrics', letraNota: 'The AI listens to the isolated vocals and writes the lyrics with the timing of every word.',
     descargandoLetra: 'Downloading the lyrics model (first time only)', escuchandoLetra: 'Listening to the vocals and writing the lyrics',
     sinLetra: 'No sung lyrics were found in this song.', ocultarLetra: 'Hide lyrics', otraVez: 'Get them again',
+    karaoke: 'Karaoke ⛶', editarLetra: 'Edit lyrics', pegarLetra: 'Paste lyrics', usarLetra: 'Sync', cargarTxt: 'Load .txt or .lrc',
+    letraInicioT: 'Lyrics (optional)', letraPh: 'Paste the lyrics here, one line per row. The app shows them in time with the vocals.',
+    pegarNota: 'Paste the lyrics, one line per row. The AI listens to the vocals to know when each word is sung. An .lrc file already has the timing.',
     letraCalidadT: 'Lyrics: accuracy', calidadNormal: 'Normal · 205 MB', calidadAlta: 'High · 410 MB', letraIdiomaT: 'Lyrics: song language', automatico: 'Auto',
   },
 };
@@ -1566,6 +1668,7 @@ function aplicarIdioma(nuevo) {
   document.documentElement.lang = idioma;
   document.querySelectorAll('[data-i18n]').forEach((el) => { el.textContent = t(el.dataset.i18n); });
   document.querySelectorAll('[data-i18n-aria]').forEach((el) => el.setAttribute('aria-label', t(el.dataset.i18nAria)));
+  document.querySelectorAll('[data-i18n-ph]').forEach((el) => { el.placeholder = t(el.dataset.i18nPh); });
   document.querySelectorAll('#idiomas button').forEach((b) => b.setAttribute('aria-pressed', b.dataset.idioma === idioma ? 'true' : 'false'));
   guardarPref('idioma', idioma);
   pintarTemas();
@@ -1773,7 +1876,9 @@ function pintarLista() {
 }
 
 function agregarArchivo(archivo) {
-  trabajos.push({ id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6), titulo: archivo.name.replace(/\.[^.]+$/, ''), archivo, estudio: modo === 'estudio', etapa: 'enCola', progreso: 0 });
+  const textoLetra = $('textoLetraInicio').value.trim();
+  $('textoLetraInicio').value = '';
+  trabajos.push({ id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6), titulo: archivo.name.replace(/\.[^.]+$/, ''), archivo, estudio: modo === 'estudio', textoLetra, etapa: 'enCola', progreso: 0 });
   pintarLista();
   procesarCola();
 }
@@ -1809,8 +1914,10 @@ async function procesarCola() {
       separador.onerror = (e) => mal(new Error(e.message || 'Error en el separador'));
       separador.postMessage({ tipo: 'separar', izquierda, derecha, estudio: j.estudio, base: location.href }, [izquierda.buffer, derecha.buffer]);
     });
-    const cancion = { id: j.id, titulo: j.titulo, creada: Date.now(), duracion: r.analisis.duration, analisis: r.analisis, segundos: r.segundos, motor: r.motor, estudio: j.estudio };
+    const cancion = { id: j.id, titulo: j.titulo, creada: Date.now(), duracion: r.analisis.duration, analisis: r.analisis, segundos: r.segundos, motor: r.motor, estudio: j.estudio, textoLetra: j.textoLetra || '' };
     await bdGuardar(cancion, r.pistas);
+    // Si trajo la letra escrita, se sincroniza sola
+    if (cancion.textoLetra) sacarLetra(cancion);
     trabajos.splice(trabajos.indexOf(j), 1);
     await cargarLista();
     pintarEstadoModelo();
@@ -1950,6 +2057,7 @@ async function tocarPausar() {
 }
 function pintarPlay() {
   $('play').textContent = S.sonando ? '❚❚' : '▶';
+  $('kPlay').textContent = S.sonando ? '❚❚' : '▶';
   $('play').setAttribute('aria-label', t(S.sonando ? 'pausa' : 'tocar'));
 }
 
@@ -2030,7 +2138,9 @@ function pintarSecciones() {
 let trabajadorLetra = null;
 let calidadLetra = 'normal', idiomaLetra = '';
 let lineaActual = -2;
-let letraEnCurso = null;  // id de la canción cuya letra se está sacando
+let letraEnCurso = null;          // id de la canción cuya letra se está sacando
+let colaLetra = Promise.resolve();
+const normalizar = (w) => w.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]/g, '');
 
 // Agrupa las palabras en líneas: corta en pausas, en puntuación o cada 9 palabras
 function armarLineas(palabras) {
@@ -2045,61 +2155,183 @@ function armarLineas(palabras) {
   return lineas;
 }
 
-async function sacarLetra() {
-  const c = S.cancion;
-  if (letraEnCurso) return;
+// Texto escrito por el usuario -> líneas de palabras (sin rótulos como [Coro] y sin líneas vacías)
+function lineasDeTexto(texto) {
+  return texto.split(/\r?\n/)
+    .map((l) => l.replace(/\[[^\]]*\]/g, ' ').replace(/\([^)]*\)\s*$/, (m) => m).trim())
+    .filter((l) => l && /[\p{L}\p{N}]/u.test(l))
+    .map((l) => l.split(/\s+/).filter((w) => /[\p{L}\p{N}]/u.test(w)));
+}
+
+// Archivo .lrc: cada línea ya trae su tiempo, [mm:ss.xx] texto
+function leerLrc(texto) {
+  const filas = [];
+  for (const l of texto.split(/\r?\n/)) {
+    const tiempos = [...l.matchAll(/\[(\d+):(\d+(?:[.:]\d+)?)\]/g)];
+    const resto = l.replace(/\[[^\]]*\]/g, '').trim();
+    for (const m of tiempos) filas.push({ t: +m[1] * 60 + parseFloat(m[2].replace(':', '.')), texto: resto });
+  }
+  filas.sort((x, y) => x.t - y.t);
+  const palabras = [], lineas = [];
+  filas.forEach((f, k) => {
+    const ws = f.texto.split(/\s+/).filter((w) => /[\p{L}\p{N}]/u.test(w));
+    if (!ws.length) return;
+    const fin = k + 1 < filas.length ? filas[k + 1].t : f.t + ws.length * 0.5;
+    const paso = Math.min(0.6, (fin - f.t) / ws.length);
+    lineas.push(ws.map((w, i) => { palabras.push({ t: w, a: f.t + i * paso, b: f.t + (i + 1) * paso }); return palabras.length - 1; }));
+  });
+  return { palabras, lineas };
+}
+
+// Parecido entre dos palabras (0 a 1), por distancia de edición
+function parecido(a, b) {
+  if (a === b) return 1;
+  if (!a || !b) return 0;
+  const d = Array.from({ length: b.length + 1 }, (_, j) => j);
+  for (let i = 1; i <= a.length; i++) {
+    let previo = d[0];
+    d[0] = i;
+    for (let j = 1; j <= b.length; j++) {
+      const tmp = d[j];
+      d[j] = Math.min(d[j] + 1, d[j - 1] + 1, previo + (a[i - 1] === b[j - 1] ? 0 : 1));
+      previo = tmp;
+    }
+  }
+  return 1 - d[b.length] / Math.max(a.length, b.length);
+}
+
+// Pone tiempos a la letra escrita usando lo que Whisper oyó: alinea ambas secuencias de palabras
+function alinearLetra(lineasTexto, oidas) {
+  const escritas = [];
+  lineasTexto.forEach((l, k) => l.forEach((w) => escritas.push({ t: w, linea: k })));
+  const E = escritas.map((w) => normalizar(w.t)), O = oidas.map((w) => normalizar(w.t));
+  const m = E.length, n = O.length;
+  const pt = Array.from({ length: m + 1 }, () => new Float32Array(n + 1));
+  const de = Array.from({ length: m + 1 }, () => new Uint8Array(n + 1)); // 1 diagonal, 2 arriba, 3 izquierda
+  for (let i = 1; i <= m; i++) { pt[i][0] = -0.5 * i; de[i][0] = 2; }
+  for (let j = 1; j <= n; j++) { pt[0][j] = -0.5 * j; de[0][j] = 3; }
+  for (let i = 1; i <= m; i++) {
+    for (let j = 1; j <= n; j++) {
+      const p = parecido(E[i - 1], O[j - 1]);
+      const diag = pt[i - 1][j - 1] + (p >= 0.6 ? 1 + p : -1);
+      const arriba = pt[i - 1][j] - 0.5, izq = pt[i][j - 1] - 0.5;
+      if (diag >= arriba && diag >= izq) { pt[i][j] = diag; de[i][j] = p >= 0.6 ? 1 : 4; }
+      else if (arriba >= izq) { pt[i][j] = arriba; de[i][j] = 2; }
+      else { pt[i][j] = izq; de[i][j] = 3; }
+    }
+  }
+  const tiempo = new Array(m).fill(null);
+  for (let i = m, j = n; i > 0 && j > 0;) {
+    const d = de[i][j];
+    if (d === 1) { tiempo[i - 1] = [oidas[j - 1].a, oidas[j - 1].b]; i--; j--; }
+    else if (d === 4) { i--; j--; }
+    else if (d === 2) i--;
+    else j--;
+  }
+  // Las palabras que no se reconocieron se reparten entre sus vecinas reconocidas
+  const conocidas = tiempo.map((x, i) => (x ? i : -1)).filter((i) => i >= 0);
+  if (!conocidas.length) return null;
+  for (let i = 0; i < m; i++) {
+    if (tiempo[i]) continue;
+    const ant = conocidas.filter((k) => k < i).pop(), sig = conocidas.find((k) => k > i);
+    if (ant === undefined) { const t0 = tiempo[sig][0] - (sig - i) * 0.4; tiempo[i] = [t0, t0 + 0.35]; }
+    else if (sig === undefined) { const t0 = tiempo[ant][1] + (i - ant - 1) * 0.4; tiempo[i] = [t0, t0 + 0.35]; }
+    else {
+      const a = tiempo[ant][1], b = tiempo[sig][0], paso = (b - a) / (sig - ant);
+      tiempo[i] = [a + (i - ant - 1) * paso, a + (i - ant) * paso];
+    }
+  }
+  const palabras = escritas.map((w, i) => ({ t: w.t, a: Math.max(0, tiempo[i][0]), b: Math.max(0, tiempo[i][1]) }));
+  const lineas = lineasTexto.map(() => []);
+  escritas.forEach((w, i) => lineas[w.linea].push(i));
+  return { palabras, lineas: lineas.filter((l) => l.length), escrita: true };
+}
+
+// Zonas donde hay voz (energía en ventanas de 50 ms), en bloques de hasta 25 s
+function zonasConVoz(audio) {
+  const W = 800, nv = Math.floor(audio.length / W), e = new Float32Array(nv);
+  for (let k = 0; k < nv; k++) { let q = 0; for (let i = k * W; i < (k + 1) * W; i++) q += audio[i] * audio[i]; e[k] = Math.sqrt(q / W); }
+  const orden = Array.from(e).sort((a, b) => a - b);
+  const umbral = Math.max(orden[Math.floor(nv * 0.95)] * 0.08, 1e-4);
+  const zonas = [];
+  let ini = -1, ultimo = -100;
+  for (let k = 0; k < nv; k++) {
+    if (e[k] > umbral) { if (ini < 0) ini = k; ultimo = k; }
+    else if (ini >= 0 && k - ultimo > 16) { zonas.push([ini, ultimo + 1]); ini = -1; } // 0.8 s de silencio corta
+  }
+  if (ini >= 0) zonas.push([ini, ultimo + 1]);
+  const bloques = [];
+  for (const [a, z] of zonas) {
+    const ta = Math.max(0, a * 0.05 - 0.3), tz = z * 0.05 + 0.3;
+    const ult = bloques[bloques.length - 1];
+    if (ult && tz - ult[0] <= 25 && ta - ult[1] < 3) ult[1] = tz; else bloques.push([ta, tz]);
+  }
+  const partes = [];
+  for (const [a, z] of bloques) for (let t0 = a; t0 < z; t0 += 25) partes.push([t0, Math.min(z, t0 + 25)]);
+  return partes;
+}
+
+function sacarLetra(c = S.cancion) {
+  colaLetra = colaLetra.then(() => procesarLetra(c)).catch(() => {});
+  return colaLetra;
+}
+
+async function procesarLetra(c) {
   letraEnCurso = c.id;
-  $('sacarLetra').hidden = true;
-  $('letraBarra').hidden = false;
-  const avance = (etapa, p) => { $('letraEstado').textContent = `${t(etapa)}… ${Math.round(p * 100)}%`; $('letraBarra').querySelector('i').style.width = `${p * 100}%`; };
+  const esta = () => S.cancion && S.cancion.id === c.id;
+  if (esta()) pintarLetra();
+  const avance = (etapa, p) => {
+    if (!esta()) return;
+    $('letraEstado').textContent = `${t(etapa)}… ${Math.round(p * 100)}%`;
+    $('letraBarra').querySelector('i').style.width = `${p * 100}%`;
+  };
   avance('leyendo', 0);
   try {
-    // Voz a 16 kHz mono (lo que espera Whisper)
-    const voz = (await bdPistas(c.id)).vocals;
-    const n = voz.length / 2;
-    const ctx = new OfflineAudioContext(1, Math.ceil((n * 16000) / 44100), 16000);
-    const buf = ctx.createBuffer(1, n, 44100);
-    const d = buf.getChannelData(0);
-    for (let i = 0; i < n; i++) d[i] = (voz[2 * i] + voz[2 * i + 1]) / 65536;
-    const src = ctx.createBufferSource();
-    src.buffer = buf;
-    src.connect(ctx.destination);
-    src.start();
-    const audio = (await ctx.startRendering()).getChannelData(0);
+    if (c.textoLetra && /\[\d+:\d+/.test(c.textoLetra)) {
+      // .lrc: ya trae los tiempos, no hace falta escuchar
+      c.letra = { ...leerLrc(c.textoLetra), escrita: true };
+    } else {
+      // Voz a 16 kHz mono (lo que espera Whisper)
+      const voz = (await bdPistas(c.id)).vocals;
+      const n = voz.length / 2;
+      const ctx = new OfflineAudioContext(1, Math.ceil((n * 16000) / 44100), 16000);
+      const buf = ctx.createBuffer(1, n, 44100);
+      const d = buf.getChannelData(0);
+      for (let i = 0; i < n; i++) d[i] = (voz[2 * i] + voz[2 * i + 1]) / 65536;
+      const src = ctx.createBufferSource();
+      src.buffer = buf;
+      src.connect(ctx.destination);
+      src.start();
+      const audio = (await ctx.startRendering()).getChannelData(0);
+      const partes = zonasConVoz(audio);
 
-    if (!trabajadorLetra) trabajadorLetra = new Worker(URL.createObjectURL(new Blob([$('codigoLetra').textContent], { type: 'text/javascript' })), { type: 'module' });
-    const palabras = await new Promise((ok, mal) => {
-      trabajadorLetra.onmessage = (e) => {
-        const m = e.data;
-        if (m.tipo === 'progreso') { if (S.cancion && S.cancion.id === c.id) avance(m.etapa, m.progreso); }
-        else if (m.tipo === 'listo') ok(m.palabras);
-        else mal(new Error(m.mensaje));
-      };
-      trabajadorLetra.onerror = (e) => mal(new Error(e.message || 'Error al sacar la letra'));
-      trabajadorLetra.postMessage({ audio, calidad: calidadLetra, idioma: idiomaLetra }, [audio.buffer]);
-    });
-
-    // Whisper a veces "inventa" texto en partes sin voz: se descartan las palabras donde la voz está en silencio
-    const energia = (a, b) => {
-      let s = 0, k = 0;
-      for (let i = Math.floor(a * 44100); i < Math.min(n, Math.ceil(b * 44100)); i += 4) { s += (voz[2 * i] / 32768) ** 2; k++; }
-      return k ? Math.sqrt(s / k) : 0;
-    };
-    let ref = 0;
-    for (let i = 0; i < n; i += 441) ref = Math.max(ref, Math.abs(voz[2 * i] / 32768));
-    // Una palabra no dura más de 1.5 s: si Whisper la estira (pasa con la primera), se acerca a su final
-    palabras.forEach((p) => { if (p.b - p.a > 1.5) p.a = p.b - 0.5; });
-    const limpias = palabras.filter((p) => p.t.trim() && energia(p.a, Math.max(p.b, p.a + 0.1)) > 0.01 * ref);
-    c.letra = { palabras: limpias, lineas: armarLineas(limpias) };
+      if (!trabajadorLetra) trabajadorLetra = new Worker(URL.createObjectURL(new Blob([$('codigoLetra').textContent], { type: 'text/javascript' })), { type: 'module' });
+      const oidas = await new Promise((ok, mal) => {
+        trabajadorLetra.onmessage = (e) => {
+          const m = e.data;
+          if (m.tipo === 'progreso') avance(m.etapa, m.progreso);
+          else if (m.tipo === 'listo') ok(m.palabras);
+          else mal(new Error(m.mensaje));
+        };
+        trabajadorLetra.onerror = (e) => mal(new Error(e.message || 'Error al sacar la letra'));
+        trabajadorLetra.postMessage({ audio, partes, calidad: calidadLetra, idioma: idiomaLetra }, [audio.buffer]);
+      });
+      // Una palabra no dura más de 1.5 s: si Whisper la estira, se acerca a su final
+      oidas.forEach((p) => { if (p.b - p.a > 1.5) p.a = p.b - 0.5; });
+      oidas.sort((x, y) => x.a - y.a);
+      const escrita = c.textoLetra ? alinearLetra(lineasDeTexto(c.textoLetra), oidas) : null;
+      c.letra = escrita || { palabras: oidas, lineas: armarLineas(oidas) };
+    }
     await bdHacer('canciones', 'readwrite', (st) => st.put(c));
   } catch (err) {
     c.letra = null;
-    letraEnCurso = null;
-    if (S.cancion && S.cancion.id === c.id) { pintarLetra(); $('letraEstado').textContent = `${t('errorT')}: ${err.message}`; }
     if (trabajadorLetra) { trabajadorLetra.terminate(); trabajadorLetra = null; }
+    letraEnCurso = null;
+    if (esta()) { pintarLetra(); $('letraEstado').textContent = `${t('errorT')}: ${err.message}`; }
+    return;
   }
   letraEnCurso = null;
-  if (S.cancion && S.cancion.id === c.id) pintarLetra();
+  if (esta()) pintarLetra();
 }
 
 function pintarLetra() {
@@ -2107,10 +2339,13 @@ function pintarLetra() {
   const hay = !!(l && l.palabras.length);
   $('letraVacia').hidden = hay;
   $('letraLineas').hidden = !hay;
+  $('letraAcciones').hidden = !hay;
   const enCurso = letraEnCurso === (S.cancion && S.cancion.id);
   $('sacarLetra').hidden = enCurso;
+  $('pegarLetra').hidden = enCurso;
   $('letraBarra').hidden = !enCurso;
   if (!enCurso) $('letraEstado').textContent = l && !l.palabras.length ? t('sinLetra') : t('letraNota');
+  if (!hay) cerrarKaraoke();
   lineaActual = -2;
 }
 
@@ -2121,6 +2356,9 @@ function lineaHtml(idx) {
   return linea.map((i) => `<span data-i="${i}">${l.palabras[i].t.trim().replace(/[&<>]/g, '')}</span>`).join(' ');
 }
 
+// Pinta las líneas en el cuadro y en el karaoke; cada palabra se va llenando de color mientras se canta
+const LINEAS_CUADRO = [['lineaPrevia', -1], ['lineaActual', 0], ['lineaSiguiente', 1]];
+const LINEAS_KARAOKE = [['kPrevia', -1], ['kActual', 0], ['kSiguiente', 1], ['kDespues', 2]];
 function moverLetra(s) {
   const l = S.cancion && S.cancion.letra;
   if (!l || !l.palabras.length) return;
@@ -2128,18 +2366,67 @@ function moverLetra(s) {
   for (let k = 0; k < l.lineas.length; k++) if (l.palabras[l.lineas[k][0]].a - 0.3 <= s) idx = k; else break;
   if (idx !== lineaActual) {
     lineaActual = idx;
-    $('lineaPrevia').innerHTML = idx > 0 ? lineaHtml(idx - 1) : '';
-    $('lineaActual').innerHTML = idx >= 0 ? lineaHtml(idx) : '';
-    $('lineaSiguiente').innerHTML = lineaHtml(idx + 1);
-    $('lineaPrevia').dataset.linea = idx - 1;
-    $('lineaActual').dataset.linea = idx;
-    $('lineaSiguiente').dataset.linea = idx + 1;
+    for (const [id, d] of [...LINEAS_CUADRO, ...LINEAS_KARAOKE]) {
+      $(id).innerHTML = idx + d >= 0 ? lineaHtml(idx + d) : '';
+      $(id).dataset.linea = idx + d;
+    }
   }
-  $('lineaActual').querySelectorAll('span').forEach((w) => w.classList.toggle('dicha', l.palabras[+w.dataset.i].a <= s));
+  for (const id of ['lineaActual', 'kActual']) {
+    $(id).querySelectorAll('span').forEach((w) => {
+      const p = l.palabras[+w.dataset.i];
+      w.style.setProperty('--p', `${Math.round(Math.max(0, Math.min(1, (s - p.a) / Math.max(0.15, p.b - p.a))) * 100)}%`);
+    });
+  }
 }
 
-$('sacarLetra').onclick = sacarLetra;
-['lineaPrevia', 'lineaActual', 'lineaSiguiente'].forEach((id) => {
+/* ---------- Karaoke a pantalla completa ---------- */
+function abrirKaraoke() {
+  $('karaoke').hidden = false;
+  $('kTitulo').textContent = S.cancion.titulo;
+  lineaActual = -2;
+  const el = $('karaoke');
+  if (el.requestFullscreen) el.requestFullscreen().catch(() => {});
+  else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+  mantenerPantalla();
+}
+function cerrarKaraoke() {
+  if ($('karaoke').hidden) return;
+  $('karaoke').hidden = true;
+  if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
+}
+document.addEventListener('fullscreenchange', () => { if (!document.fullscreenElement && !$('karaoke').hidden) $('karaoke').hidden = true; });
+$('abrirKaraoke').onclick = abrirKaraoke;
+$('cerrarKaraoke').onclick = cerrarKaraoke;
+$('kPlay').onclick = tocarPausar;
+
+/* ---------- Pegar o cargar la letra escrita ---------- */
+function abrirPegarLetra() {
+  $('textoLetraPlayer').value = S.cancion.textoLetra || '';
+  $('dialogoLetra').showModal();
+}
+async function leerArchivoTexto(input, destino) {
+  const f = input.files[0];
+  if (f) destino.value = await f.text();
+  input.value = '';
+}
+$('pegarLetra').onclick = abrirPegarLetra;
+$('editarLetra').onclick = abrirPegarLetra;
+$('archivoLetraPlayer').onchange = (e) => leerArchivoTexto(e.target, $('textoLetraPlayer'));
+$('archivoLetraInicio').onchange = (e) => leerArchivoTexto(e.target, $('textoLetraInicio'));
+$('cancelarLetra').onclick = () => $('dialogoLetra').close();
+$('usarLetra').onclick = async () => {
+  const c = S.cancion;
+  c.textoLetra = $('textoLetraPlayer').value.trim();
+  c.letra = null;
+  $('dialogoLetra').close();
+  await bdHacer('canciones', 'readwrite', (st) => st.put(c));
+  pintarLetra();
+  sacarLetra(c);
+};
+$('rehacerLetra').onclick = () => { S.cancion.letra = null; pintarLetra(); sacarLetra(); };
+
+$('sacarLetra').onclick = () => sacarLetra();
+[...LINEAS_CUADRO, ...LINEAS_KARAOKE].forEach(([id]) => {
   $(id).onclick = () => {
     const l = S.cancion.letra, k = +$(id).dataset.linea;
     if (l && l.lineas[k]) saltar(Math.max(0, l.palabras[l.lineas[k][0]].a - 0.2));
@@ -2272,6 +2559,7 @@ function dibujarOndas() {
  * Controles
  * ===================================================================== */
 $('volver').onclick = () => {
+  cerrarKaraoke();
   if (S.sonando) tocarPausar();
   $('reproductor').hidden = true;
   $('biblioteca').hidden = false;
@@ -2336,12 +2624,14 @@ $('pistas').addEventListener('pointerdown', (e) => {
 });
 
 document.addEventListener('keydown', (e) => {
-  if ($('reproductor').hidden || $('ajustes').open || (e.target.tagName === 'INPUT' && e.target.type !== 'range')) return;
+  if ($('reproductor').hidden || $('ajustes').open || $('dialogoLetra').open || e.target.tagName === 'TEXTAREA' || (e.target.tagName === 'INPUT' && e.target.type !== 'range')) return;
+  if (e.code === 'Escape') cerrarKaraoke();
   if (e.code === 'Space') { e.preventDefault(); tocarPausar(); }
   else if (e.code === 'ArrowLeft') { e.preventDefault(); saltar(S.tiempo - 5); }
   else if (e.code === 'ArrowRight') { e.preventDefault(); saltar(S.tiempo + 5); }
   else if (e.code === 'KeyL') $('loopBtn').click();
   else if (e.code === 'KeyM') $('click').click();
+  else if (e.code === 'KeyK' && S.cancion && S.cancion.letra) ($('karaoke').hidden ? abrirKaraoke() : cerrarKaraoke());
 });
 
 addEventListener('resize', () => { if (S.a) { ubicarCapa(); dibujarOndas(); } });

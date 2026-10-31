@@ -7,6 +7,7 @@ Uso:
   python exportar_onnx.py htdemucs            salida.onnx
   python exportar_onnx.py htdemucs_6s         salida.onnx
   python exportar_onnx.py drumsep:modelo.pt   salida.onnx   (pesos de github.com/inagoy/drumsep)
+  python exportar_onnx.py drumsep:salida/modelo_salsa.pt salsa.onnx   (el modelo del Modo salsa)
 """
 import sys
 import torch

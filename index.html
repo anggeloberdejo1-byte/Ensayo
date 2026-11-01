@@ -2740,14 +2740,11 @@ if (inicial) {
 
 if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
   navigator.serviceWorker.register('./sw.js').catch(() => {});
-  // La primera vez la página todavía no está aislada: se recarga una sola vez para usar varios núcleos
-  const recargarAislada = () => {
-    if (self.crossOriginIsolated || sessionStorage.getItem('ensayo:recargada') || trabajos.length || S.sonando) return;
-    sessionStorage.setItem('ensayo:recargada', '1');
-    location.reload();
-  };
-  if (navigator.serviceWorker.controller) recargarAislada();
-  else navigator.serviceWorker.addEventListener('controllerchange', recargarAislada);
+  // Cuando entra un service worker nuevo (primera visita o versión nueva) la página
+  // todavía no está aislada: se recarga una vez para poder usar varios núcleos
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (!self.crossOriginIsolated && !trabajos.length && !S.sonando) location.reload();
+  });
 }
 </script>
 </body>

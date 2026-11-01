@@ -9,7 +9,7 @@
  * versión de CACHE (v1 -> v2 ...) para que los usuarios reciban la versión
  * nueva en vez de la vieja cacheada.
  */
-const CACHE = "ensayo-v5";
+const CACHE = "ensayo-v6";
 const ARCHIVOS = [
   "./",
   "./index.html",
@@ -38,6 +38,17 @@ self.addEventListener("activate", (evento) => {
   );
 });
 
+// Aislamiento: con estas cabeceras el navegador deja usar varios núcleos del
+// procesador para la IA (3 a 4 veces más rápido en celulares sin GPU).
+// GitHub Pages no permite ponerlas, así que las agrega el service worker.
+function conAislamiento(respuesta) {
+  if (!respuesta || respuesta.status === 0 || respuesta.type === "opaque") return respuesta;
+  const cabeceras = new Headers(respuesta.headers);
+  cabeceras.set("Cross-Origin-Opener-Policy", "same-origin");
+  cabeceras.set("Cross-Origin-Embedder-Policy", "require-corp");
+  return new Response(respuesta.body, { status: respuesta.status, statusText: respuesta.statusText, headers: cabeceras });
+}
+
 // Fetch: "network-first" (ves la versión más nueva si hay internet),
 // con respaldo en el caché cuando estás sin conexión.
 self.addEventListener("fetch", (evento) => {
@@ -46,13 +57,14 @@ self.addEventListener("fetch", (evento) => {
   // Los modelos (cientos de MB) los guarda la app; no duplicarlos aquí.
   if (req.url.includes("/models/") || /(^|\.)(huggingface\.co|hf\.co)$/.test(new URL(req.url).hostname)) return;
 
+  const propia = new URL(req.url).origin === self.location.origin;
   evento.respondWith(
     fetch(req)
       .then((respuesta) => {
         const copia = respuesta.clone();
         caches.open(CACHE).then((cache) => cache.put(req, copia));
-        return respuesta;
+        return propia ? conAislamiento(respuesta) : respuesta;
       })
-      .catch(() => caches.match(req).then((c) => c || caches.match("./index.html")))
+      .catch(() => caches.match(req).then((c) => c || caches.match("./index.html")).then((c) => (propia ? conAislamiento(c) : c)))
   );
 });

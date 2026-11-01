@@ -731,6 +731,8 @@ registerProcessor('motor', Motor);
 const ORT_URL = 'https://cdn.jsdelivr.net/npm/onnxruntime-web@1.27.0/dist/';
 importScripts(ORT_URL + 'ort.webgpu.min.js');
 ort.env.wasm.wasmPaths = ORT_URL;
+// Sin GPU, usar varios núcleos si la página está aislada (lo hace el service worker)
+ort.env.wasm.numThreads = self.crossOriginIsolated ? Math.max(1, Math.min(4, (self.navigator.hardwareConcurrency || 2) - 1)) : 1;
 
 // Modelos: el de 4 pistas, el de 6 (Modo estudio) y el que separa la batería en sus piezas
 const MODELOS = {
@@ -1607,7 +1609,8 @@ const TEXTOS = {
     noLeyo: 'No se pudo leer el archivo. Prueba con mp3, m4a o wav.', noAbrio: 'No se pudo abrir la canción',
     enCola: 'En cola', leyendo: 'Leyendo el audio', descargando: 'Descargando el modelo de IA (solo la primera vez)',
     preparando: 'Preparando el modelo', separando: 'Separando pistas', analizando: 'Analizando tempo, tonalidad y acordes',
-    conGpu: 'con la GPU', sinGpu: 'sin GPU, va a tardar más',
+    conGpu: 'con la GPU', sinGpu: 'sin GPU, va a tardar más', lleva: 'lleva', faltan: 'faltan',
+    mantenAbierta: 'Deja Ensayo abierto y en pantalla hasta que termine: si cambias de app o se apaga la pantalla, el teléfono lo pausa.',
     cargando: 'Cargando…', abrirCancion: 'Abrir la canción',
     volver: '← Biblioteca', acordesT: 'Acordes', seccionesT: 'Secciones',
     tocar: 'Tocar', pausa: 'Pausa', loop: 'Loop', velocidad: 'Velocidad', tono: 'Tono', metronomo: 'Metrónomo', volMetronomo: 'Volumen del metrónomo',
@@ -1644,7 +1647,8 @@ const TEXTOS = {
     noLeyo: 'Could not read the file. Try mp3, m4a or wav.', noAbrio: 'Could not open the song',
     enCola: 'Queued', leyendo: 'Reading audio', descargando: 'Downloading the AI model (first time only)',
     preparando: 'Preparing the model', separando: 'Splitting stems', analizando: 'Analyzing tempo, key and chords',
-    conGpu: 'on the GPU', sinGpu: 'no GPU, this will take longer',
+    conGpu: 'on the GPU', sinGpu: 'no GPU, this will take longer', lleva: 'elapsed', faltan: 'about',
+    mantenAbierta: 'Keep Ensayo open and on screen until it finishes: if you switch apps or the screen turns off, the phone pauses it.',
     cargando: 'Loading…', abrirCancion: 'Open the song',
     volver: '← Library', acordesT: 'Chords', seccionesT: 'Sections',
     tocar: 'Play', pausa: 'Pause', loop: 'Loop', velocidad: 'Speed', tono: 'Key', metronomo: 'Metronome', volMetronomo: 'Metronome volume',
@@ -1854,7 +1858,7 @@ function pintarLista() {
   for (const j of trabajos) {
     const el = document.createElement('div');
     el.className = 'cancion';
-    const extra = j.motor ? ` · ${t(j.motor === 'webgpu' ? 'conGpu' : 'sinGpu')}` : '';
+    const extra = (j.motor ? ` · ${t(j.motor === 'webgpu' ? 'conGpu' : 'sinGpu')}` : '') + tiempoTrabajo(j);
     el.innerHTML = `
       <div class="t">
         <div class="nombre"></div>
@@ -1864,6 +1868,7 @@ function pintarLista() {
       ${j.error ? '<button class="chip borrar" type="button">✕</button>' : ''}`;
     el.querySelector('.nombre').textContent = j.titulo;
     el.querySelector('.sub').textContent = j.error ? `${t('errorT')}: ${j.error}` : `${t(j.etapa)}… ${Math.round((j.progreso || 0) * 100)}%${extra}`;
+    if (!j.error && j.inicio) el.querySelector('.t').insertAdjacentHTML('beforeend', `<div class="sub">${t('mantenAbierta')}</div>`);
     if (j.error) el.querySelector('.borrar').onclick = () => { trabajos.splice(trabajos.indexOf(j), 1); pintarLista(); };
     lista.appendChild(el);
   }
@@ -1890,6 +1895,26 @@ function pintarLista() {
   }
 }
 
+// "lleva 2:10 · faltan ~5 min", calculado con lo que va de la etapa actual
+function tiempoTrabajo(j) {
+  if (!j.inicio || j.error) return '';
+  const ahora = Date.now();
+  let txt = ` · ${t('lleva')} ${fmt((ahora - j.inicio) / 1000)}`;
+  if (j.inicioEtapa && j.progreso > 0.03 && j.progreso < 1) {
+    const resta = ((ahora - j.inicioEtapa) / j.progreso) * (1 - j.progreso) / 1000;
+    if (resta >= 3) txt += ` · ${t('faltan')} ~${resta < 90 ? Math.ceil(resta) + ' s' : Math.ceil(resta / 60) + ' min'}`;
+  }
+  return txt;
+}
+setInterval(() => { if (trabajos.some((j) => !j.error && j.inicio)) pintarLista(); }, 5000);
+document.addEventListener('visibilitychange', () => {
+  // Si se oculta la app mientras separa, el teléfono la pausa: avisarlo al volver
+  if (document.hidden && trabajando) avisoPausa = true;
+  if (!document.hidden && (trabajando || S.sonando)) mantenerPantalla(); // el teléfono la suelta al salir de la app
+  if (!document.hidden && avisoPausa) { avisoPausa = false; pintarLista(); }
+});
+let avisoPausa = false;
+
 function agregarArchivo(archivo) {
   const textoLetra = $('textoLetraInicio').value.trim();
   $('textoLetraInicio').value = '';
@@ -1903,8 +1928,10 @@ async function procesarCola() {
   const j = trabajos.find((x) => !x.error);
   if (!j) return;
   trabajando = true;
+  mantenerPantalla();
+  j.inicio = Date.now();
   try {
-    j.etapa = 'leyendo'; pintarLista();
+    j.etapa = 'leyendo'; j.inicioEtapa = Date.now(); pintarLista();
     // Decodificar a 44.1 kHz (el navegador convierte la frecuencia si hace falta)
     let audio;
     try {
@@ -1922,7 +1949,10 @@ async function procesarCola() {
     const r = await new Promise((ok, mal) => {
       separador.onmessage = (e) => {
         const m = e.data;
-        if (m.tipo === 'progreso') { j.etapa = m.etapa; j.progreso = m.progreso; if (m.motor) j.motor = m.motor; pintarLista(); }
+        if (m.tipo === 'progreso') {
+          if (m.etapa !== j.etapa) j.inicioEtapa = Date.now();
+          j.etapa = m.etapa; j.progreso = m.progreso; if (m.motor) j.motor = m.motor; pintarLista();
+        }
         else if (m.tipo === 'listo') ok(m);
         else if (m.tipo === 'error') mal(new Error(m.mensaje));
       };
@@ -1943,6 +1973,7 @@ async function procesarCola() {
     pintarLista();
   }
   trabajando = false;
+  if (!trabajos.some((x) => !x.error) && !S.sonando) soltarPantalla();
   procesarCola();
 }
 
@@ -2465,7 +2496,12 @@ function aplicarIdiomaLetra(i) {
  * ===================================================================== */
 let wakeLock = null;
 async function mantenerPantalla() {
-  try { if ('wakeLock' in navigator && !wakeLock) wakeLock = await navigator.wakeLock.request('screen'); } catch (e) {}
+  try {
+    if ('wakeLock' in navigator && !wakeLock) {
+      wakeLock = await navigator.wakeLock.request('screen');
+      wakeLock.addEventListener('release', () => { wakeLock = null; });
+    }
+  } catch (e) {}
 }
 function soltarPantalla() {
   try { if (wakeLock) { wakeLock.release(); wakeLock = null; } } catch (e) {}
@@ -2702,8 +2738,16 @@ if (inicial) {
   }).catch(() => {});
 }
 
-if ('serviceWorker' in navigator && location.protocol === 'https:') {
+if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
   navigator.serviceWorker.register('./sw.js').catch(() => {});
+  // La primera vez la página todavía no está aislada: se recarga una sola vez para usar varios núcleos
+  const recargarAislada = () => {
+    if (self.crossOriginIsolated || sessionStorage.getItem('ensayo:recargada') || trabajos.length || S.sonando) return;
+    sessionStorage.setItem('ensayo:recargada', '1');
+    location.reload();
+  };
+  if (navigator.serviceWorker.controller) recargarAislada();
+  else navigator.serviceWorker.addEventListener('controllerchange', recargarAislada);
 }
 </script>
 </body>

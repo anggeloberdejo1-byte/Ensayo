@@ -125,6 +125,8 @@
   .abrir-titulo { font-family: 'Bebas Neue', sans-serif; font-size: 26px; letter-spacing: 0.04em; color: var(--brass); }
   .abrir-sub { font-size: 13px; color: var(--parchment-dim); }
   .modos { margin-top: 14px; }
+  .modos .seg { flex-wrap: wrap; }
+  .modos .seg button { min-width: 150px; }
   .modos .seg button { text-align: left; font-family: 'Work Sans', sans-serif; font-size: 12.5px; line-height: 1.3; padding: 10px 12px; }
   .modos .seg button b { display: block; font-family: 'IBM Plex Mono', monospace; font-size: 12px; letter-spacing: .06em; text-transform: uppercase; margin-bottom: 2px; }
   .aviso { font-size: 13px; color: var(--parchment-dim); margin: 12px 0 0; text-align: center; }
@@ -342,6 +344,7 @@
         <div class="seg" id="modos">
           <button type="button" data-modo="rapido" aria-pressed="true"><b data-i18n="modoRapido">Rápido · 4 pistas</b><span data-i18n="modoRapidoSub">Voz, batería, bajo y otros</span></button>
           <button type="button" data-modo="estudio" aria-pressed="false"><b data-i18n="modoEstudio">Estudio · 9 pistas</b><span data-i18n="modoEstudioSub">Voz, bombo, redoblante, toms, platillos, bajo, guitarra, piano y otros</span></button>
+          <button type="button" data-modo="salsa" aria-pressed="false"><b data-i18n="modoSalsa">Salsa · 8 pistas</b><span data-i18n="modoSalsaSub">Voz, congas y timbal juntos, bombo, campana y platillos, bajo, guitarra, piano y otros</span></button>
         </div>
       </div>
       <details class="letra-inicio">
@@ -1486,7 +1489,14 @@ onmessage = async (e) => {
         const piezas = await separar('bateria', l, r, 'separandoBateria');
         await soltarModelo('bateria');
         const { drums, ...resto } = pistas;
-        pistas = { ...resto, ...piezas };
+        if (m.salsa) {
+          // Modo salsa: el modelo de batería reparte congas y timbal entre redoblante y toms; van juntos en una pista
+          const congas = new Int16Array(piezas.snare.length);
+          for (let i = 0; i < congas.length; i++) congas[i] = Math.max(-32768, Math.min(32767, piezas.snare[i] + piezas.toms[i]));
+          pistas = { ...resto, kick: piezas.kick, congas, campana: piezas.cymbals };
+        } else {
+          pistas = { ...resto, ...piezas };
+        }
       }
       analisis.stems = Object.keys(pistas);
       analisis.peaks = Object.fromEntries(Object.entries(pistas).map(([n, d]) => [n, picos(d)]));
@@ -1590,6 +1600,7 @@ const TEXTOS = {
     aviso: 'Todo pasa en tu equipo: la canción no se sube a ningún servidor. La primera vez descarga los modelos de IA (90 MB el rápido, 230 MB el de estudio) y quedan guardados.',
     separarEn: 'Separar en', modoRapido: 'Rápido · 4 pistas', modoRapidoSub: 'Voz, batería, bajo y otros',
     modoEstudio: 'Estudio · 9 pistas', modoEstudioSub: 'Voz, bombo, redoblante, toms, platillos, bajo, guitarra, piano y otros',
+    modoSalsa: 'Salsa · 8 pistas', modoSalsaSub: 'Voz, congas y timbal juntos, bombo, campana y platillos, bajo, guitarra, piano y otros',
     descargandoBateria: 'Descargando el modelo de batería (solo la primera vez)', separandoBateria: 'Separando las piezas de la batería',
     vacio: 'Todavía no hay canciones. Sube una para empezar.', abrirBtn: 'Abrir', borrar: 'Borrar',
     borrarConfirma: '¿Borrar "{t}" y sus pistas?', lista: '{n} pistas · {d} · lista', errorT: 'Error',
@@ -1604,7 +1615,7 @@ const TEXTOS = {
     ayudaOnda: 'Toca una sección para repetirla · arrastra sobre las ondas para marcar un loop · toca para saltar', atajoTocar: 'tocar', atajoMetro: 'metrónomo',
     tonalidad: 'Tonalidad', mayor: 'mayor', menor: 'menor', original: 'original', silenciar: 'Silenciar', solo: 'Solo', volumen: 'Volumen',
     vocals: 'Voz', drums: 'Batería', bass: 'Bajo', guitar: 'Guitarra', piano: 'Piano', other: 'Otros',
-    kick: 'Bombo', snare: 'Redoblante', toms: 'Toms', cymbals: 'Platillos',
+    kick: 'Bombo', snare: 'Redoblante', toms: 'Toms', cymbals: 'Platillos', congas: 'Congas y timbal', campana: 'Campana y platillos',
     'sec:Intro': 'Intro', 'sec:Estrofa': 'Estrofa', 'sec:Coro': 'Coro', 'sec:Puente': 'Puente', 'sec:Final': 'Final', 'sec:Canción': 'Canción', 'sec:Parte': 'Parte',
     credito: 'Hecha por Anggelo Berdejo — El Ñañe', otras: 'Otras herramientas', paypal: 'Apoya este proyecto en PayPal',
     letraT: 'Letra', sacarLetra: 'Sacar la letra', letraNota: 'La IA escucha la voz separada y escribe la letra con el tiempo de cada palabra.',
@@ -1626,6 +1637,7 @@ const TEXTOS = {
     aviso: 'Everything happens on your device: the song is never uploaded. The first time it downloads the AI models (90 MB for fast, 230 MB for studio) and keeps them.',
     separarEn: 'Split into', modoRapido: 'Fast · 4 stems', modoRapidoSub: 'Vocals, drums, bass and other',
     modoEstudio: 'Studio · 9 stems', modoEstudioSub: 'Vocals, kick, snare, toms, cymbals, bass, guitar, piano and other',
+    modoSalsa: 'Salsa · 8 stems', modoSalsaSub: 'Vocals, congas and timbales together, kick, bell and cymbals, bass, guitar, piano and other',
     descargandoBateria: 'Downloading the drum model (first time only)', separandoBateria: 'Splitting the drum kit',
     vacio: 'No songs yet. Upload one to get started.', abrirBtn: 'Open', borrar: 'Delete',
     borrarConfirma: 'Delete "{t}" and its stems?', lista: '{n} stems · {d} · ready', errorT: 'Error',
@@ -1640,7 +1652,7 @@ const TEXTOS = {
     ayudaOnda: 'Tap a section to loop it · drag over the waveforms to mark a loop · tap to jump', atajoTocar: 'play', atajoMetro: 'metronome',
     tonalidad: 'Key', mayor: 'major', menor: 'minor', original: 'original', silenciar: 'Mute', solo: 'Solo', volumen: 'Volume',
     vocals: 'Vocals', drums: 'Drums', bass: 'Bass', guitar: 'Guitar', piano: 'Piano', other: 'Other',
-    kick: 'Kick', snare: 'Snare', toms: 'Toms', cymbals: 'Cymbals',
+    kick: 'Kick', snare: 'Snare', toms: 'Toms', cymbals: 'Cymbals', congas: 'Congas & timbales', campana: 'Bell & cymbals',
     'sec:Intro': 'Intro', 'sec:Estrofa': 'Verse', 'sec:Coro': 'Chorus', 'sec:Puente': 'Bridge', 'sec:Final': 'Outro', 'sec:Canción': 'Song', 'sec:Parte': 'Part',
     credito: 'Built by Anggelo Berdejo — El Ñañe', otras: 'More tools', paypal: 'Support this project on PayPal',
     letraT: 'Lyrics', sacarLetra: 'Get the lyrics', letraNota: 'The AI listens to the isolated vocals and writes the lyrics with the timing of every word.',
@@ -1761,6 +1773,7 @@ const fmt = (s) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(
 const cssVar = (v) => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
 const COLOR_PISTA = {
   vocals: ['--ember', 1], drums: ['--verdigris', 1], kick: ['--verdigris', 1], snare: ['--verdigris', 0.78], toms: ['--verdigris', 0.6], cymbals: ['--verdigris', 0.44],
+  congas: ['--verdigris', 0.78], campana: ['--verdigris', 0.5],
   bass: ['--brass', 1], guitar: ['--rust', 1], piano: ['--focus', 1], other: ['--parchment-dim', 1],
 };
 // Color de una pista leído de la paleta actual (mezclado con el fondo para las piezas de batería)
@@ -1771,7 +1784,7 @@ function colorPista(nombre) {
   return `rgb(${a.map((x, i) => Math.round(x * k + b[i] * (1 - k))).join(',')})`;
 }
 const COLOR_SECCION = ['--brass', '--ember', '--verdigris', '--rust', '--focus', '--parchment-dim'];
-const ORDEN_PISTAS = ['vocals', 'drums', 'kick', 'snare', 'toms', 'cymbals', 'bass', 'guitar', 'piano', 'other'];
+const ORDEN_PISTAS = ['vocals', 'drums', 'congas', 'kick', 'snare', 'toms', 'cymbals', 'campana', 'bass', 'guitar', 'piano', 'other'];
 const ARCHIVOS_MODELO = { mRapido: ['models/htdemucs.onnx'], mEstudio: ['models/htdemucs_6s.onnx'], mBateria: ['models/bateria.onnx.1', 'models/bateria.onnx.2'] };
 let modo = 'rapido';
 
@@ -1880,7 +1893,7 @@ function pintarLista() {
 function agregarArchivo(archivo) {
   const textoLetra = $('textoLetraInicio').value.trim();
   $('textoLetraInicio').value = '';
-  trabajos.push({ id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6), titulo: archivo.name.replace(/\.[^.]+$/, ''), archivo, estudio: modo === 'estudio', textoLetra, etapa: 'enCola', progreso: 0 });
+  trabajos.push({ id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6), titulo: archivo.name.replace(/\.[^.]+$/, ''), archivo, estudio: modo !== 'rapido', salsa: modo === 'salsa', textoLetra, etapa: 'enCola', progreso: 0 });
   pintarLista();
   procesarCola();
 }
@@ -1914,9 +1927,9 @@ async function procesarCola() {
         else if (m.tipo === 'error') mal(new Error(m.mensaje));
       };
       separador.onerror = (e) => mal(new Error(e.message || 'Error en el separador'));
-      separador.postMessage({ tipo: 'separar', izquierda, derecha, estudio: j.estudio, base: location.href }, [izquierda.buffer, derecha.buffer]);
+      separador.postMessage({ tipo: 'separar', izquierda, derecha, estudio: j.estudio, salsa: j.salsa, base: location.href }, [izquierda.buffer, derecha.buffer]);
     });
-    const cancion = { id: j.id, titulo: j.titulo, creada: Date.now(), duracion: r.analisis.duration, analisis: r.analisis, segundos: r.segundos, motor: r.motor, estudio: j.estudio, textoLetra: j.textoLetra || '' };
+    const cancion = { id: j.id, titulo: j.titulo, creada: Date.now(), duracion: r.analisis.duration, analisis: r.analisis, segundos: r.segundos, motor: r.motor, estudio: j.estudio, salsa: !!j.salsa, textoLetra: j.textoLetra || '' };
     await bdGuardar(cancion, r.pistas);
     // Si trajo la letra escrita, se sincroniza sola
     if (cancion.textoLetra) sacarLetra(cancion);
@@ -2664,7 +2677,7 @@ requestAnimationFrame(cuadro);
 aplicarNotacion(leerPref('notacion', 'latina'));
 aplicarCalidadLetra(leerPref('calidadLetra', 'normal'));
 aplicarIdiomaLetra(leerPref('idiomaLetra', ''));
-modo = leerPref('modo', 'rapido') === 'estudio' ? 'estudio' : 'rapido';
+modo = ['estudio', 'salsa'].includes(leerPref('modo', 'rapido')) ? leerPref('modo', 'rapido') : 'rapido';
 document.querySelectorAll('#modos button').forEach((b) => b.setAttribute('aria-pressed', b.dataset.modo === modo ? 'true' : 'false'));
 aplicarTema(leerPref('tema', 'calido'));
 aplicarIdioma(leerPref('idioma', 'es'));

@@ -120,6 +120,8 @@
     border: 2px dashed var(--surface-2); border-radius: 10px; cursor: pointer; text-align: center; transition: border-color .15s;
   }
   .abrir:hover, .abrir.over { border-color: var(--brass); }
+  .selector { position: absolute; width: 1px; height: 1px; opacity: 0; overflow: hidden; pointer-events: none; }
+  .abrir, .fila-botones .chip { position: relative; }
   .abrir-titulo { font-family: 'Bebas Neue', sans-serif; font-size: 26px; letter-spacing: 0.04em; color: var(--brass); }
   .abrir-sub { font-size: 13px; color: var(--parchment-dim); }
   .modos { margin-top: 14px; }
@@ -333,7 +335,7 @@
       <label class="abrir" id="zona">
         <span class="abrir-titulo" id="zonaTitulo" data-i18n="abrir">Subir canción</span>
         <span class="abrir-sub" data-i18n="abrirSub">o arrástrala aquí · mp3, m4a, wav, flac o video</span>
-        <input type="file" id="archivo" accept="audio/*,video/*" multiple hidden>
+        <input type="file" id="archivo" class="selector" multiple>
       </label>
       <div class="modos">
         <p class="settings-section-title" data-i18n="separarEn">Separar en</p>
@@ -346,7 +348,7 @@
         <summary data-i18n="letraInicioT">Letra (opcional)</summary>
         <textarea id="textoLetraInicio" data-i18n-ph="letraPh" placeholder="Pega aquí la letra de la canción que vas a subir. La app la pone en pantalla al ritmo de la voz."></textarea>
         <div class="fila-botones">
-          <label class="chip izq"><span data-i18n="cargarTxt">Cargar .txt o .lrc</span><input type="file" id="archivoLetraInicio" accept=".txt,.lrc,text/plain" hidden></label>
+          <label class="chip izq"><span data-i18n="cargarTxt">Cargar .txt o .lrc</span><input type="file" id="archivoLetraInicio" class="selector"></label>
         </div>
       </details>
       <p class="aviso" data-i18n="aviso">Todo pasa en tu equipo: la canción no se sube a ningún servidor. La primera vez descarga los modelos de IA (90 MB el rápido, 230 MB el de estudio) y quedan guardados.</p>
@@ -467,7 +469,7 @@
     <p class="nota-ajustes" data-i18n="pegarNota">Pega la letra, una línea por renglón. La IA escucha la voz para saber cuándo se canta cada palabra. Un archivo .lrc ya trae los tiempos.</p>
     <textarea id="textoLetraPlayer" data-i18n-ph="letraPh"></textarea>
     <div class="fila-botones">
-      <label class="chip izq"><span data-i18n="cargarTxt">Cargar .txt o .lrc</span><input type="file" id="archivoLetraPlayer" accept=".txt,.lrc,text/plain" hidden></label>
+      <label class="chip izq"><span data-i18n="cargarTxt">Cargar .txt o .lrc</span><input type="file" id="archivoLetraPlayer" class="selector"></label>
       <button class="boton principal" id="usarLetra" type="button" data-i18n="usarLetra">Sincronizar</button>
     </div>
   </div>

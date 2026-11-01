@@ -120,8 +120,21 @@
     border: 2px dashed var(--surface-2); border-radius: 10px; cursor: pointer; text-align: center; transition: border-color .15s;
   }
   .abrir:hover, .abrir.over { border-color: var(--brass); }
-  .selector { position: absolute; width: 1px; height: 1px; opacity: 0; overflow: hidden; pointer-events: none; }
-  .abrir, .fila-botones .chip { position: relative; }
+  /* Botón real del sistema para elegir archivos, con el estilo de la app.
+     En iPhone un campo escondido a veces no abre nada al tocarlo; uno visible siempre abre. */
+  .archivo { font: 13px 'Work Sans', sans-serif; color: var(--parchment-dim); max-width: 100%; margin: 8px 0 4px; }
+  .archivo::file-selector-button {
+    font: 600 15px 'Work Sans', sans-serif; background: var(--brass); color: var(--ink);
+    border: 0; border-radius: 8px; padding: 12px 18px; margin-right: 10px; cursor: pointer;
+  }
+  .archivo::-webkit-file-upload-button {
+    font: 600 15px 'Work Sans', sans-serif; background: var(--brass); color: var(--ink);
+    border: 0; border-radius: 8px; padding: 12px 18px; margin-right: 10px; cursor: pointer;
+  }
+  .archivo.chico { margin: 0; font-size: 12px; }
+  .archivo.chico::file-selector-button { font-size: 12px; padding: 6px 10px; background: var(--surface-2); color: var(--parchment); }
+  .archivo.chico::-webkit-file-upload-button { font-size: 12px; padding: 6px 10px; background: var(--surface-2); color: var(--parchment); }
+  .carga-letra { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
   .abrir-titulo { font-family: 'Bebas Neue', sans-serif; font-size: 26px; letter-spacing: 0.04em; color: var(--brass); }
   .abrir-sub { font-size: 13px; color: var(--parchment-dim); }
   .modos { margin-top: 14px; }
@@ -334,11 +347,11 @@
   <!-- ===== Biblioteca ===== -->
   <section id="biblioteca">
     <div class="panel">
-      <label class="abrir" id="zona">
+      <div class="abrir" id="zona">
         <span class="abrir-titulo" id="zonaTitulo" data-i18n="abrir">Subir canción</span>
+        <input type="file" id="archivo" class="archivo" multiple data-i18n-aria="abrir" aria-label="Subir canción">
         <span class="abrir-sub" data-i18n="abrirSub">o arrástrala aquí · mp3, m4a, wav, flac o video</span>
-        <input type="file" id="archivo" class="selector" multiple>
-      </label>
+      </div>
       <div class="modos">
         <p class="settings-section-title" data-i18n="separarEn">Separar en</p>
         <div class="seg" id="modos">
@@ -351,7 +364,7 @@
         <summary data-i18n="letraInicioT">Letra (opcional)</summary>
         <textarea id="textoLetraInicio" data-i18n-ph="letraPh" placeholder="Pega aquí la letra de la canción que vas a subir. La app la pone en pantalla al ritmo de la voz."></textarea>
         <div class="fila-botones">
-          <label class="chip izq"><span data-i18n="cargarTxt">Cargar .txt o .lrc</span><input type="file" id="archivoLetraInicio" class="selector"></label>
+          <span class="carga-letra izq"><span class="label" data-i18n="cargarTxt">Cargar .txt o .lrc</span><input type="file" id="archivoLetraInicio" class="archivo chico" data-i18n-aria="cargarTxt" aria-label="Cargar .txt o .lrc"></span>
         </div>
       </details>
       <p class="aviso" data-i18n="aviso">Todo pasa en tu equipo: la canción no se sube a ningún servidor. La primera vez descarga los modelos de IA (90 MB el rápido, 230 MB el de estudio) y quedan guardados.</p>
@@ -472,7 +485,7 @@
     <p class="nota-ajustes" data-i18n="pegarNota">Pega la letra, una línea por renglón. La IA escucha la voz para saber cuándo se canta cada palabra. Un archivo .lrc ya trae los tiempos.</p>
     <textarea id="textoLetraPlayer" data-i18n-ph="letraPh"></textarea>
     <div class="fila-botones">
-      <label class="chip izq"><span data-i18n="cargarTxt">Cargar .txt o .lrc</span><input type="file" id="archivoLetraPlayer" class="selector"></label>
+      <span class="carga-letra izq"><span class="label" data-i18n="cargarTxt">Cargar .txt o .lrc</span><input type="file" id="archivoLetraPlayer" class="archivo chico" data-i18n-aria="cargarTxt" aria-label="Cargar .txt o .lrc"></span>
       <button class="boton principal" id="usarLetra" type="button" data-i18n="usarLetra">Sincronizar</button>
     </div>
   </div>
@@ -1985,6 +1998,7 @@ document.querySelectorAll('#modos button').forEach((b) => b.onclick = () => {
 
 const zona = $('zona');
 $('archivo').onchange = (e) => { for (const f of e.target.files) agregarArchivo(f); e.target.value = ''; };
+zona.onclick = (e) => { if (e.target !== $('archivo')) $('archivo').click(); };
 zona.ondragover = (e) => { e.preventDefault(); zona.classList.add('over'); };
 zona.ondragleave = () => zona.classList.remove('over');
 zona.ondrop = (e) => { e.preventDefault(); zona.classList.remove('over'); for (const f of e.dataTransfer.files) agregarArchivo(f); };

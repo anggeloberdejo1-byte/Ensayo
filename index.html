@@ -704,6 +704,34 @@
   .e-lcd.rec { box-shadow: inset 0 1px 3px rgba(0,0,0,.35), 0 0 0 1.5px var(--ember); }
   .e-lcd > .e-rec { flex-direction: row; align-items: center; color: var(--ember); font: 700 13px var(--mono); letter-spacing: .05em; animation: latidoRec 1s ease-in-out infinite; }
   .e-pista.rec .e-nombre { color: var(--ember); }
+  /* Canal del micrófono con ecualizador gráfico */
+  .e-entrada { background: linear-gradient(180deg, var(--e-panel-2), var(--e-panel)); border-radius: var(--e-r); box-shadow: 0 0 0 1px var(--e-borde); padding: 12px 16px 16px; margin: 2px 0 14px; }
+  .e-ent-cabeza { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; }
+  .e-ent-cabeza h3 { margin: 0; font-size: 14px; font-weight: 700; display: flex; align-items: center; gap: 8px; color: var(--e-texto); }
+  .e-ent-cabeza h3 .icono { width: 18px; height: 18px; color: var(--e-acento); }
+  .e-ent-sub { font-size: 12px; color: var(--e-tenue); }
+  .e-ent-cuerpo { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 22px; align-items: stretch; }
+  .e-ent-nivel { display: flex; align-items: center; gap: 16px; }
+  .e-ent-medidor { width: 12px; height: 170px; }
+  .e-ent-eq { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+  .e-eq-presets { display: flex; gap: 6px; flex-wrap: wrap; }
+  .e-eq-presets .e-escena { min-height: 28px; font-size: 12px; }
+  .e-eq-zona { position: relative; height: 176px; border-radius: 10px; background: var(--e-pozo); box-shadow: inset 0 0 0 1px var(--e-borde); overflow: hidden; }
+  #eEqCurva { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .e-eq-bandas { position: relative; display: grid; grid-template-columns: repeat(10, minmax(0, 1fr)); height: 100%; padding: 4px 4px 6px; }
+  .e-eq-banda { display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 0; }
+  .e-eq-valor { font: 600 10px var(--mono); color: var(--e-tenue); height: 14px; }
+  .e-eq-fader { position: relative; flex: 1; width: 26px; cursor: ns-resize; touch-action: none; }
+  .e-eq-fader:focus-visible { outline: 2px solid var(--e-acento); outline-offset: 2px; border-radius: 4px; }
+  .e-eq-riel { position: absolute; left: 50%; top: 6px; bottom: 6px; width: 2px; margin-left: -1px; border-radius: 1px; background: color-mix(in srgb, var(--e-texto) 18%, transparent); }
+  .e-eq-perilla { position: absolute; left: 50%; width: 22px; height: 12px; margin: -6px 0 0 -11px; border-radius: 4px; background: linear-gradient(180deg, #f6f6f6, #bdbdbd); box-shadow: 0 2px 5px rgba(0,0,0,.5); }
+  .e-eq-perilla.activa { box-shadow: 0 2px 5px rgba(0,0,0,.5), 0 0 0 2px var(--e-acento); }
+  .e-eq-frec { font: 600 10px var(--mono); color: var(--e-tenue); }
+  .e-ent-fx { display: flex; flex-direction: column; gap: 10px; min-width: 230px; }
+  .e-ent-mandos { display: flex; gap: 16px; justify-content: space-between; }
+  .e-ent-titulo { margin: 6px 0 0; font-size: 12px; font-weight: 600; color: var(--e-tenue); }
+  .e-ent-nota { margin: 0; font-size: 11.5px; color: var(--e-tenue); max-width: 28ch; }
+  @media (max-width: 1100px) { .e-ent-cuerpo { grid-template-columns: 1fr; } .e-ent-nivel { justify-content: center; } }
   /* Selectores dentro del estudio (oscuro) */
   .estudio .seg { background: var(--e-pozo); box-shadow: inset 0 0 0 1px var(--e-borde); }
   .estudio .seg button { color: var(--e-tenue); min-height: 34px; display: inline-flex; align-items: center; justify-content: center; gap: 7px; font-size: 13.5px; }
@@ -1045,6 +1073,10 @@
       <div class="e-mapa" id="eMapa" data-i18n-aria="eMapaT" aria-label="Vista general"><canvas id="eMapaCanvas"></canvas><div class="e-ventana" id="eVentana"></div></div>
       </div>
       <div class="e-pagina" id="ePagMezcla" hidden>
+      <div class="e-entrada" id="eEntrada">
+        <div class="e-ent-cabeza"><h3><svg class="icono" aria-hidden="true"><use href="#i-microfono"/></svg><span data-i18n="entT">Tu micrófono</span></h3><span class="e-ent-sub" data-i18n="entSub">Así suena tu voz cuando te escuchas y cuando grabas</span></div>
+        <div class="e-ent-cuerpo" id="eEntradaCuerpo"></div>
+      </div>
       <div class="e-mezcla-cabeza">
         <h3 data-i18n="eMezcladorT">Mezclador</h3>
         <div class="e-escenas" id="eEscenas"></div>
@@ -2442,6 +2474,9 @@ const TEXTOS = {
     karaoke: 'Karaoke', editarLetra: 'Editar letra', pegarLetra: 'Pegar la letra', usarLetra: 'Sincronizar', cargarTxt: 'Cargar .txt o .lrc',
     letraInicioT: 'Letra (opcional)', letraPh: 'Pega aquí la letra, una línea por renglón. La app la pone en pantalla al ritmo de la voz.',
     pegarNota: 'Pega la letra, una línea por renglón. La IA escucha la voz para saber cuándo se canta cada palabra. Un archivo .lrc ya trae los tiempos.',
+    entT: 'Tu micrófono', entSub: 'Así suena tu voz cuando te escuchas y cuando grabas', entGanancia: 'Ganancia', entEq: 'Ecualizador', entVolumen: 'Volumen al escucharte',
+    entGrabarCon: 'La toma se graba', entConEfectos: 'Con EQ y compresor', entSinEfectos: 'Sin efectos', entNotaRev: 'La reverb es solo para escucharte; no se graba.',
+    eqP_plano: 'Plano', eqP_vozClara: 'Voz clara', eqP_calida: 'Cálida', eqP_brillo: 'Brillo', eqP_menosGraves: 'Menos graves', eqP_radio: 'Radio',
     pagPistas: 'Pistas', pagMezcla: 'Mezclador', herrFlecha: 'Flecha: tocar salta, arrastrar mueve la vista (V)', herrSeleccion: 'Selección: arrastrar marca un loop (I)',
     vistaEnsayo: 'Ensayo', vistaEstudio: 'Estudio', eCompasT: 'Compás', eTiempoT: 'Tiempo', eSeguir: 'Seguir', eAjustar: 'Ajustar al pulso', eTodo: 'Ver toda', eAcercar: 'Acercar', eAlejar: 'Alejar', eZoomT: 'Zoom', eMapaT: 'Vista general de la canción', eMezcladorT: 'Mezclador', ePistas: 'Pistas', eOndas: 'Dibujando ondas con detalle…', maestro: 'Maestro', paneo: 'Paneo', panIzq: 'I', panDer: 'D',
     grabar: 'Grabar', grabDetener: 'Detener', grabando: 'Grabando', grabBorrar: 'Borrar toma', grabBorrarConfirma: '¿Borrar "{t}"? No se puede deshacer.', grabLista: '{n} lista',
@@ -2501,6 +2536,9 @@ const TEXTOS = {
     karaoke: 'Karaoke', editarLetra: 'Edit lyrics', pegarLetra: 'Paste lyrics', usarLetra: 'Sync', cargarTxt: 'Load .txt or .lrc',
     letraInicioT: 'Lyrics (optional)', letraPh: 'Paste the lyrics here, one line per row. The app shows them in time with the vocals.',
     pegarNota: 'Paste the lyrics, one line per row. The AI listens to the vocals to know when each word is sung. An .lrc file already has the timing.',
+    entT: 'Your microphone', entSub: 'How your voice sounds when you hear yourself and when you record', entGanancia: 'Gain', entEq: 'Equalizer', entVolumen: 'Hear-me volume',
+    entGrabarCon: 'The take is recorded', entConEfectos: 'With EQ and compressor', entSinEfectos: 'Dry', entNotaRev: 'Reverb is only for hearing yourself; it isn’t recorded.',
+    eqP_plano: 'Flat', eqP_vozClara: 'Clear voice', eqP_calida: 'Warm', eqP_brillo: 'Bright', eqP_menosGraves: 'Less bass', eqP_radio: 'Radio',
     pagPistas: 'Tracks', pagMezcla: 'Mixer', herrFlecha: 'Arrow: click jumps, drag moves the view (V)', herrSeleccion: 'Selection: drag marks a loop (I)',
     vistaEnsayo: 'Practice', vistaEstudio: 'Studio', eCompasT: 'Bar', eTiempoT: 'Time', eSeguir: 'Follow', eAjustar: 'Snap to beat', eTodo: 'Fit all', eAcercar: 'Zoom in', eAlejar: 'Zoom out', eZoomT: 'Zoom', eMapaT: 'Song overview', eMezcladorT: 'Mixer', ePistas: 'Tracks', eOndas: 'Drawing detailed waveforms…', maestro: 'Master', paneo: 'Pan', panIzq: 'L', panDer: 'R',
     grabar: 'Record', grabDetener: 'Stop', grabando: 'Recording', grabBorrar: 'Delete take', grabBorrarConfirma: 'Delete "{t}"? This can’t be undone.', grabLista: '{n} ready',
@@ -3711,6 +3749,7 @@ function conectarMezcla() {
   nodo.disconnect();
   if (mezcla) { try { mezcla.maestro.disconnect(); } catch (e) {} }
   mezcla = construirMezcla(actx, nodo, actx.destination, true);
+  aplicarEntrada();
 }
 
 /* ---------- Guardar la mezcla con la canción ---------- */
@@ -3967,7 +4006,7 @@ function intentarReconectar() {
       if (!id || lista.some((d) => d.deviceId === id)) {
         clearInterval(reconectando); reconectando = null;
         await prepararMic();
-        if (monitorGan) monitorGan.gain.value = leerPref('monitor', false) ? 1 : 0;
+        aplicarEntrada();
         llenarMics(); pintarEscuchar();
         aviso(t('micVolvio'));
         return;
@@ -4006,14 +4045,15 @@ async function prepararMic() {
   grabadorNodo.connect(mudo).connect(actx.destination);   // conectado para que el navegador lo procese
   micFuente.connect(grabadorNodo);
   monitorGan = actx.createGain(); monitorGan.gain.value = 0;
-  micFuente.connect(monitorGan).connect(actx.destination);
+  monitorGan.connect(actx.destination);
   micMedidor = actx.createAnalyser(); micMedidor.fftSize = 1024;
-  micFuente.connect(micMedidor);
+  armarEntrada();   // ganancia, EQ gráfico y compresor del micrófono
   grabadorNodo.port.onmessage = (e) => recibirGrabador(e.data);
   llenarMics();
 }
 function cerrarMic() {
   if (micStream) micStream.getTracks().forEach((tr) => tr.stop());
+  desarmarEntrada();
   for (const n of [micFuente, grabadorNodo, monitorGan, micMedidor]) { try { n && n.disconnect(); } catch (e) {} }
   micStream = micFuente = grabadorNodo = monitorGan = micMedidor = null;
 }
@@ -4065,7 +4105,7 @@ async function empezarGrabacion() {
   saltar(Math.max(0, inicio - preroll));
   E.rec = { trozos: [], mapa: null, enLoop, loopAntes: S.loopOn };
   if (enLoop) { S.loopOn = false; enviarLoop(); nodo.port.postMessage({ tipo: 'hasta', tiempo: S.loop.b }); }
-  monitorGan.gain.value = leerPref('monitor', false) ? 1 : 0;
+  aplicarEntrada();
   E.rec.desde = Math.round(actx.currentTime * actx.sampleRate);   // marcas de tiempo anteriores no sirven
   grabadorNodo.port.postMessage({ tipo: 'iniciar' });
   S.sonando = true;
@@ -4207,7 +4247,7 @@ async function cambiarMic(id) {
   const estaba = !!micStream;
   cerrarMic();
   if (estaba || leerPref('monitor', false)) {
-    try { await prepararMic(); if (monitorGan) monitorGan.gain.value = leerPref('monitor', false) ? 1 : 0; } catch (e) { aviso(t('grabSinMic')); }
+    try { await prepararMic(); aplicarEntrada(); } catch (e) { aviso(t('grabSinMic')); }
   }
   llenarMics();
   pintarEscuchar();
@@ -4227,7 +4267,7 @@ if (navigator.mediaDevices && navigator.mediaDevices.addEventListener) {
         if (ext && ext.deviceId !== actual) {
           guardarPref('micId', ext.deviceId);
           aviso(t('micConectado', { n: ext.label.replace(/\s*\([0-9a-f]{4}:[0-9a-f]{4}\)\s*$/i, '') }));
-          if (micStream && !E.rec) { cerrarMic(); await prepararMic(); if (monitorGan) monitorGan.gain.value = leerPref('monitor', false) ? 1 : 0; }
+          if (micStream && !E.rec) { cerrarMic(); await prepararMic(); aplicarEntrada(); }
           llenarMics(); pintarEscuchar();
           return;
         }
@@ -4258,7 +4298,7 @@ document.querySelectorAll('#grabMonitor button').forEach((b) => b.onclick = () =
 function pintarAjustesGrabacion() {
   const mon = leerPref('monitor', false);
   document.querySelectorAll('#grabMonitor button').forEach((b) => b.setAttribute('aria-pressed', (b.dataset.monitor === 'si') === mon ? 'true' : 'false'));
-  if (monitorGan && actx) monitorGan.gain.setTargetAtTime(mon ? 1 : 0, actx.currentTime, 0.02);
+  aplicarEntrada();
   if ($('eEscuchar')) pintarEscuchar();
   const p = leerPref('latencia', null);
   const modo = p && p.modo !== 'auto' ? p.modo : 'auto';
@@ -4320,6 +4360,188 @@ $('calibrar').onclick = async () => {
   }
   boton.disabled = false;
 };
+
+/* =====================================================================
+ * Canal del micrófono: ganancia → ecualizador gráfico de 10 bandas →
+ * compresor → (te escuchas / se graba). Reverb solo para escucharte.
+ * ===================================================================== */
+const EQ_FREC = [31, 62, 125, 250, 500, 1000, 2000, 4000, 8000, 16000];
+const EQ_NOMBRES = ['31', '62', '125', '250', '500', '1k', '2k', '4k', '8k', '16k'];
+const EQ_PRESETS = {
+  plano: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  vozClara: [-4, -3, -2, -2, 0, 1, 3, 4, 2, 1],
+  calida: [0, 1, 2, 2, 1, 0, -1, -1, -2, -2],
+  brillo: [0, 0, 0, 0, 0, 0, 1, 2, 4, 5],
+  menosGraves: [-9, -7, -5, -2, 0, 0, 0, 0, 0, 0],
+  radio: [-12, -12, -8, -2, 3, 5, 4, 0, -8, -12],
+};
+const ENT = Object.assign({ gan: 0, eq: EQ_PRESETS.plano.slice(), comp: 0, rev: 0, vol: 1, conEfectos: true }, leerPref('entrada', {}));
+if (!Array.isArray(ENT.eq) || ENT.eq.length !== 10) ENT.eq = EQ_PRESETS.plano.slice();
+let ent = null;   // nodos del canal (existen mientras el micrófono está abierto)
+let guardarEntradaT = null;
+const guardarEntrada = () => { clearTimeout(guardarEntradaT); guardarEntradaT = setTimeout(() => guardarPref('entrada', ENT), 400); };
+
+function crearBandas(ctx) {
+  return EQ_FREC.map((f, i) => {
+    const b = ctx.createBiquadFilter();
+    b.type = i === 0 ? 'lowshelf' : i === EQ_FREC.length - 1 ? 'highshelf' : 'peaking';
+    b.frequency.value = f;
+    if (b.type === 'peaking') b.Q.value = 1.41;   // una octava por banda
+    return b;
+  });
+}
+
+// Se arma al abrir el micrófono: micFuente → ganancia → EQ → (compresor) → salida
+function armarEntrada() {
+  const n = { gan: actx.createGain(), eq: crearBandas(actx), comp: actx.createDynamicsCompressor(), compGan: actx.createGain(), salida: actx.createGain(), rev: actx.createGain(), compActivo: false, grabaDe: null };
+  n.comp.knee.value = 6; n.comp.attack.value = 0.004; n.comp.release.value = 0.12;
+  micFuente.connect(n.gan);
+  let previo = n.gan;
+  for (const b of n.eq) { previo.connect(b); previo = b; }
+  n.ultimo = previo;
+  previo.connect(n.salida);
+  n.comp.connect(n.compGan).connect(n.salida);
+  n.salida.connect(monitorGan);
+  n.salida.connect(micMedidor);
+  n.salida.connect(n.rev);
+  ent = n;
+  aplicarEntrada(true);
+}
+function desarmarEntrada() {
+  if (!ent) return;
+  for (const x of [ent.gan, ...ent.eq, ent.comp, ent.compGan, ent.salida, ent.rev]) { try { x.disconnect(); } catch (e) {} }
+  ent = null;
+}
+
+// Pasa ENT a los nodos (y decide qué se graba y cuánto te escuchas)
+function aplicarEntrada(inmediato = false) {
+  guardarEntrada();
+  pintarCurvaEq();
+  if (!ent || !actx) return;
+  const ahora = actx.currentTime;
+  const fijar = (p, v) => { if (inmediato) p.value = v; else p.setTargetAtTime(v, ahora, 0.015); };
+  fijar(ent.gan.gain, Math.pow(10, ENT.gan / 20));
+  ent.eq.forEach((b, i) => fijar(b.gain, ENT.eq[i]));
+  const usar = ENT.comp > 0.001;
+  if (usar !== ent.compActivo) {
+    ent.ultimo.disconnect();
+    ent.ultimo.connect(usar ? ent.comp : ent.salida);
+    ent.compActivo = usar;
+  }
+  if (usar) { fijar(ent.comp.threshold, -ENT.comp * 30); fijar(ent.comp.ratio, 1.5 + ENT.comp * 6); fijar(ent.compGan.gain, 1); }   // el compresor del navegador ya sube el nivel solo
+  // Te escuchas solo con «Escucharme» prendido, al volumen elegido
+  if (monitorGan) fijar(monitorGan.gain, leerPref('monitor', false) ? ENT.vol : 0);
+  // Reverb para escucharte: va a la reverb del mezclador
+  try { ent.rev.disconnect(); } catch (e) {}
+  if (mezcla && mezcla.rev) ent.rev.connect(mezcla.rev);
+  fijar(ent.rev.gain, leerPref('monitor', false) ? ENT.rev * ENT.vol : 0);
+  // Qué se graba: con el EQ y el compresor, o la voz tal cual entra
+  const fuente = ENT.conEfectos ? ent.salida : micFuente;
+  if (ent.grabaDe !== fuente && grabadorNodo) {
+    if (ent.grabaDe) { try { ent.grabaDe.disconnect(grabadorNodo); } catch (e) {} } else { try { micFuente.disconnect(grabadorNodo); } catch (e) {} }
+    fuente.connect(grabadorNodo);
+    ent.grabaDe = fuente;
+  }
+}
+
+/* ---------- Panel "Tu micrófono" en la página Mezclador ---------- */
+let curvaCtx = null, curvaBandas = null;
+function pintarCurvaEq() {
+  const cv = $('eEqCurva');
+  if (!cv || !cv.clientWidth || !E.col || !E.col.acento) return;
+  if (!curvaCtx) { curvaCtx = new OfflineAudioContext(1, 128, 44100); curvaBandas = crearBandas(curvaCtx); }
+  const dpr = devicePixelRatio || 1, w = cv.clientWidth, h = cv.clientHeight;
+  if (cv.width !== Math.round(w * dpr)) { cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr); }
+  const g = cv.getContext('2d');
+  g.setTransform(dpr, 0, 0, dpr, 0, 0);
+  g.clearRect(0, 0, w, h);
+  const N = Math.max(64, Math.round(w)), frec = new Float32Array(N), mag = new Float32Array(N), fase = new Float32Array(N), total = new Float32Array(N);
+  for (let i = 0; i < N; i++) frec[i] = 20 * Math.pow(1000, i / (N - 1));    // 20 Hz … 20 kHz
+  curvaBandas.forEach((b, i) => {
+    b.gain.value = ENT.eq[i];
+    b.getFrequencyResponse(frec, mag, fase);
+    for (let k = 0; k < N; k++) total[k] += 20 * Math.log10(Math.max(1e-6, mag[k]));
+  });
+  const y = (db) => h / 2 - (db / 15) * (h / 2 - 6);
+  // Rejilla: 0 dB y ±6 / ±12
+  for (const d of [-12, -6, 0, 6, 12]) { g.fillStyle = rgbTxt(E.col.texto, d === 0 ? 0.18 : 0.07); g.fillRect(0, Math.round(y(d)), w, 1); }
+  for (const f of EQ_FREC) { const x = (Math.log(f / 20) / Math.log(1000)) * w; g.fillStyle = rgbTxt(E.col.texto, 0.05); g.fillRect(Math.round(x), 0, 1, h); }
+  g.beginPath();
+  for (let k = 0; k < N; k++) { const x = (k / (N - 1)) * w; k ? g.lineTo(x, y(total[k])) : g.moveTo(x, y(total[k])); }
+  g.lineTo(w, h / 2); g.lineTo(0, h / 2); g.closePath();
+  g.fillStyle = rgbTxt(E.col.acento, 0.16); g.fill();
+  g.beginPath();
+  for (let k = 0; k < N; k++) { const x = (k / (N - 1)) * w; k ? g.lineTo(x, y(total[k])) : g.moveTo(x, y(total[k])); }
+  g.strokeStyle = rgbTxt(E.col.acento); g.lineWidth = 2; g.stroke();
+}
+
+function crearBandaEq(i) {
+  const caja = document.createElement('div');
+  caja.className = 'e-eq-banda';
+  caja.innerHTML = `<div class="e-eq-valor"></div><div class="e-eq-fader" role="slider" tabindex="0" aria-valuemin="-12" aria-valuemax="12"><div class="e-eq-riel"></div><div class="e-eq-perilla"></div></div><div class="e-eq-frec">${EQ_NOMBRES[i]}</div>`;
+  const fd = caja.querySelector('.e-eq-fader'), pr = caja.querySelector('.e-eq-perilla'), val = caja.querySelector('.e-eq-valor');
+  fd.setAttribute('aria-label', `${t('entEq')} ${EQ_NOMBRES[i]} Hz`);
+  const pintar = () => {
+    const v = ENT.eq[i];
+    pr.style.top = `${((12 - v) / 24) * 100}%`;
+    pr.classList.toggle('activa', Math.abs(v) > 0.05);
+    val.textContent = (v > 0 ? '+' : v < 0 ? '−' : '') + Math.abs(v).toFixed(Math.abs(v) < 10 ? 1 : 0);
+    fd.setAttribute('aria-valuenow', v.toFixed(1)); fd.setAttribute('aria-valuetext', `${val.textContent} dB`);
+  };
+  const poner = (v) => { ENT.eq[i] = Math.round(Math.max(-12, Math.min(12, v)) * 2) / 2; aplicarEntrada(); pintar(); };
+  arrastrarVertical(fd, (dy, inicio, ev) => {
+    const r = fd.getBoundingClientRect(), yy = ev.clientY - r.top;
+    const yPr = ((12 - ENT.eq[i]) / 24) * fd.clientHeight;
+    if (Math.abs(yy - yPr) > 12) poner(12 - (yy / fd.clientHeight) * 24);
+    return ENT.eq[i];
+  }, (base, dy, fino) => poner(base - (dy / fd.clientHeight) * 24 * (fino ? 0.25 : 1)));
+  fd.ondblclick = () => poner(0);
+  fd.onkeydown = (e) => {
+    if (e.key === 'ArrowUp' || e.key === 'ArrowRight') { e.preventDefault(); poner(ENT.eq[i] + 0.5); }
+    if (e.key === 'ArrowDown' || e.key === 'ArrowLeft') { e.preventDefault(); poner(ENT.eq[i] - 0.5); }
+  };
+  fd.addEventListener('wheel', (e) => { e.preventDefault(); poner(ENT.eq[i] - Math.sign(e.deltaY) * 0.5); }, { passive: false });
+  caja._pintar = pintar;
+  pintar();
+  return caja;
+}
+
+function construirEntrada() {
+  const caja = $('eEntradaCuerpo');
+  if (!caja) return;
+  caja.innerHTML = '';
+  // Columna 1: ganancia y medidor de entrada
+  const c1 = document.createElement('div'); c1.className = 'e-ent-col e-ent-nivel';
+  c1.appendChild(crearPerilla({ etiqueta: t('entGanancia'), aria: t('entGanancia'), min: -24, max: 24, defecto: 0, bipolar: true, leer: () => ENT.gan, poner: (v) => { ENT.gan = Math.round(v * 2) / 2; aplicarEntrada(); }, formato: fmtDbEq }));
+  c1.insertAdjacentHTML('beforeend', '<canvas class="e-medidor e-ent-medidor" id="eEntMedidor"></canvas>');
+  // Columna 2: ecualizador gráfico
+  const c2 = document.createElement('div'); c2.className = 'e-ent-col e-ent-eq';
+  c2.innerHTML = `<div class="e-eq-presets"></div><div class="e-eq-zona"><canvas id="eEqCurva"></canvas><div class="e-eq-bandas"></div></div>`;
+  const pres = c2.querySelector('.e-eq-presets');
+  for (const clave of Object.keys(EQ_PRESETS)) {
+    const b = document.createElement('button');
+    b.type = 'button'; b.className = 'e-escena'; b.textContent = t('eqP_' + clave);
+    b.onclick = () => { ENT.eq = EQ_PRESETS[clave].slice(); aplicarEntrada(); c2.querySelectorAll('.e-eq-banda').forEach((x) => x._pintar()); };
+    pres.appendChild(b);
+  }
+  const bandas = c2.querySelector('.e-eq-bandas');
+  EQ_FREC.forEach((_, i) => bandas.appendChild(crearBandaEq(i)));
+  // Columna 3: compresor, reverb, volumen de escucha y qué se graba
+  const c3 = document.createElement('div'); c3.className = 'e-ent-col e-ent-fx';
+  const fila = document.createElement('div'); fila.className = 'e-ent-mandos';
+  fila.appendChild(crearPerilla({ etiqueta: t('fxComp'), aria: `${t('fxComp')} ${t('entT')}`, min: 0, max: 1, defecto: 0, leer: () => ENT.comp, poner: (v) => { ENT.comp = v; aplicarEntrada(); }, formato: fmtPorc }));
+  fila.appendChild(crearPerilla({ etiqueta: t('fxReverb'), aria: `${t('fxReverb')} ${t('entT')}`, min: 0, max: 1, defecto: 0, leer: () => ENT.rev, poner: (v) => { ENT.rev = v; aplicarEntrada(); }, formato: fmtEnvio }));
+  fila.appendChild(crearPerilla({ etiqueta: t('entVolumen'), aria: t('entVolumen'), min: 0, max: 2, defecto: 1, leer: () => ENT.vol, poner: (v) => { ENT.vol = v; aplicarEntrada(); }, formato: (v) => txtDb(v) + ' dB' }));
+  c3.appendChild(fila);
+  c3.insertAdjacentHTML('beforeend', `<p class="e-ent-titulo">${t('entGrabarCon')}</p>
+    <div class="seg" id="eEntEfectos"><button type="button" data-v="si">${t('entConEfectos')}</button><button type="button" data-v="no">${t('entSinEfectos')}</button></div>
+    <p class="e-ent-nota">${t('entNotaRev')}</p>`);
+  const pintarSeg = () => c3.querySelectorAll('#eEntEfectos button').forEach((b) => b.setAttribute('aria-pressed', (b.dataset.v === 'si') === ENT.conEfectos ? 'true' : 'false'));
+  c3.querySelectorAll('#eEntEfectos button').forEach((b) => b.onclick = () => { ENT.conEfectos = b.dataset.v === 'si'; aplicarEntrada(); pintarSeg(); });
+  pintarSeg();
+  caja.append(c1, c2, c3);
+  requestAnimationFrame(pintarCurvaEq);
+}
 
 /* =====================================================================
  * Estudio: línea de tiempo con zoom, vista general y mezclador
@@ -4434,6 +4656,7 @@ function construirEstudio() {
   if (E.rec) cab.insertAdjacentHTML('beforeend', `<div class="e-pista rec" style="height:${ALTO.pista}px;--c:var(--ember)"><div class="e-nombre">● ${t('grabando')}</div></div>`);
   mez.appendChild(crearCanal(null, -1, rgbTxt(E.col.acento)));
   mez.classList.toggle('sin-fx', !E.verFx);
+  construirEntrada();
   pintarEscenas();
   E.nivel = S.pistas.map(() => -Infinity); E.pico = S.pistas.map(() => -Infinity); E.picoT = S.pistas.map(() => 0);
   E.nivelM = [-Infinity, -Infinity]; E.picoM = -Infinity; E.picoMT = 0;
@@ -4634,6 +4857,7 @@ function aplicarPagina(pg, desplazar) {
   document.body.classList.toggle('estudio-mezcla', E.activo && E.pagina === 'mezcla');
   requestAnimationFrame(() => {
     redimensionarEstudio();
+    pintarCurvaEq();
     if (desplazar && E.activo) $('estudio').scrollIntoView({ block: 'start', behavior: sinMovimiento.matches ? 'auto' : 'smooth' });
   });
 }
@@ -5078,6 +5302,9 @@ function cuadroEstudio(ahora) {
   if (dm >= E.picoM || ahora - E.picoMT > 1200) { E.picoM = dm; E.picoMT = ahora; }
   if (micMedidor) {
     const v = picoDe(micMedidor), d = dbDe(v);
+    E.nivelEnt = Math.max(d, (E.nivelEnt === undefined || E.nivelEnt === -Infinity ? -90 : E.nivelEnt) - 26 * dt);
+    if (d >= (E.picoEnt ?? -Infinity) || ahora - (E.picoEntT || 0) > 1200) { E.picoEnt = d; E.picoEntT = ahora; }
+    if (E.pagina === 'mezcla' && $('eEntMedidor')) dibujarMedidor($('eEntMedidor'), [E.nivelEnt < -80 ? -Infinity : E.nivelEnt], E.picoEnt);
     const barra = $('eNivelMic').firstElementChild;
     barra.style.width = `${Math.max(0, Math.min(100, ((d + 60) / 60) * 100))}%`;
     barra.classList.toggle('alto', d > -3);
@@ -5135,7 +5362,7 @@ $('eEscuchar').onclick = async () => {
     try { await prepararMic(); await actx.resume(); } catch (e) { guardarPref('monitor', false); aviso(t('grabSinMic')); pintarEscuchar(); return; }
     aviso(t('grabUsaAudifonos'));
   }
-  if (monitorGan) monitorGan.gain.setTargetAtTime(on ? 1 : 0, actx.currentTime, 0.02);
+  aplicarEntrada();
   pintarEscuchar();
 };
 function pintarEscuchar() {

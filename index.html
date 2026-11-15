@@ -13,9 +13,6 @@
 <link rel="apple-touch-icon" href="./apple-touch-icon.png">
 <link rel="icon" type="image/png" href="./icon-192.png">
 <link rel="manifest" href="./manifest.json">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Work+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
 <style>
   :root {
     --ink: #241c15;
@@ -29,6 +26,22 @@
     --verdigris: #b8871f;
     --rust: #93583a;
     --focus: #c99a2e;
+
+    /* Acabado (se calculan de la paleta: no son colores nuevos) */
+    --fuente: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+    --linea: color-mix(in srgb, var(--parchment) 10%, transparent);
+    --linea-fuerte: color-mix(in srgb, var(--parchment) 18%, transparent);
+    --relleno: color-mix(in srgb, var(--parchment) 5%, transparent);
+    --relleno-2: color-mix(in srgb, var(--parchment) 9%, transparent);
+    --sombra-1: 0 1px 2px rgba(0,0,0,.06), 0 0 0 .5px rgba(0,0,0,.02);
+    --sombra-2: 0 1px 2px rgba(0,0,0,.04), 0 6px 20px -8px rgba(0,0,0,.14);
+    --sombra-3: 0 24px 60px -12px rgba(0,0,0,.35);
+    --resorte: cubic-bezier(.34, 1.56, .64, 1);
+    --suave: cubic-bezier(.22, 1, .36, 1);
+    --radio: 16px;
+    --radio-s: 10px;
+    --toque: 44px;
   }
 
   * { box-sizing: border-box; }
@@ -39,278 +52,542 @@
     padding: 0;
     background: var(--bg);
     color: var(--parchment);
-    font-family: 'Work Sans', sans-serif;
+    font-family: var(--fuente);
+    font-size: 15px;
+    line-height: 1.45;
+    -webkit-font-smoothing: antialiased;
     -webkit-tap-highlight-color: transparent;
+    -webkit-text-size-adjust: 100%;
   }
-  body {
-    min-height: 100vh;
-    background:
-      radial-gradient(ellipse at 20% -10%, color-mix(in srgb, var(--brass) 10%, transparent), transparent 55%),
-      repeating-linear-gradient(100deg, rgba(0,0,0,0.02) 0px, rgba(0,0,0,0.02) 2px, transparent 2px, transparent 5px),
-      var(--bg);
+  body { min-height: 100vh; min-height: 100dvh; overflow-x: hidden; }
+
+  .tool {
+    max-width: 1100px; margin: 0 auto;
+    padding: calc(24px + env(safe-area-inset-top)) calc(20px + env(safe-area-inset-right)) calc(40px + env(safe-area-inset-bottom)) calc(20px + env(safe-area-inset-left));
   }
+  .icono { width: 20px; height: 20px; flex-shrink: 0; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .num { font-family: var(--mono); font-variant-numeric: tabular-nums; }
 
-  .tool { max-width: 1100px; margin: 0 auto; padding: 28px 20px 40px; padding-bottom: calc(40px + env(safe-area-inset-bottom)); }
-
-  header { margin-bottom: 18px; }
-  .top-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
-  .eyebrow { font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.18em; color: var(--brass); text-transform: uppercase; margin-bottom: 6px; }
-  h1 { font-family: 'Bebas Neue', sans-serif; font-size: 44px; letter-spacing: 0.03em; margin: 0 0 4px; line-height: 0.95; font-weight: 400; }
-  .subtitle { font-size: 14px; color: var(--parchment-dim); margin: 0; max-width: 56ch; }
+  /* ---- Encabezado ---- */
+  header { margin-bottom: 20px; }
+  .top-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .marca { display: flex; align-items: center; gap: 12px; min-width: 0; }
+  .marca-icono {
+    width: 44px; height: 44px; border-radius: 12px; flex-shrink: 0; display: grid; place-items: center;
+    background: var(--brass); color: var(--ink); box-shadow: var(--sombra-1);
+  }
+  .marca-icono .icono { width: 24px; height: 24px; stroke-width: 2.2; }
+  .eyebrow { font-size: 12.5px; font-weight: 500; color: var(--parchment-dim); margin: 0 0 1px; }
+  h1 { font-size: 26px; font-weight: 700; letter-spacing: -0.02em; margin: 0; line-height: 1.1; }
+  .subtitle { font-size: 15px; color: var(--parchment-dim); margin: 12px 0 0; max-width: 60ch; }
 
   .engrane {
-    flex-shrink: 0; width: 42px; height: 42px; border-radius: 10px;
-    border: 1px solid var(--surface-2); background: var(--surface); color: var(--parchment);
-    display: flex; align-items: center; justify-content: center; cursor: pointer;
+    flex-shrink: 0; width: var(--toque); height: var(--toque); border-radius: 12px;
+    border: 1px solid var(--linea); background: var(--surface); color: var(--parchment); box-shadow: var(--sombra-1);
+    display: grid; place-items: center; cursor: pointer;
+    transition: color .15s, background-color .15s, transform .25s var(--resorte);
   }
   .engrane:hover { color: var(--brass); }
-  .engrane svg { width: 22px; height: 22px; }
+  .engrane:active { transform: scale(.94); }
+  .engrane svg { width: 22px; height: 22px; transition: transform .5s var(--suave); }
+  .engrane:hover svg { transform: rotate(45deg); }
 
-  /* ---- Ajustes ---- */
+  /* ---- Diálogos ---- */
   .ajustes {
-    width: min(520px, calc(100vw - 24px)); max-height: calc(100vh - 40px);
-    border: 1px solid var(--surface-2); border-radius: 14px; padding: 0;
-    background: var(--surface); color: var(--parchment); box-shadow: 0 20px 50px rgba(0,0,0,0.25);
+    width: min(520px, calc(100vw - 24px)); max-height: calc(100dvh - 40px);
+    border: 1px solid var(--linea); border-radius: 20px; padding: 0;
+    background: var(--surface); color: var(--parchment); box-shadow: var(--sombra-3);
   }
-  .ajustes::backdrop { background: rgba(20,16,12,0.45); }
+  .ajustes[open] { animation: aparecer .32s var(--suave); }
+  .ajustes::backdrop { background: rgba(10,8,6,0.42); backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px); }
   .ajustes-cabeza {
-    display: flex; align-items: center; justify-content: space-between; padding: 16px 18px 12px;
-    border-bottom: 1px solid var(--surface-2); position: sticky; top: 0; background: var(--surface);
+    display: flex; align-items: center; justify-content: space-between; padding: 14px 14px 12px 20px;
+    border-bottom: 1px solid var(--linea); position: sticky; top: 0; z-index: 1;
+    background: color-mix(in srgb, var(--surface) 92%, transparent); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
   }
-  .ajustes-cabeza h2 { font-family: 'Bebas Neue', sans-serif; font-weight: 400; font-size: 28px; letter-spacing: 0.04em; margin: 0; }
-  .ajustes-cuerpo { padding: 16px 18px 20px; }
-  .settings-section + .settings-section { margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--surface-2); }
-  .settings-section-title { font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--parchment-dim); margin: 0 0 10px; }
-  .seg { display: flex; gap: 6px; }
+  .ajustes-cabeza h2 { font-size: 19px; font-weight: 700; letter-spacing: -0.01em; margin: 0; }
+  .ajustes-cuerpo { padding: 18px 20px 22px; }
+  .settings-section + .settings-section { margin-top: 20px; padding-top: 18px; border-top: 1px solid var(--linea); }
+  .settings-section-title { font-size: 13px; font-weight: 600; color: var(--parchment-dim); margin: 0 0 10px; }
+
+  /* Selector segmentado: un riel con la opción elegida resaltada */
+  .seg {
+    display: flex; gap: 2px; padding: 3px; border-radius: 12px;
+    background: var(--relleno-2); box-shadow: inset 0 0 0 1px var(--linea);
+  }
   .seg button {
-    flex: 1; font-family: 'IBM Plex Mono', monospace; font-size: 12.5px; font-weight: 600; padding: 9px 8px;
-    border: 1px solid var(--surface-2); border-radius: 8px; background: var(--bg); color: var(--parchment-dim); cursor: pointer;
+    flex: 1; min-width: 0; min-height: 40px; font-size: 14px; font-weight: 500; padding: 8px 10px; line-height: 1.2;
+    border: 0; border-radius: 9px; background: transparent; color: var(--parchment-dim); cursor: pointer;
+    transition: background-color .2s var(--suave), color .2s, box-shadow .2s, transform .2s var(--resorte);
   }
-  .seg button[aria-pressed="true"] { background: var(--brass); border-color: var(--brass); color: var(--ink); }
+  .seg button:hover { color: var(--parchment); }
+  .seg button:active { transform: scale(.96); }
+  .seg button[aria-pressed="true"] { background: var(--surface); color: var(--parchment); font-weight: 600; box-shadow: var(--sombra-1), 0 0 0 1px var(--linea); }
+
   .theme-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
-  .theme-card { border: 2px solid var(--surface-2); border-radius: 10px; padding: 10px 6px; cursor: pointer; background: var(--bg); text-align: center; font: inherit; color: inherit; }
-  .theme-card.active { border-color: var(--brass); }
-  .theme-card-swatches { display: flex; gap: 4px; justify-content: center; margin-bottom: 6px; }
-  .theme-swatch { width: 16px; height: 16px; border-radius: 50%; border: 1px solid rgba(0,0,0,0.12); }
-  .theme-card-name { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--parchment); }
-  .nota-ajustes { font-size: 13px; color: var(--parchment-dim); margin: 0 0 10px; }
+  .theme-card {
+    border: 1px solid var(--linea); border-radius: 12px; padding: 12px 6px 10px; min-height: var(--toque); cursor: pointer;
+    background: var(--bg); text-align: center; font: inherit; color: inherit;
+    transition: box-shadow .2s, transform .2s var(--resorte);
+  }
+  .theme-card:hover { box-shadow: var(--sombra-2); }
+  .theme-card:active { transform: scale(.96); }
+  .theme-card.active { box-shadow: 0 0 0 2px var(--brass); border-color: transparent; }
+  .theme-card-swatches { display: flex; gap: 0; justify-content: center; margin-bottom: 7px; }
+  .theme-swatch { width: 18px; height: 18px; border-radius: 50%; box-shadow: 0 0 0 2px var(--bg), inset 0 0 0 1px rgba(0,0,0,0.12); }
+  .theme-swatch + .theme-swatch { margin-left: -4px; }
+  .theme-card-name { font-size: 12.5px; font-weight: 500; color: var(--parchment); }
+  .nota-ajustes { font-size: 14px; color: var(--parchment-dim); margin: 0 0 12px; }
 
   /* ---- Bloques comunes ---- */
-  .panel { background: var(--surface); border: 1px solid var(--surface-2); border-radius: 10px; padding: 18px; margin-bottom: 16px; }
+  .panel {
+    background: var(--surface); border: 1px solid var(--linea); border-radius: var(--radio);
+    padding: 18px; margin-bottom: 14px; box-shadow: var(--sombra-2);
+  }
   button { font-family: inherit; }
-  button:focus-visible, input:focus-visible, .abrir:focus-within { outline: 2px solid var(--focus); outline-offset: 2px; }
-  input[type=range] { accent-color: var(--brass); }
+  button:focus-visible, input:focus-visible, summary:focus-visible, a:focus-visible, .boton-archivo:focus-within { outline: 2px solid var(--focus); outline-offset: 2px; }
+  input[type=range] { accent-color: var(--brass); height: var(--toque); margin: 0; cursor: pointer; }
+
   .boton {
-    background: var(--surface-2); border: 1px solid var(--surface-2); color: var(--parchment);
-    font-weight: 600; font-size: 13.5px; padding: 9px 14px; border-radius: 8px; cursor: pointer; white-space: nowrap;
+    display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+    min-height: var(--toque); padding: 0 16px; border-radius: 12px; cursor: pointer; white-space: nowrap;
+    background: var(--surface); border: 1px solid var(--linea-fuerte); color: var(--parchment);
+    font-size: 14.5px; font-weight: 600; box-shadow: var(--sombra-1);
+    transition: background-color .15s, border-color .15s, box-shadow .15s, transform .25s var(--resorte), filter .15s;
   }
-  .boton:hover { background: var(--surface); }
-  .boton.principal { background: var(--brass); border-color: var(--brass); color: var(--ink); }
+  .boton:hover { background: color-mix(in srgb, var(--parchment) 4%, var(--surface)); }
+  .boton:active { transform: scale(.96); box-shadow: none; }
+  .boton .icono { width: 18px; height: 18px; }
+  .boton.principal { background: var(--brass); border-color: transparent; color: var(--ink); box-shadow: var(--sombra-1), inset 0 1px 0 rgba(255,255,255,.14); }
+  .boton.principal:hover { filter: brightness(1.07); }
+  .boton.principal:active { filter: brightness(.94); }
+  .boton:disabled, .chip:disabled { opacity: .5; cursor: default; transform: none; }
+
+  /* Interruptor / opción rápida */
   .chip {
-    background: var(--surface); border: 1px solid var(--surface-2); color: var(--parchment-dim);
-    font-family: 'IBM Plex Mono', monospace; font-size: 12px; font-weight: 600; padding: 5px 10px; border-radius: 6px; cursor: pointer; line-height: 1.2;
+    display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+    min-height: var(--toque); min-width: var(--toque); padding: 0 12px; border-radius: 12px; cursor: pointer; line-height: 1.2;
+    background: transparent; border: 1px solid var(--linea-fuerte); color: var(--parchment);
+    font-size: 14px; font-weight: 600;
+    transition: background-color .15s, border-color .15s, color .15s, transform .25s var(--resorte);
   }
-  .chip:hover { color: var(--parchment); border-color: var(--parchment-dim); }
-  .chip.active { background: var(--brass); border-color: var(--brass); color: var(--ink); }
-  .label { font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.14em; color: var(--parchment-dim); text-transform: uppercase; }
+  .chip:hover { background: var(--relleno); }
+  .chip:active { transform: scale(.94); }
+  .chip.active { background: var(--brass); border-color: transparent; color: var(--ink); }
+  .chip .icono { width: 18px; height: 18px; }
+  .icono-btn { padding: 0; width: var(--toque); }
+  .label { font-size: 13px; font-weight: 600; color: var(--parchment-dim); }
+
+  @keyframes aparecer { from { opacity: 0; transform: translateY(10px) scale(.98); } to { opacity: 1; transform: none; } }
+  @keyframes entrar { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
 
   /* ---- Biblioteca ---- */
+  #biblioteca { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 20px; align-items: start; }
+  #biblioteca > .panel { margin: 0; }
+  .panel.subir { padding: 0; overflow: hidden; }
   .abrir {
-    display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 26px 12px;
-    border: 2px dashed var(--surface-2); border-radius: 10px; cursor: pointer; text-align: center; transition: border-color .15s;
+    position: relative; display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center;
+    padding: 34px 20px 28px; cursor: pointer;
+    background: linear-gradient(180deg, color-mix(in srgb, var(--brass) 9%, var(--surface)), var(--surface));
+    border-bottom: 1px solid var(--linea);
+    transition: background-color .2s, box-shadow .2s;
   }
-  .abrir:hover, .abrir.over { border-color: var(--brass); }
-  /* Botón real del sistema para elegir archivos, con el estilo de la app.
-     En iPhone un campo escondido a veces no abre nada al tocarlo; uno visible siempre abre. */
-  .archivo { font: 13px 'Work Sans', sans-serif; color: var(--parchment-dim); max-width: 100%; margin: 8px 0 4px; }
-  .archivo::file-selector-button {
-    font: 600 15px 'Work Sans', sans-serif; background: var(--brass); color: var(--ink);
-    border: 0; border-radius: 8px; padding: 12px 18px; margin-right: 10px; cursor: pointer;
+  .abrir.over { box-shadow: inset 0 0 0 2px var(--brass); background: color-mix(in srgb, var(--brass) 14%, var(--surface)); }
+  .abrir-icono {
+    width: 64px; height: 64px; border-radius: 20px; display: grid; place-items: center; margin-bottom: 8px;
+    background: var(--brass); color: var(--ink); box-shadow: 0 8px 24px -8px color-mix(in srgb, var(--brass) 70%, transparent);
+    transition: transform .35s var(--resorte);
   }
-  .archivo::-webkit-file-upload-button {
-    font: 600 15px 'Work Sans', sans-serif; background: var(--brass); color: var(--ink);
-    border: 0; border-radius: 8px; padding: 12px 18px; margin-right: 10px; cursor: pointer;
+  .abrir:hover .abrir-icono, .abrir.over .abrir-icono { transform: translateY(-3px); }
+  .abrir-icono .icono { width: 30px; height: 30px; stroke-width: 2.2; }
+  .abrir-titulo { font-size: 24px; font-weight: 700; letter-spacing: -0.02em; color: var(--parchment); line-height: 1.15; }
+  .abrir-sub { font-size: 14px; color: var(--parchment-dim); }
+
+  /* Botón de archivo: el campo real va encima, transparente, para que en iPhone se toque directo */
+  .boton-archivo { position: relative; overflow: hidden; margin: 12px 0 4px; }
+  .boton-archivo input[type=file] {
+    position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; font-size: 100px;
   }
-  .archivo.chico { margin: 0; font-size: 12px; }
-  .archivo.chico::file-selector-button { font-size: 12px; padding: 6px 10px; background: var(--surface-2); color: var(--parchment); }
-  .archivo.chico::-webkit-file-upload-button { font-size: 12px; padding: 6px 10px; background: var(--surface-2); color: var(--parchment); }
-  .carga-letra { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
-  .abrir-titulo { font-family: 'Bebas Neue', sans-serif; font-size: 26px; letter-spacing: 0.04em; color: var(--brass); }
-  .abrir-sub { font-size: 13px; color: var(--parchment-dim); }
-  .modos { margin-top: 14px; }
-  .modos .seg { flex-wrap: wrap; }
-  .modos .seg button { min-width: 150px; }
-  .modos .seg button { text-align: left; font-family: 'Work Sans', sans-serif; font-size: 12.5px; line-height: 1.3; padding: 10px 12px; }
-  .modos .seg button b { display: block; font-family: 'IBM Plex Mono', monospace; font-size: 12px; letter-spacing: .06em; text-transform: uppercase; margin-bottom: 2px; }
-  .aviso { font-size: 13px; color: var(--parchment-dim); margin: 12px 0 0; text-align: center; }
-  .lista { display: grid; gap: 10px; }
-  .cancion { display: flex; align-items: center; gap: 12px; background: var(--surface); border: 1px solid var(--surface-2); border-radius: 10px; padding: 12px 14px; }
+  .boton-archivo.grande { min-height: 50px; padding: 0 26px; font-size: 16px; border-radius: 14px; }
+  .carga-letra { min-width: 0; }
+
+  .cuerpo-subir { padding: 18px; }
+  .modos { margin: 0; }
+  .modo-desc { font-size: 13.5px; color: var(--parchment-dim); margin: 10px 2px 0; min-height: 2.9em; }
+  .modo-desc span { display: none; }
+  .modos:has([data-modo="rapido"][aria-pressed="true"]) .d-rapido,
+  .modos:has([data-modo="estudio"][aria-pressed="true"]) .d-estudio,
+  .modos:has([data-modo="salsa"][aria-pressed="true"]) .d-salsa { display: inline; animation: entrar .25s var(--suave); }
+  .modos .seg button { display: flex; flex-direction: column; align-items: center; gap: 1px; padding: 8px 6px; min-height: 52px; }
+  .modos .seg button b { font-size: 15px; font-weight: 600; }
+  .modos .seg button small { font-size: 12px; font-weight: 500; color: var(--parchment-dim); }
+
+  .letra-inicio { margin-top: 12px; border-top: 1px solid var(--linea); }
+  .letra-inicio summary {
+    list-style: none; display: flex; align-items: center; gap: 10px; min-height: 52px; cursor: pointer;
+    font-size: 15px; font-weight: 600; color: var(--parchment);
+  }
+  .letra-inicio summary::-webkit-details-marker { display: none; }
+  .letra-inicio summary .icono { color: var(--parchment-dim); }
+  .letra-inicio summary .flecha { margin-left: auto; width: 18px; height: 18px; transition: transform .25s var(--suave); }
+  .letra-inicio[open] summary .flecha { transform: rotate(90deg); }
+  .letra-inicio[open] > :not(summary) { animation: entrar .25s var(--suave); }
+  .letra-inicio textarea { min-height: 120px; }
+
+  .aviso { display: flex; gap: 10px; align-items: flex-start; font-size: 13px; color: var(--parchment-dim); margin: 14px 2px 0; text-align: left; }
+  .aviso .icono { width: 16px; height: 16px; margin-top: 1px; }
+
+  .columna-lista { min-width: 0; }
+  .titulo-lista { display: flex; align-items: baseline; justify-content: space-between; margin: 4px 4px 10px; }
+  .titulo-lista h2 { font-size: 17px; font-weight: 700; letter-spacing: -0.01em; margin: 0; }
+  .lista { display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; }
+  .cancion {
+    display: flex; align-items: center; gap: 12px; background: var(--surface); border: 1px solid var(--linea);
+    border-radius: 14px; padding: 12px 10px 12px 12px; box-shadow: var(--sombra-1);
+    animation: entrar .3s var(--suave) both;
+  }
+  .cancion-icono {
+    width: 44px; height: 44px; border-radius: 12px; flex-shrink: 0; display: grid; place-items: center;
+    background: color-mix(in srgb, var(--brass) 14%, var(--surface)); color: var(--brass);
+  }
+  .cancion-icono.trabajando { color: var(--ember); background: color-mix(in srgb, var(--ember) 12%, var(--surface)); }
+  .cancion-icono.trabajando .icono { animation: girar 1.2s linear infinite; }
   .cancion .t { flex: 1; min-width: 0; }
   .cancion .nombre { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .cancion .sub { font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: var(--parchment-dim); margin-top: 3px; }
-  .barra { height: 4px; background: var(--surface-2); border-radius: 2px; margin-top: 7px; overflow: hidden; }
-  .barra i { display: block; height: 100%; background: var(--brass); transition: width .4s; }
+  .cancion .sub { font-size: 13px; color: var(--parchment-dim); margin-top: 2px; font-variant-numeric: tabular-nums; }
+  .cancion .boton { min-height: 40px; padding: 0 14px; }
+  .cancion .borrar { border-color: transparent; color: var(--parchment-dim); }
+  .cancion .borrar:hover { color: var(--ember); background: color-mix(in srgb, var(--ember) 10%, transparent); }
+  .barra { height: 6px; background: var(--relleno-2); border-radius: 3px; margin-top: 8px; overflow: hidden; }
+  .barra i {
+    display: block; height: 100%; border-radius: 3px; transition: width .6s var(--suave);
+    background: linear-gradient(90deg, var(--brass), color-mix(in srgb, var(--brass) 55%, var(--surface)), var(--brass));
+    background-size: 200% 100%; animation: brillo 1.6s linear infinite;
+  }
+  @keyframes brillo { from { background-position: 200% 0; } to { background-position: 0 0; } }
+  @keyframes girar { to { transform: rotate(360deg); } }
   .err { color: var(--ember) !important; }
-  .vacio { color: var(--parchment-dim); text-align: center; padding: 14px; font-size: 14px; }
+
+  /* Estado vacío */
+  .vacio {
+    display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center;
+    padding: 34px 20px; border-radius: var(--radio); border: 1px dashed var(--linea-fuerte); color: var(--parchment-dim);
+  }
+  .vacio-icono { width: 52px; height: 52px; border-radius: 16px; display: grid; place-items: center; background: var(--relleno-2); color: var(--parchment-dim); margin-bottom: 6px; }
+  .vacio-icono .icono { width: 26px; height: 26px; }
+  .vacio b { color: var(--parchment); font-size: 15px; }
+  .vacio span { font-size: 14px; max-width: 30ch; }
 
   /* ---- Reproductor ---- */
-  .cabeza-cancion { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
-  .cabeza-cancion h2 { font-family: 'Bebas Neue', sans-serif; font-weight: 400; font-size: 32px; letter-spacing: 0.03em; margin: 0; flex: 1; min-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1; }
-  .dato { background: var(--surface); border: 1px solid var(--surface-2); border-radius: 8px; padding: 6px 10px; font-size: 13px; }
-  .dato b { font-family: 'IBM Plex Mono', monospace; color: var(--brass); }
-  .dato small { color: var(--parchment-dim); font-family: 'IBM Plex Mono', monospace; font-size: 11px; }
+  body:has(#reproductor:not([hidden])) .subtitle { display: none; }
+  body:has(#reproductor:not([hidden])) header { margin-bottom: 14px; }
+  #reproductor { animation: entrar .3s var(--suave); }
+  .cabeza-cancion { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+  .cabeza-cancion h2 { font-size: 24px; font-weight: 700; letter-spacing: -0.02em; margin: 0 8px 0 4px; flex: 1; min-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.2; }
+  #volver { padding: 0 14px 0 10px; }
+  .dato { display: inline-flex; align-items: baseline; gap: 5px; background: var(--relleno); border: 1px solid var(--linea); border-radius: 999px; padding: 6px 12px; font-size: 13px; color: var(--parchment-dim); }
+  .dato b { font-family: var(--mono); font-variant-numeric: tabular-nums; font-weight: 600; color: var(--parchment); }
+  .dato small { color: var(--parchment-dim); font-size: 12px; }
 
-  .acordes { position: relative; height: 96px; padding: 0; overflow: hidden; }
+  /* Acordes: lo principal de la pantalla (el que suena, grande; el siguiente y la tira debajo) */
+  .panel.acordes { position: relative; padding: 16px 0 0; overflow: hidden; }
+  .acordes > .label { display: block; padding: 0 18px; }
+  .acorde-ahora { display: flex; align-items: baseline; gap: 16px; padding: 2px 18px 10px; min-height: 84px; }
+  .ahora-nombre {
+    font-size: 68px; font-weight: 800; letter-spacing: -0.04em; line-height: 1.05; color: var(--parchment);
+    font-variant-numeric: tabular-nums; display: inline-block; transform-origin: left 70%;
+  }
+  .ahora-nombre.pop { animation: acorde .45s var(--resorte); }
+  .ahora-nombre.pop::after { content: none; }
+  .acorde-sig { display: inline-flex; align-items: center; gap: 4px; font-size: 24px; font-weight: 600; color: var(--parchment-dim); }
+  .acorde-sig .icono { width: 18px; height: 18px; opacity: .7; }
+  .acordes .ventana {
+    position: relative; height: 64px; overflow: hidden; border-top: 1px solid var(--linea); background: var(--relleno);
+    -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 6%, #000 88%, transparent 100%);
+            mask-image: linear-gradient(90deg, transparent 0, #000 6%, #000 88%, transparent 100%);
+  }
   .acordes .tira { position: absolute; top: 0; bottom: 0; left: 0; will-change: transform; }
-  .acordes .c { position: absolute; top: 22px; bottom: 12px; display: flex; align-items: center; padding-left: 12px; border-left: 2px solid var(--surface-2); font-weight: 700; font-size: 32px; letter-spacing: -.01em; color: var(--parchment-dim); white-space: nowrap; overflow: hidden; }
-  .acordes .c.ahora { color: var(--parchment); border-left-color: var(--ember); }
-  .acordes .c.nc { font-size: 15px; opacity: .5; }
-  .acordes .cabezal { position: absolute; top: 0; bottom: 0; left: 25%; width: 2px; background: var(--ember); opacity: .8; }
-  .acordes .label { position: absolute; top: 8px; left: 12px; }
+  .acordes .c {
+    position: absolute; top: 10px; bottom: 10px; display: flex; align-items: center; padding-left: 10px;
+    border-left: 1px solid var(--linea-fuerte); font-weight: 700; font-size: 22px; letter-spacing: -0.02em;
+    color: var(--parchment-dim); white-space: nowrap; overflow: hidden; transition: color .2s;
+  }
+  .acordes .c.ahora { color: var(--parchment); border-left: 3px solid var(--ember); }
+  .acordes .c.ahora::before {
+    content: ""; position: absolute; inset: 0; z-index: -1;
+    background: linear-gradient(90deg, color-mix(in srgb, var(--ember) 18%, transparent), transparent 80%);
+    animation: destello .9s var(--suave);
+  }
+  @keyframes acorde { 0% { transform: scale(.9); opacity: .4; } 100% { transform: none; opacity: 1; } }
+  @keyframes destello { from { opacity: 1; } to { opacity: .5; } }
+  .acordes .c.nc { font-size: 14px; opacity: .55; }
+  .acordes .cabezal { position: absolute; top: 4px; bottom: 4px; left: 25%; width: 2px; border-radius: 1px; background: var(--ember); box-shadow: 0 0 10px color-mix(in srgb, var(--ember) 60%, transparent); }
 
-  .carril { display: grid; grid-template-columns: 220px 1fr; gap: 12px; align-items: center; }
+  .carril { display: grid; grid-template-columns: 290px 1fr; gap: 14px; align-items: center; }
   .carril + .carril { margin-top: 8px; }
-  .secciones { position: relative; height: 30px; }
-  .sec { position: absolute; top: 0; bottom: 0; border-radius: 6px; font-size: 12px; font-weight: 600; display: flex; align-items: center; padding: 0 8px; overflow: hidden; white-space: nowrap; cursor: pointer; color: var(--parchment); }
-  .sec.active { outline: 2px solid var(--parchment); outline-offset: 1px; }
-  .pista { display: flex; align-items: center; gap: 6px; }
-  .pista .nm { flex: 1; font-weight: 600; display: flex; align-items: center; gap: 8px; }
-  .pista .punto { width: 10px; height: 10px; border-radius: 50%; }
-  .pista .chip { padding: 4px 8px; }
-  .pista .chip.solo.active { background: var(--focus); border-color: var(--focus); }
-  .pista input { width: 70px; }
-  .onda { position: relative; height: 54px; cursor: crosshair; touch-action: none; }
+  .secciones { position: relative; height: 34px; }
+  .sec {
+    position: absolute; top: 0; bottom: 0; border-radius: 8px; font-size: 12.5px; font-weight: 600; display: flex; align-items: center;
+    padding: 0 9px; overflow: hidden; white-space: nowrap; cursor: pointer; color: var(--parchment);
+    transition: filter .15s, box-shadow .2s;
+  }
+  .sec:hover { filter: brightness(1.05) saturate(1.1); }
+  .sec.active { box-shadow: 0 0 0 2px var(--parchment); }
+  .pista { display: flex; align-items: center; gap: 6px; min-width: 0; }
+  .pista .nm { flex: 1; min-width: 0; font-weight: 600; font-size: 14px; display: flex; align-items: center; gap: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .pista .punto { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+  .pista .chip { width: var(--toque); padding: 0; }
+  .pista .chip.mute.active { background: var(--ember); color: var(--surface); }
+  .pista .chip.solo.active { background: var(--focus); color: var(--ink); }
+  .pista input { width: 76px; }
+  .onda { position: relative; height: 54px; cursor: crosshair; touch-action: none; border-radius: 8px; background: var(--relleno); }
   .onda canvas { width: 100%; height: 100%; display: block; }
   .carriles { position: relative; }
   .capa { position: absolute; top: 0; bottom: 0; right: 0; pointer-events: none; }
-  .playhead { position: absolute; top: -4px; bottom: -4px; width: 2px; background: var(--parchment); }
-  .zona-loop { position: absolute; top: -4px; bottom: -4px; background: color-mix(in srgb, var(--brass) 16%, transparent); border-left: 2px solid var(--brass); border-right: 2px solid var(--brass); }
-  .zona-loop.off { background: color-mix(in srgb, var(--parchment-dim) 8%, transparent); border-color: var(--parchment-dim); }
-  .eje { display: flex; justify-content: space-between; font-family: 'IBM Plex Mono', monospace; color: var(--parchment-dim); font-size: 11px; margin-top: 6px; }
+  .playhead { position: absolute; top: -4px; bottom: -4px; width: 2px; border-radius: 1px; background: var(--parchment); box-shadow: 0 0 0 1px color-mix(in srgb, var(--surface) 60%, transparent); }
+  .zona-loop { position: absolute; top: -4px; bottom: -4px; border-radius: 6px; background: color-mix(in srgb, var(--brass) 16%, transparent); box-shadow: inset 2px 0 0 var(--brass), inset -2px 0 0 var(--brass); }
+  .zona-loop.off { background: color-mix(in srgb, var(--parchment-dim) 8%, transparent); box-shadow: inset 2px 0 0 var(--parchment-dim), inset -2px 0 0 var(--parchment-dim); }
+  .eje { display: flex; justify-content: space-between; font-family: var(--mono); font-variant-numeric: tabular-nums; color: var(--parchment-dim); font-size: 11px; margin-top: 8px; }
 
-  .transporte {
-    position: sticky; bottom: 0; z-index: 2; display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
-    background: color-mix(in srgb, var(--surface) 94%, transparent); backdrop-filter: blur(8px);
-    margin-bottom: calc(16px + env(safe-area-inset-bottom));
-  }
-  .play { width: 54px; height: 54px; border-radius: 50%; background: var(--brass); color: var(--ink); border: none; font-size: 20px; display: grid; place-items: center; cursor: pointer; flex-shrink: 0; }
-  .tiempo { font-family: 'IBM Plex Mono', monospace; min-width: 110px; color: var(--parchment-dim); font-size: 14px; }
-  .tiempo b { color: var(--parchment); }
+  /* Controles de práctica */
+  .panel.practica { display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: 0; padding: 0; }
+  .control { padding: 14px 18px 16px; min-width: 0; }
+  .control + .control { border-left: 1px solid var(--linea); }
+  .control-cabeza { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; margin-bottom: 6px; }
   .grupo { display: flex; align-items: center; gap: 8px; }
-  .valor { font-family: 'IBM Plex Mono', monospace; font-size: 18px; font-weight: 600; color: var(--brass); min-width: 52px; text-align: center; }
-  .sep { width: 1px; height: 34px; background: var(--surface-2); }
+  .control input[type=range] { width: 100%; }
+  .valor { font-family: var(--mono); font-variant-numeric: tabular-nums; font-size: 20px; font-weight: 600; color: var(--parchment); min-width: 52px; text-align: center; transition: color .2s; }
+  .control-cabeza .valor { text-align: right; min-width: 0; }
+  .paso { display: flex; align-items: center; justify-content: space-between; border-radius: 12px; background: var(--relleno-2); padding: 2px; }
+  .paso .chip { border: 0; font-size: 20px; font-weight: 500; }
+  .paso .chip:hover { background: var(--surface); }
+  .acciones-practica { grid-column: 1 / -1; display: flex; gap: 8px; justify-content: flex-end; padding: 12px 18px; border-top: 1px solid var(--linea); }
   .descargas { position: relative; }
-  .descargas .menu { position: absolute; right: 0; bottom: 46px; background: var(--surface); border: 1px solid var(--surface-2); border-radius: 10px; padding: 6px; display: grid; min-width: 170px; box-shadow: 0 10px 30px rgba(0,0,0,.15); }
-  .descargas .menu button { background: none; border: none; text-align: left; color: var(--parchment); padding: 8px 10px; border-radius: 6px; font-size: 13px; cursor: pointer; }
-  .descargas .menu button:hover { background: var(--surface-2); }
+  .descargas .menu {
+    position: absolute; right: 0; bottom: calc(100% + 8px); z-index: 5; background: var(--surface); border: 1px solid var(--linea);
+    border-radius: 14px; padding: 6px; display: grid; min-width: 190px; box-shadow: var(--sombra-3); animation: aparecer .2s var(--suave);
+  }
+  .descargas .menu button { background: none; border: none; text-align: left; color: var(--parchment); min-height: 40px; padding: 0 12px; border-radius: 9px; font-size: 14px; cursor: pointer; }
+  .descargas .menu button:hover { background: var(--relleno-2); }
+
+  /* Barra de transporte fija abajo */
+  .transporte {
+    position: sticky; bottom: calc(10px + env(safe-area-inset-bottom)); z-index: 3;
+    display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 12px;
+    padding: 10px 14px; margin: 18px 0 14px; border-radius: 22px;
+    background: color-mix(in srgb, var(--surface) 86%, transparent);
+    backdrop-filter: saturate(1.4) blur(16px); -webkit-backdrop-filter: saturate(1.4) blur(16px);
+    box-shadow: var(--sombra-3), 0 0 0 1px var(--linea);
+    border: 0;
+  }
+  .t-izq { display: flex; align-items: center; gap: 4px; justify-self: start; min-width: 0; }
+  .t-centro { display: flex; align-items: center; gap: 10px; }
+  .t-der { display: flex; align-items: center; gap: 6px; justify-self: end; }
+  .transporte .chip { border-color: transparent; }
+  .transporte .chip:not(.active):hover { background: var(--relleno-2); }
+  .salto { flex-direction: column; gap: 0; font-size: 10.5px; font-weight: 700; line-height: 1; }
+  .salto .icono { width: 20px; height: 20px; margin-bottom: 1px; }
+  .play {
+    width: 60px; height: 60px; border-radius: 50%; background: var(--brass); color: var(--ink); border: none;
+    display: grid; place-items: center; cursor: pointer; flex-shrink: 0;
+    box-shadow: 0 6px 18px -6px color-mix(in srgb, var(--brass) 80%, transparent), inset 0 1px 0 rgba(255,255,255,.18);
+    transition: transform .3s var(--resorte), filter .15s, box-shadow .3s;
+  }
+  .play:hover { filter: brightness(1.07); }
+  .play:active { transform: scale(.92); }
+  .play svg { width: 26px; height: 26px; fill: currentColor; }
+  .play.sonando { animation: latido .5s var(--resorte); box-shadow: 0 0 0 6px color-mix(in srgb, var(--brass) 22%, transparent), 0 6px 18px -6px color-mix(in srgb, var(--brass) 80%, transparent); }
+  @keyframes latido { 0% { transform: scale(.9); } 100% { transform: scale(1); } }
+  .tiempo { font-family: var(--mono); font-variant-numeric: tabular-nums; color: var(--parchment-dim); font-size: 14px; white-space: nowrap; }
+  .tiempo b { color: var(--parchment); font-weight: 600; }
 
   /* ---- Letra ---- */
-  .letra { position: relative; padding-top: 30px; text-align: center; }
-  .letra .label { position: absolute; top: 8px; left: 12px; }
-  .letra .ocultar { position: absolute; top: 6px; right: 8px; }
-  .linea { margin: 0; padding: 4px 8px; cursor: pointer; border-radius: 8px; line-height: 1.35; overflow-wrap: anywhere; }
-  .linea:hover { background: var(--surface-2); }
+  .letra { position: relative; padding-top: 44px; text-align: center; }
+  .letra > .label { position: absolute; top: 14px; left: 18px; }
+  .linea { margin: 0; padding: 4px 8px; cursor: pointer; border-radius: 10px; line-height: 1.35; overflow-wrap: anywhere; transition: background-color .15s; }
+  .linea:hover { background: var(--relleno); }
   .linea.previa, .linea.siguiente { font-size: 15px; color: var(--parchment-dim); min-height: 1.35em; }
-  .linea.actual { font-size: 26px; font-weight: 700; min-height: 1.35em; }
+  .linea.actual { font-size: 26px; font-weight: 700; letter-spacing: -0.01em; min-height: 1.35em; }
   .linea.actual span, .k-linea.actual span {
     background: linear-gradient(90deg, var(--ember) var(--p, 0%), var(--parchment-dim) var(--p, 0%));
     -webkit-background-clip: text; background-clip: text; color: transparent;
   }
-  .letra-acciones { position: absolute; top: 6px; right: 8px; display: flex; gap: 6px; }
-  .karaoke { position: fixed; inset: 0; z-index: 20; background: var(--bg); display: flex; flex-direction: column; padding: 24px; padding-bottom: calc(24px + env(safe-area-inset-bottom)); }
+  .letra-acciones { position: absolute; top: 8px; right: 10px; display: flex; gap: 4px; }
+  .letra-acciones .chip { border-color: transparent; color: var(--parchment-dim); font-weight: 500; }
+  .letra-acciones .chip:hover { color: var(--parchment); }
+  .letra-vacia { display: grid; gap: 10px; justify-items: center; padding: 6px 0 4px; }
+  .letra-vacia .sub { font-size: 14px; color: var(--parchment-dim); max-width: 44ch; }
+  .letra-vacia .barra { width: min(320px, 100%); }
+
+  .karaoke { position: fixed; inset: 0; z-index: 20; background: var(--bg); display: flex; flex-direction: column; padding: calc(20px + env(safe-area-inset-top)) calc(20px + env(safe-area-inset-right)) calc(24px + env(safe-area-inset-bottom)) calc(20px + env(safe-area-inset-left)); animation: entrar .3s var(--suave); }
   .k-cabeza { display: flex; align-items: center; gap: 12px; }
-  .k-cabeza h2 { flex: 1; margin: 0; font-family: 'Bebas Neue', sans-serif; font-weight: 400; font-size: 26px; letter-spacing: .04em; color: var(--parchment-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .k-cabeza h2 { flex: 1; margin: 0; font-size: 18px; font-weight: 600; color: var(--parchment-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .k-cabeza .play { width: 52px; height: 52px; }
   .k-lineas { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 2.5vh; text-align: center; }
-  .k-linea { margin: 0; cursor: pointer; font-weight: 700; line-height: 1.2; overflow-wrap: anywhere; }
+  .k-linea { margin: 0; cursor: pointer; font-weight: 700; letter-spacing: -0.02em; line-height: 1.2; overflow-wrap: anywhere; }
   .k-linea.previa { font-size: clamp(18px, 3.2vw, 34px); color: var(--parchment-dim); opacity: .5; }
   .k-linea.actual { font-size: clamp(32px, 7vw, 84px); min-height: 1.2em; }
   .k-linea.siguiente { font-size: clamp(20px, 4vw, 44px); color: var(--parchment-dim); }
   .k-linea.despues { font-size: clamp(18px, 3.2vw, 34px); color: var(--parchment-dim); opacity: .6; }
-  .dialogo-letra textarea, .letra-inicio textarea { width: 100%; min-height: 220px; resize: vertical; font: 14px/1.5 'Work Sans', sans-serif; color: var(--parchment); background: var(--bg); border: 1px solid var(--surface-2); border-radius: 8px; padding: 10px; }
-  .letra-inicio { margin-top: 12px; }
-  .letra-inicio summary { cursor: pointer; font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--parchment-dim); }
-  .letra-inicio textarea { min-height: 120px; margin-top: 8px; }
+  .dialogo-letra textarea, .letra-inicio textarea {
+    display: block; width: 100%; min-height: 220px; resize: vertical; font: 15px/1.5 var(--fuente); color: var(--parchment);
+    background: var(--bg); border: 1px solid var(--linea-fuerte); border-radius: 12px; padding: 12px;
+  }
+  .dialogo-letra textarea:focus-visible, .letra-inicio textarea:focus-visible { outline: 2px solid var(--focus); outline-offset: 1px; }
 
   /* Buscar en YouTube (con Descargador Pro abierto en la Mac) */
-  .yt-fila { display: flex; gap: 8px; margin-top: 10px; }
-  .yt-campo { flex: 1; min-width: 0; font: 15px 'Work Sans', sans-serif; padding: 10px 12px; border-radius: 8px; border: 1px solid var(--surface-2); background: var(--bg); color: var(--parchment); }
+  .yt-fila { display: flex; gap: 8px; margin-top: 2px; }
+  .yt-campo { flex: 1; min-width: 0; min-height: var(--toque); font: 16px var(--fuente); padding: 0 14px; border-radius: 12px; border: 1px solid var(--linea-fuerte); background: var(--bg); color: var(--parchment); }
   .yt-campo:focus-visible { outline: 2px solid var(--focus); outline-offset: 1px; }
   .yt-estado { font-size: 13px; color: var(--parchment-dim); min-height: 18px; margin: 8px 0 0; overflow-wrap: anywhere; }
   .yt-estado.error { color: var(--ember); }
   .yt-lista { list-style: none; margin: 6px 0 0; padding: 0; }
-  .yt-lista li { display: flex; gap: 10px; align-items: center; padding: 8px 0; border-top: 1px solid var(--surface-2); }
-  .yt-lista img { width: 96px; aspect-ratio: 16 / 9; object-fit: cover; border-radius: 5px; flex-shrink: 0; background: var(--surface-2); }
+  .yt-lista li { display: flex; gap: 10px; align-items: center; padding: 8px 0; border-top: 1px solid var(--linea); }
+  .yt-lista img { width: 96px; aspect-ratio: 16 / 9; object-fit: cover; border-radius: 8px; flex-shrink: 0; background: var(--relleno-2); }
   .yt-info { flex: 1; min-width: 0; }
-  .yt-titulo { font-size: 13.5px; font-weight: 600; margin: 0; overflow-wrap: anywhere; }
-  .yt-meta { font: 11.5px 'IBM Plex Mono', monospace; color: var(--parchment-dim); margin: 2px 0 0; }
-  .yt-oficial { display: inline-block; font: 600 10px 'IBM Plex Mono', monospace; letter-spacing: .06em; text-transform: uppercase; background: var(--brass); color: var(--ink); padding: 1px 5px; border-radius: 4px; margin-right: 6px; vertical-align: 1px; }
+  .yt-titulo { font-size: 14px; font-weight: 600; margin: 0; overflow-wrap: anywhere; }
+  .yt-meta { font-size: 12px; color: var(--parchment-dim); margin: 2px 0 0; font-variant-numeric: tabular-nums; }
+  .yt-oficial { display: inline-block; font-size: 11px; font-weight: 700; background: var(--brass); color: var(--ink); padding: 1px 6px; border-radius: 5px; margin-right: 6px; vertical-align: 1px; }
   .yt-lista .chip { flex-shrink: 0; }
-  .fila-botones { display: flex; gap: 8px; justify-content: flex-end; margin-top: 10px; flex-wrap: wrap; align-items: center; }
+  .fila-botones { display: flex; gap: 8px; justify-content: flex-end; margin-top: 12px; flex-wrap: wrap; align-items: center; }
   .fila-botones .izq { margin-right: auto; }
-  .letra-vacia { display: grid; gap: 8px; justify-items: center; padding: 4px 0 2px; }
-  .letra-vacia .sub { font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: var(--parchment-dim); }
-  .letra-vacia .barra { width: min(320px, 100%); }
+  .letra-inicio .fila-botones { margin-bottom: 14px; }
 
   /* ---- Pie: sello, crédito y apoyo ---- */
+  .pie { margin-top: 36px; padding-top: 24px; border-top: 1px solid var(--linea); }
   .paypal-btn {
     display: flex; align-items: center; justify-content: center; gap: 8px;
-    margin: 22px auto 10px; padding: 10px 16px; max-width: 320px;
-    border-radius: 999px; border: 1px solid var(--brass);
+    margin: 0 auto 14px; min-height: var(--toque); padding: 0 20px; max-width: 320px;
+    border-radius: 999px; border: 1px solid color-mix(in srgb, var(--brass) 55%, transparent);
     color: var(--brass); background: transparent; text-decoration: none;
-    font-size: 13px; font-weight: 600; letter-spacing: 0.02em;
+    font-size: 14px; font-weight: 600;
+    transition: background-color .15s, transform .25s var(--resorte);
   }
-  .paypal-btn:hover { background: var(--surface-2); }
-  .credit-badge { display: flex; flex-direction: column; align-items: center; gap: 6px; margin-top: 14px; }
+  .paypal-btn:hover { background: color-mix(in srgb, var(--brass) 9%, transparent); }
+  .paypal-btn:active { transform: scale(.97); }
+  .credit-badge { display: flex; flex-direction: column; align-items: center; gap: 8px; }
   .credit-badge-img { width: 40px; height: auto; opacity: 0.85; }
 
-  .cargando { position: fixed; inset: 0; background: color-mix(in srgb, var(--bg) 88%, transparent); display: grid; place-items: center; z-index: 10; font-family: 'IBM Plex Mono', monospace; font-size: 15px; padding: 20px; text-align: center; }
-  .atajos { color: var(--parchment-dim); font-size: 12px; text-align: center; line-height: 2; }
-  kbd { font-family: 'IBM Plex Mono', monospace; font-size: 11px; background: var(--surface); border: 1px solid var(--surface-2); border-radius: 4px; padding: 1px 5px; }
-  .credit { text-align: center; font-size: 11px; color: var(--parchment-dim); opacity: 0.75; margin: 0; }
-  .credit a { color: var(--brass); }
+  .cargando {
+    position: fixed; inset: 0; z-index: 10; display: grid; place-items: center; align-content: center; gap: 14px; padding: 20px; text-align: center;
+    background: color-mix(in srgb, var(--bg) 82%, transparent); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+    font-size: 15px; font-weight: 500; color: var(--parchment-dim);
+  }
+  .cargando:empty::before, .cargando:not(:has(button))::before {
+    content: ""; width: 30px; height: 30px; border-radius: 50%;
+    border: 3px solid var(--linea-fuerte); border-top-color: var(--brass); animation: girar .8s linear infinite;
+  }
+  .cargando .boton { white-space: normal; max-width: min(420px, 100%); min-height: 52px; padding: 10px 20px; line-height: 1.3; }
+  .atajos { color: var(--parchment-dim); font-size: 13px; text-align: center; line-height: 2; margin: 4px 0 0; }
+  kbd { font-family: var(--mono); font-size: 11px; background: var(--surface); border: 1px solid var(--linea-fuerte); border-bottom-width: 2px; border-radius: 5px; padding: 1px 6px; }
+  .credit { text-align: center; font-size: 12px; color: var(--parchment-dim); margin: 0; }
+  .credit a { color: var(--brass); text-decoration: none; }
+  .credit a:hover { text-decoration: underline; }
 
+  @media (max-width: 860px) {
+    #biblioteca { grid-template-columns: minmax(0, 1fr); gap: 24px; }
+    .panel.practica { grid-template-columns: 1fr 1fr; }
+    .control:first-child { grid-column: 1 / -1; }
+    .control + .control { border-left: 0; border-top: 1px solid var(--linea); }
+    .control:nth-child(3) { border-left: 1px solid var(--linea); }
+  }
   @media (max-width: 720px) {
-    .tool { padding: 20px 14px 32px; }
-    h1 { font-size: 36px; }
+    .tool { padding: calc(16px + env(safe-area-inset-top)) calc(16px + env(safe-area-inset-right)) calc(28px + env(safe-area-inset-bottom)) calc(16px + env(safe-area-inset-left)); }
+    h1 { font-size: 24px; }
+    .subtitle { font-size: 14.5px; }
+    .panel { padding: 16px; }
+    .abrir { padding: 28px 16px 22px; }
+    .cuerpo-subir { padding: 16px; }
     /* Nombre y botones a la izquierda de cada onda, en dos líneas */
-    .carril { grid-template-columns: 92px 1fr; gap: 8px; }
+    .carril { grid-template-columns: 96px 1fr; gap: 10px; }
+    .carril + .carril { margin-top: 10px; }
     .pista { flex-wrap: wrap; gap: 4px; }
     .pista .nm { flex-basis: 100%; font-size: 13px; }
-    .pista .nm.label { font-size: 10px; letter-spacing: .08em; }
+    .pista .nm.label { font-size: 12px; }
     .pista input { display: none; }
-    .onda { height: 46px; }
-    .sep { display: none; }
+    .onda { height: 70px; }
     .theme-grid { grid-template-columns: repeat(2, 1fr); }
-    .cabeza-cancion h2 { font-size: 26px; min-width: 0; flex-basis: 100%; order: 1; }
+    .cabeza-cancion h2 { font-size: 22px; min-width: 0; flex-basis: 100%; order: 1; margin: 6px 0 2px; }
     .cabeza-cancion .dato { order: 2; }
-    .acordes { height: 84px; }
-    .acordes .c { font-size: 26px; }
+    .panel.acordes { padding-top: 14px; }
+    .acordes > .label, .acorde-ahora { padding-left: 16px; padding-right: 16px; }
+    .ahora-nombre { font-size: 56px; }
+    .acorde-sig { font-size: 20px; }
+    .acorde-ahora { min-height: 72px; }
+    .acordes .ventana { height: 56px; }
+    .acordes .c { font-size: 19px; }
     .linea.actual { font-size: 21px; }
-    .letra-acciones { position: static; justify-content: center; flex-wrap: wrap; margin-bottom: 8px; }
-    .transporte { position: static; gap: 10px 12px; padding: 12px; }
-    .transporte .grupo { flex-wrap: wrap; }
-    .grupo.velocidad input { width: 110px; }
-    .grupo.final { margin-left: 0 !important; width: 100%; justify-content: flex-end; }
+    .letra { padding-top: 48px; }
+    .letra > .label { left: 16px; top: 16px; }
+    .letra-acciones { top: 6px; right: 6px; gap: 0; }
+    .letra-acciones .txt { display: none; }
+    .letra-acciones .chip { width: var(--toque); padding: 0; }
+    .control { padding: 12px 14px 14px; }
+    .acciones-practica { padding: 10px 14px; }
+    .acciones-practica .boton { flex: 1; }
+    .transporte { gap: 6px; padding: 8px 10px; border-radius: 20px; margin-left: -4px; margin-right: -4px; }
+    .tiempo { font-size: 13px; }
+    .transporte .txt { display: none; }
+    .transporte #loopBtn { width: var(--toque); padding: 0; }
+    .play { width: 56px; height: 56px; }
     .atajos .teclas { display: none; }
   }
-  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+  @media (max-width: 380px) {
+    .transporte { grid-template-columns: auto auto auto; justify-content: space-between; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+  }
 </style>
 </head>
 <body>
+
+<!-- Íconos dibujados en SVG (se usan con <use href="#i-nombre">) -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-musica" viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></symbol>
+  <symbol id="i-capas" viewBox="0 0 24 24"><path d="M12 3 2 8l10 5 10-5-10-5z"/><path d="m2 16 10 5 10-5"/><path d="m2 12 10 5 10-5"/></symbol>
+  <symbol id="i-subir" viewBox="0 0 24 24"><path d="M12 15V3"/><path d="m7 8 5-5 5 5"/><path d="M20 15v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-4"/></symbol>
+  <symbol id="i-candado" viewBox="0 0 24 24"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></symbol>
+  <symbol id="i-letra" viewBox="0 0 24 24"><path d="M4 6h16"/><path d="M4 12h16"/><path d="M4 18h10"/></symbol>
+  <symbol id="i-flecha" viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></symbol>
+  <symbol id="i-atras" viewBox="0 0 24 24"><path d="m15 6-6 6 6 6"/></symbol>
+  <symbol id="i-play" viewBox="0 0 24 24"><path d="M8 5.14v13.72a1 1 0 0 0 1.52.85l11-6.86a1 1 0 0 0 0-1.7l-11-6.86A1 1 0 0 0 8 5.14z" stroke="none" fill="currentColor"/></symbol>
+  <symbol id="i-pausa" viewBox="0 0 24 24"><rect x="6" y="5" width="4" height="14" rx="1.2" stroke="none" fill="currentColor"/><rect x="14" y="5" width="4" height="14" rx="1.2" stroke="none" fill="currentColor"/></symbol>
+  <symbol id="i-retroceder" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 3v5h5"/></symbol>
+  <symbol id="i-avanzar" viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 3v5h-5"/></symbol>
+  <symbol id="i-loop" viewBox="0 0 24 24"><path d="m17 2 4 4-4 4"/><path d="M3 11V9a3 3 0 0 1 3-3h15"/><path d="m7 22-4-4 4-4"/><path d="M21 13v2a3 3 0 0 1-3 3H3"/></symbol>
+  <symbol id="i-metronomo" viewBox="0 0 24 24"><path d="M9.5 3h5l4.5 18H5L9.5 3z"/><path d="M12 15 17 6"/><path d="M7 17h10"/></symbol>
+  <symbol id="i-descargar" viewBox="0 0 24 24"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M20 15v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-4"/></symbol>
+  <symbol id="i-restablecer" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></symbol>
+  <symbol id="i-pantalla" viewBox="0 0 24 24"><path d="M8 3H5a2 2 0 0 0-2 2v3"/><path d="M21 8V5a2 2 0 0 0-2-2h-3"/><path d="M3 16v3a2 2 0 0 0 2 2h3"/><path d="M16 21h3a2 2 0 0 0 2-2v-3"/></symbol>
+  <symbol id="i-lapiz" viewBox="0 0 24 24"><path d="M17 3a2.85 2.85 0 0 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></symbol>
+  <symbol id="i-rehacer" viewBox="0 0 24 24"><path d="M21 12a9 9 0 0 1-15.5 6.2L3 16"/><path d="M3 12a9 9 0 0 1 15.5-6.2L21 8"/><path d="M21 3v5h-5"/><path d="M3 21v-5h5"/></symbol>
+  <symbol id="i-borrar" viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></symbol>
+  <symbol id="i-cerrar" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></symbol>
+  <symbol id="i-silencio" viewBox="0 0 24 24"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="m22 9-6 6"/><path d="m16 9 6 6"/></symbol>
+  <symbol id="i-solo" viewBox="0 0 24 24"><path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1v-6h3v4zM3 19a2 2 0 0 0 2 2h1v-6H3v4z"/></symbol>
+  <symbol id="i-cargador" viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-6.2-8.6"/></symbol>
+  <symbol id="i-alerta" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4"/><path d="M12 16h.01"/></symbol>
+  <symbol id="i-microfono" viewBox="0 0 24 24"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10v1a7 7 0 0 0 14 0v-1"/><path d="M12 18v4"/></symbol>
+  <symbol id="i-buscar" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></symbol>
+</svg>
 
 <main class="tool">
 
   <header>
     <div class="top-row">
-      <div>
-        <div class="eyebrow" data-i18n="eyebrow">Herramientas para músicos</div>
-        <h1>Ensayo</h1>
-        <p class="subtitle" data-i18n="subtitulo">Separa la voz, la batería, el bajo y más de cualquier canción con IA. Cambia velocidad y tono, y ve los acordes mientras tocas.</p>
+      <div class="marca">
+        <div class="marca-icono" aria-hidden="true"><svg class="icono"><use href="#i-capas"/></svg></div>
+        <div>
+          <p class="eyebrow" data-i18n="eyebrow">Herramientas para músicos</p>
+          <h1>Ensayo</h1>
+        </div>
       </div>
       <button class="engrane" id="abrirAjustes" type="button" data-i18n-aria="ajustes" aria-label="Ajustes">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
       </button>
     </div>
+    <p class="subtitle" id="subtitulo" data-i18n="subtitulo">Separa la voz, la batería, el bajo y más de cualquier canción con IA. Cambia velocidad y tono, y ve los acordes mientras tocas.</p>
   </header>
 
   <dialog class="ajustes" id="ajustes">
@@ -343,7 +620,7 @@
           <button type="button" data-calidad="normal" aria-pressed="true" data-i18n="calidadNormal">Normal · 205 MB</button>
           <button type="button" data-calidad="alta" aria-pressed="false" data-i18n="calidadAlta">Alta · 410 MB</button>
         </div>
-        <p class="settings-section-title" style="margin-top:14px" data-i18n="letraIdiomaT">Letra: idioma de la canción</p>
+        <p class="settings-section-title" style="margin-top:16px" data-i18n="letraIdiomaT">Letra: idioma de la canción</p>
         <div class="seg" id="letraIdioma">
           <button type="button" data-idioma-letra="" aria-pressed="true" data-i18n="automatico">Auto</button>
           <button type="button" data-idioma-letra="spanish" aria-pressed="false">ES</button>
@@ -361,46 +638,60 @@
 
   <!-- ===== Biblioteca ===== -->
   <section id="biblioteca">
-    <div class="panel">
+    <div class="panel subir">
       <div class="abrir" id="zona">
+        <div class="abrir-icono" aria-hidden="true"><svg class="icono"><use href="#i-subir"/></svg></div>
         <span class="abrir-titulo" id="zonaTitulo" data-i18n="abrir">Subir canción</span>
-        <input type="file" id="archivo" class="archivo" multiple data-i18n-aria="abrir" aria-label="Subir canción">
         <span class="abrir-sub" data-i18n="abrirSub">o arrástrala aquí · mp3, m4a, wav, flac o video</span>
+        <span class="boton principal boton-archivo grande">
+          <span data-i18n="elegir">Elegir archivo</span>
+          <input type="file" id="archivo" multiple data-i18n-aria="abrir" aria-label="Subir canción">
+        </span>
       </div>
-      <div class="modos">
-        <p class="settings-section-title" data-i18n="separarEn">Separar en</p>
-        <div class="seg" id="modos">
-          <button type="button" data-modo="rapido" aria-pressed="true"><b data-i18n="modoRapido">Rápido · 4 pistas</b><span data-i18n="modoRapidoSub">Voz, batería, bajo y otros</span></button>
-          <button type="button" data-modo="estudio" aria-pressed="false"><b data-i18n="modoEstudio">Estudio · 9 pistas</b><span data-i18n="modoEstudioSub">Voz, bombo, redoblante, toms, platillos, bajo, guitarra, piano y otros</span></button>
-          <button type="button" data-modo="salsa" aria-pressed="false"><b data-i18n="modoSalsa">Salsa · 8 pistas</b><span data-i18n="modoSalsaSub">Voz, congas y timbal juntos, bombo, campana y platillos, bajo, guitarra, piano y otros</span></button>
+      <div class="cuerpo-subir">
+        <div class="modos">
+          <p class="settings-section-title" data-i18n="separarEn">Separar en</p>
+          <div class="seg" id="modos">
+            <button type="button" data-modo="rapido" aria-pressed="true"><b data-i18n="modoRapido">Rápido</b><small data-i18n="pistas4">4 pistas</small></button>
+            <button type="button" data-modo="estudio" aria-pressed="false"><b data-i18n="modoEstudio">Estudio</b><small data-i18n="pistas9">9 pistas</small></button>
+            <button type="button" data-modo="salsa" aria-pressed="false"><b data-i18n="modoSalsa">Salsa</b><small data-i18n="pistas8">8 pistas</small></button>
+          </div>
+          <p class="modo-desc" aria-live="polite">
+            <span class="d-rapido" data-i18n="modoRapidoSub">Voz, batería, bajo y otros</span>
+            <span class="d-estudio" data-i18n="modoEstudioSub">Voz, bombo, redoblante, toms, platillos, bajo, guitarra, piano y otros</span>
+            <span class="d-salsa" data-i18n="modoSalsaSub">Voz, congas y timbal juntos, bombo, campana y platillos, bajo, guitarra, piano y otros</span>
+          </p>
         </div>
+        <details class="letra-inicio">
+          <summary><svg class="icono" aria-hidden="true"><use href="#i-letra"/></svg><span data-i18n="letraInicioT">Letra (opcional)</span><svg class="icono flecha" aria-hidden="true"><use href="#i-flecha"/></svg></summary>
+          <textarea id="textoLetraInicio" data-i18n-ph="letraPh" placeholder="Pega aquí la letra de la canción que vas a subir. La app la pone en pantalla al ritmo de la voz."></textarea>
+          <div class="fila-botones">
+            <label class="boton boton-archivo carga-letra izq"><svg class="icono" aria-hidden="true"><use href="#i-subir"/></svg><span data-i18n="cargarTxt">Cargar .txt o .lrc</span><input type="file" id="archivoLetraInicio" data-i18n-aria="cargarTxt" aria-label="Cargar .txt o .lrc"></label>
+          </div>
+        </details>
+        <details class="letra-inicio" id="buscarYT" hidden>
+          <summary><svg class="icono" aria-hidden="true"><use href="#i-buscar"/></svg><span data-i18n="ytT">Buscar en YouTube</span><svg class="icono flecha" aria-hidden="true"><use href="#i-flecha"/></svg></summary>
+          <form class="yt-fila" id="ytForm" role="search">
+            <input class="yt-campo" id="ytPedido" type="search" autocomplete="off" data-i18n-ph="ytPh" placeholder="Artista y canción" data-i18n-aria="ytPh" aria-label="Artista y canción">
+            <button class="boton principal" type="submit" data-i18n="ytBuscar">Buscar</button>
+          </form>
+          <p class="yt-estado" id="ytEstado" role="status" aria-live="polite"></p>
+          <ul class="yt-lista" id="ytLista"></ul>
+          <p class="aviso" style="margin-bottom:14px"><span data-i18n="ytNota">Descargador Pro la baja en tu Mac en WAV HiFi y aquí se separa con el modo elegido arriba.</span></p>
+        </details>
+        <p class="aviso"><svg class="icono" aria-hidden="true"><use href="#i-candado"/></svg><span data-i18n="aviso">Todo pasa en tu equipo: la canción no se sube a ningún servidor. La primera vez descarga los modelos de IA (90 MB el rápido, 230 MB el de estudio) y quedan guardados.</span></p>
       </div>
-      <details class="letra-inicio">
-        <summary data-i18n="letraInicioT">Letra (opcional)</summary>
-        <textarea id="textoLetraInicio" data-i18n-ph="letraPh" placeholder="Pega aquí la letra de la canción que vas a subir. La app la pone en pantalla al ritmo de la voz."></textarea>
-        <div class="fila-botones">
-          <span class="carga-letra izq"><span class="label" data-i18n="cargarTxt">Cargar .txt o .lrc</span><input type="file" id="archivoLetraInicio" class="archivo chico" data-i18n-aria="cargarTxt" aria-label="Cargar .txt o .lrc"></span>
-        </div>
-      </details>
-      <details class="letra-inicio" id="buscarYT" hidden>
-        <summary data-i18n="ytT">Buscar en YouTube</summary>
-        <form class="yt-fila" id="ytForm" role="search">
-          <input class="yt-campo" id="ytPedido" type="search" autocomplete="off" data-i18n-ph="ytPh" placeholder="Artista y canción" data-i18n-aria="ytPh" aria-label="Artista y canción">
-          <button class="boton principal" type="submit" data-i18n="ytBuscar">Buscar</button>
-        </form>
-        <p class="yt-estado" id="ytEstado" role="status" aria-live="polite"></p>
-        <ul class="yt-lista" id="ytLista"></ul>
-        <p class="aviso" style="text-align:left" data-i18n="ytNota">Descargador Pro la baja en tu Mac en WAV HiFi y aquí se separa con el modo elegido arriba.</p>
-      </details>
-      <p class="aviso" data-i18n="aviso">Todo pasa en tu equipo: la canción no se sube a ningún servidor. La primera vez descarga los modelos de IA (90 MB el rápido, 230 MB el de estudio) y quedan guardados.</p>
     </div>
-    <div class="lista" id="lista"></div>
+    <div class="columna-lista">
+      <div class="titulo-lista"><h2 data-i18n="tusCanciones">Tus canciones</h2></div>
+      <div class="lista" id="lista"></div>
+    </div>
   </section>
 
   <!-- ===== Reproductor ===== -->
   <section id="reproductor" hidden>
     <div class="cabeza-cancion">
-      <button class="boton" id="volver" type="button" data-i18n="volver">← Biblioteca</button>
+      <button class="boton" id="volver" type="button"><svg class="icono" aria-hidden="true"><use href="#i-atras"/></svg><span data-i18n="volver">Biblioteca</span></button>
       <h2 id="titulo"></h2>
       <div class="dato" id="datoTono"></div>
       <div class="dato" id="datoBpm"></div>
@@ -408,24 +699,28 @@
 
     <div class="panel acordes" id="acordes">
       <div class="label" data-i18n="acordesT">Acordes</div>
-      <div class="tira" id="tira"></div>
-      <div class="cabezal"></div>
+      <div class="acorde-ahora" aria-live="off">
+        <span class="ahora-nombre" id="acordeAhora">–</span>
+        <span class="acorde-sig"><svg class="icono" aria-hidden="true"><use href="#i-flecha"/></svg><span id="acordeSig"></span></span>
+      </div>
+      <div class="ventana"><div class="tira" id="tira"></div><div class="cabezal"></div></div>
     </div>
 
     <div class="panel letra" id="panelLetra">
       <div class="label" data-i18n="letraT">Letra</div>
       <div class="letra-acciones" id="letraAcciones" hidden>
-        <button class="chip" id="abrirKaraoke" type="button" data-i18n="karaoke">Karaoke ⛶</button>
-        <button class="chip" id="editarLetra" type="button" data-i18n="editarLetra">Editar letra</button>
-        <button class="chip" id="rehacerLetra" type="button" data-i18n="otraVez">Volver a sacar</button>
+        <button class="chip" id="abrirKaraoke" type="button" data-i18n-aria="karaoke" aria-label="Karaoke"><svg class="icono" aria-hidden="true"><use href="#i-pantalla"/></svg><span class="txt" data-i18n="karaoke">Karaoke</span></button>
+        <button class="chip" id="editarLetra" type="button" data-i18n-aria="editarLetra" aria-label="Editar letra"><svg class="icono" aria-hidden="true"><use href="#i-lapiz"/></svg><span class="txt" data-i18n="editarLetra">Editar letra</span></button>
+        <button class="chip" id="rehacerLetra" type="button" data-i18n-aria="otraVez" aria-label="Volver a sacar"><svg class="icono" aria-hidden="true"><use href="#i-rehacer"/></svg><span class="txt" data-i18n="otraVez">Volver a sacar</span></button>
       </div>
       <div class="letra-vacia" id="letraVacia">
-        <div class="fila-botones" style="justify-content:center;margin:0">
+        <div class="vacio-icono" aria-hidden="true"><svg class="icono"><use href="#i-microfono"/></svg></div>
+        <span class="sub" id="letraEstado" data-i18n="letraNota">La IA escucha la voz separada y escribe la letra con el tiempo de cada palabra.</span>
+        <div class="barra" id="letraBarra" hidden><i></i></div>
+        <div class="fila-botones" style="justify-content:center;margin:2px 0 0">
           <button class="boton principal" id="sacarLetra" type="button" data-i18n="sacarLetra">Sacar la letra</button>
           <button class="boton" id="pegarLetra" type="button" data-i18n="pegarLetra">Pegar la letra</button>
         </div>
-        <div class="barra" id="letraBarra" hidden><i></i></div>
-        <span class="sub" id="letraEstado" data-i18n="letraNota">La IA escucha la voz separada y escribe la letra con el tiempo de cada palabra.</span>
       </div>
       <div id="letraLineas" hidden>
         <p class="linea previa" id="lineaPrevia"></p>
@@ -446,32 +741,29 @@
       <div class="carril"><div></div><div class="eje" id="eje"></div></div>
     </div>
 
-    <div class="panel transporte">
-      <button class="play" id="play" type="button" data-i18n-aria="tocar" aria-label="Tocar">▶</button>
-      <div class="tiempo"><b id="actual">0:00</b> / <span id="total">0:00</span></div>
-      <div class="grupo">
-        <button class="chip" id="atras5" type="button">−5 s</button>
-        <button class="chip" id="adelante5" type="button">+5 s</button>
-        <button class="chip" id="loopBtn" type="button" data-i18n="loop">Loop</button>
+    <div class="panel practica">
+      <div class="control">
+        <div class="control-cabeza"><span class="label" data-i18n="velocidad">Velocidad</span><span class="valor" id="tempoVal">100%</span></div>
+        <input type="range" id="tempo" min="50" max="150" step="5" value="100" data-i18n-aria="velocidad" aria-label="Velocidad">
       </div>
-      <div class="sep"></div>
-      <div class="grupo velocidad">
-        <span class="label" data-i18n="velocidad">Velocidad</span>
-        <input type="range" id="tempo" min="50" max="150" step="5" value="100">
-        <span class="valor" id="tempoVal">100%</span>
+      <div class="control">
+        <div class="control-cabeza"><span class="label" data-i18n="tono">Tono</span></div>
+        <div class="paso">
+          <button class="chip" id="tonoMenos" type="button" data-i18n-aria="bajarTono" aria-label="Bajar tono">−</button>
+          <span class="valor" id="tonoVal">0</span>
+          <button class="chip" id="tonoMas" type="button" data-i18n-aria="subirTono" aria-label="Subir tono">+</button>
+        </div>
       </div>
-      <div class="grupo">
-        <span class="label" data-i18n="tono">Tono</span>
-        <button class="chip" id="tonoMenos" type="button">−</button><span class="valor" id="tonoVal">0</span><button class="chip" id="tonoMas" type="button">+</button>
+      <div class="control">
+        <div class="control-cabeza"><span class="label" data-i18n="metronomo">Metrónomo</span></div>
+        <div class="grupo">
+          <button class="chip icono-btn" id="click" type="button" data-i18n-aria="metronomo" aria-label="Metrónomo"><svg class="icono" aria-hidden="true"><use href="#i-metronomo"/></svg></button>
+          <input type="range" id="clickVol" min="0" max="100" value="50" style="flex:1;min-width:0" data-i18n-aria="volMetronomo" aria-label="Volumen del metrónomo">
+        </div>
       </div>
-      <div class="sep"></div>
-      <div class="grupo">
-        <button class="chip" id="click" type="button" data-i18n="metronomo">Metrónomo</button>
-        <input type="range" id="clickVol" min="0" max="100" value="50" style="width:70px" data-i18n-aria="volMetronomo" aria-label="Volumen del metrónomo">
-      </div>
-      <div class="grupo final" style="margin-left:auto">
-        <button class="boton" id="restablecer" type="button" data-i18n="restablecer">Restablecer</button>
-        <div class="descargas"><button class="boton" id="descargarBtn" type="button" data-i18n="descargar">⬇ Pistas</button><div class="menu" id="descargas" hidden></div></div>
+      <div class="acciones-practica">
+        <button class="boton" id="restablecer" type="button"><svg class="icono" aria-hidden="true"><use href="#i-restablecer"/></svg><span data-i18n="restablecer">Restablecer</span></button>
+        <div class="descargas"><button class="boton" id="descargarBtn" type="button" style="width:100%"><svg class="icono" aria-hidden="true"><use href="#i-descargar"/></svg><span data-i18n="descargar">Descargar pistas</span></button><div class="menu" id="descargas" hidden></div></div>
       </div>
     </div>
 
@@ -484,21 +776,37 @@
         <kbd>M</kbd> <span data-i18n="atajoMetro">metrónomo</span>
       </span>
     </p>
+
+    <div class="transporte">
+      <div class="t-izq">
+        <div class="tiempo"><b id="actual">0:00</b> / <span id="total">0:00</span></div>
+      </div>
+      <div class="t-centro">
+        <button class="chip salto" id="atras5" type="button" data-i18n-aria="atras5" aria-label="Atrás 5 s"><svg class="icono" aria-hidden="true"><use href="#i-retroceder"/></svg>5</button>
+        <button class="play" id="play" type="button" data-i18n-aria="tocar" aria-label="Tocar"><svg aria-hidden="true"><use href="#i-play"/></svg></button>
+        <button class="chip salto" id="adelante5" type="button" data-i18n-aria="adelante5" aria-label="Adelante 5 s"><svg class="icono" aria-hidden="true"><use href="#i-avanzar"/></svg>5</button>
+      </div>
+      <div class="t-der">
+        <button class="chip" id="loopBtn" type="button" data-i18n-aria="loop" aria-label="Loop"><svg class="icono" aria-hidden="true"><use href="#i-loop"/></svg><span class="txt" data-i18n="loop">Loop</span></button>
+      </div>
+    </div>
   </section>
 
-  <a class="paypal-btn" href="https://www.paypal.com/paypalme/anggeloberdejo" target="_blank" rel="noopener noreferrer">
-    <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M7.1 21.5H3.6a.5.5 0 0 1-.5-.6L5.9 3.2a.9.9 0 0 1 .9-.7h6.1c3.6 0 5.6 1.8 5.1 5-.6 3.6-3 5.4-6.6 5.4H9.6l-.9 5.6-.3 2.1a.9.9 0 0 1-.9.9zm11.6-14c-.1.5-.2 1-.3 1.4-1 4.6-4.3 6.3-8.3 6.3h-.4l-1.1 6.5h2.9a.8.8 0 0 0 .8-.7l.6-3.8h1.7c3.6 0 6.2-1.6 6.9-5.4.3-1.8 0-3.2-.8-4.3z"/></svg>
-    <span data-i18n="paypal">Apoya este proyecto en PayPal</span>
-  </a>
+  <footer class="pie">
+    <a class="paypal-btn" href="https://www.paypal.com/paypalme/anggeloberdejo" target="_blank" rel="noopener noreferrer">
+      <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M7.1 21.5H3.6a.5.5 0 0 1-.5-.6L5.9 3.2a.9.9 0 0 1 .9-.7h6.1c3.6 0 5.6 1.8 5.1 5-.6 3.6-3 5.4-6.6 5.4H9.6l-.9 5.6-.3 2.1a.9.9 0 0 1-.9.9zm11.6-14c-.1.5-.2 1-.3 1.4-1 4.6-4.3 6.3-8.3 6.3h-.4l-1.1 6.5h2.9a.8.8 0 0 0 .8-.7l.6-3.8h1.7c3.6 0 6.2-1.6 6.9-5.4.3-1.8 0-3.2-.8-4.3z"/></svg>
+      <span data-i18n="paypal">Apoya este proyecto en PayPal</span>
+    </a>
 
-  <div class="credit-badge">
-    <img class="credit-badge-img" src="./sello.webp" alt="By Anggelo Berdejo">
-    <p class="credit">
-      <span data-i18n="credito">Hecha por Anggelo Berdejo — El Ñañe</span> ·
-      <a href="https://instagram.com/anggelo.berdejo">@anggelo.berdejo</a> ·
-      <a href="https://anggeloberdejo1-byte.github.io/apps/" data-i18n="otras">Otras herramientas</a>
-    </p>
-  </div>
+    <div class="credit-badge">
+      <img class="credit-badge-img" src="./sello.webp" alt="By Anggelo Berdejo">
+      <p class="credit">
+        <span data-i18n="credito">Hecha por Anggelo Berdejo — El Ñañe</span> ·
+        <a href="https://instagram.com/anggelo.berdejo">@anggelo.berdejo</a> ·
+        <a href="https://anggeloberdejo1-byte.github.io/apps/" data-i18n="otras">Otras herramientas</a>
+      </p>
+    </div>
+  </footer>
 </main>
 
 <dialog class="ajustes dialogo-letra" id="dialogoLetra">
@@ -510,7 +818,7 @@
     <p class="nota-ajustes" data-i18n="pegarNota">Pega la letra, una línea por renglón. La IA escucha la voz para saber cuándo se canta cada palabra. Un archivo .lrc ya trae los tiempos.</p>
     <textarea id="textoLetraPlayer" data-i18n-ph="letraPh"></textarea>
     <div class="fila-botones">
-      <span class="carga-letra izq"><span class="label" data-i18n="cargarTxt">Cargar .txt o .lrc</span><input type="file" id="archivoLetraPlayer" class="archivo chico" data-i18n-aria="cargarTxt" aria-label="Cargar .txt o .lrc"></span>
+      <label class="boton boton-archivo carga-letra izq"><svg class="icono" aria-hidden="true"><use href="#i-subir"/></svg><span data-i18n="cargarTxt">Cargar .txt o .lrc</span><input type="file" id="archivoLetraPlayer" data-i18n-aria="cargarTxt" aria-label="Cargar .txt o .lrc"></label>
       <button class="boton principal" id="usarLetra" type="button" data-i18n="usarLetra">Sincronizar</button>
     </div>
   </div>
@@ -518,7 +826,7 @@
 
 <div class="karaoke" id="karaoke" hidden>
   <div class="k-cabeza">
-    <button class="play" id="kPlay" type="button" data-i18n-aria="tocar" aria-label="Tocar">▶</button>
+    <button class="play" id="kPlay" type="button" data-i18n-aria="tocar" aria-label="Tocar"><svg aria-hidden="true"><use href="#i-play"/></svg></button>
     <h2 id="kTitulo"></h2>
     <button class="boton" id="cerrarKaraoke" type="button" data-i18n="cerrar">Cerrar</button>
   </div>
@@ -1638,11 +1946,12 @@ const TEXTOS = {
     borrarModelo: 'Borrar modelos descargados', mRapido: 'rápido', mEstudio: 'estudio', mBateria: 'batería', modeloBorrado: 'Modelo borrado.',
     abrir: 'Subir canción', abrirSub: 'o arrástrala aquí · mp3, m4a, wav, flac o video', subiendo: 'Leyendo',
     aviso: 'Todo pasa en tu equipo: la canción no se sube a ningún servidor. La primera vez descarga los modelos de IA (90 MB el rápido, 230 MB el de estudio) y quedan guardados.',
-    separarEn: 'Separar en', modoRapido: 'Rápido · 4 pistas', modoRapidoSub: 'Voz, batería, bajo y otros',
-    modoEstudio: 'Estudio · 9 pistas', modoEstudioSub: 'Voz, bombo, redoblante, toms, platillos, bajo, guitarra, piano y otros',
-    modoSalsa: 'Salsa · 8 pistas', modoSalsaSub: 'Voz, congas y timbal juntos, bombo, campana y platillos, bajo, guitarra, piano y otros',
+    separarEn: 'Separar en', modoRapido: 'Rápido', pistas4: '4 pistas', pistas9: '9 pistas', pistas8: '8 pistas', modoRapidoSub: 'Voz, batería, bajo y otros',
+    modoEstudio: 'Estudio', modoEstudioSub: 'Voz, bombo, redoblante, toms, platillos, bajo, guitarra, piano y otros',
+    modoSalsa: 'Salsa', modoSalsaSub: 'Voz, congas y timbal juntos, bombo, campana y platillos, bajo, guitarra, piano y otros',
     descargandoBateria: 'Descargando el modelo de batería (solo la primera vez)', separandoBateria: 'Separando las piezas de la batería',
-    vacio: 'Todavía no hay canciones. Sube una para empezar.', abrirBtn: 'Abrir', borrar: 'Borrar',
+    vacio: 'Sube una canción y aquí aparecerá con sus pistas separadas, lista para ensayar.', vacioT: 'Tu biblioteca está vacía',
+    elegir: 'Elegir archivo', tusCanciones: 'Tus canciones', atras5: 'Atrás 5 s', adelante5: 'Adelante 5 s', bajarTono: 'Bajar tono', subirTono: 'Subir tono', abrirBtn: 'Abrir', borrar: 'Borrar',
     borrarConfirma: '¿Borrar "{t}" y sus pistas?', lista: '{n} pistas · {d} · lista', errorT: 'Error',
     noLeyo: 'No se pudo leer el archivo. Prueba con mp3, m4a o wav.', noAbrio: 'No se pudo abrir la canción',
     ytT: 'Buscar en YouTube', ytPh: 'Artista y canción', ytBuscar: 'Buscar', ytBuscando: 'Buscando…', ytUsar: 'Usar',
@@ -1656,9 +1965,9 @@ const TEXTOS = {
     conGpu: 'con la GPU', sinGpu: 'sin GPU, va a tardar más', lleva: 'lleva', faltan: 'faltan',
     mantenAbierta: 'Deja Ensayo abierto y en pantalla hasta que termine: si cambias de app o se apaga la pantalla, el teléfono lo pausa.',
     cargando: 'Cargando…', abrirCancion: 'Abrir la canción',
-    volver: '← Biblioteca', acordesT: 'Acordes', seccionesT: 'Secciones',
+    volver: 'Biblioteca', acordesT: 'Acordes', seccionesT: 'Secciones',
     tocar: 'Tocar', pausa: 'Pausa', loop: 'Loop', velocidad: 'Velocidad', tono: 'Tono', metronomo: 'Metrónomo', volMetronomo: 'Volumen del metrónomo',
-    restablecer: 'Restablecer', descargar: '⬇ Pistas', marcaPrimero: 'Primero arrastra sobre las ondas o toca una sección para marcar la zona.',
+    restablecer: 'Restablecer', descargar: 'Descargar pistas', marcaPrimero: 'Primero arrastra sobre las ondas o toca una sección para marcar la zona.',
     ayudaOnda: 'Toca una sección para repetirla · arrastra sobre las ondas para marcar un loop · toca para saltar', atajoTocar: 'tocar', atajoMetro: 'metrónomo',
     tonalidad: 'Tonalidad', mayor: 'mayor', menor: 'menor', original: 'original', silenciar: 'Silenciar', solo: 'Solo', volumen: 'Volumen',
     vocals: 'Voz', drums: 'Batería', bass: 'Bajo', guitar: 'Guitarra', piano: 'Piano', other: 'Otros',
@@ -1668,7 +1977,7 @@ const TEXTOS = {
     letraT: 'Letra', sacarLetra: 'Sacar la letra', letraNota: 'La IA escucha la voz separada y escribe la letra con el tiempo de cada palabra.',
     descargandoLetra: 'Descargando el modelo de letra (solo la primera vez)', escuchandoLetra: 'Escuchando la voz y escribiendo la letra',
     sinLetra: 'No se encontró letra cantada en esta canción.', ocultarLetra: 'Ocultar letra', otraVez: 'Volver a sacar',
-    karaoke: 'Karaoke ⛶', editarLetra: 'Editar letra', pegarLetra: 'Pegar la letra', usarLetra: 'Sincronizar', cargarTxt: 'Cargar .txt o .lrc',
+    karaoke: 'Karaoke', editarLetra: 'Editar letra', pegarLetra: 'Pegar la letra', usarLetra: 'Sincronizar', cargarTxt: 'Cargar .txt o .lrc',
     letraInicioT: 'Letra (opcional)', letraPh: 'Pega aquí la letra, una línea por renglón. La app la pone en pantalla al ritmo de la voz.',
     pegarNota: 'Pega la letra, una línea por renglón. La IA escucha la voz para saber cuándo se canta cada palabra. Un archivo .lrc ya trae los tiempos.',
     letraCalidadT: 'Letra: precisión', calidadNormal: 'Normal · 205 MB', calidadAlta: 'Alta · 410 MB', letraIdiomaT: 'Letra: idioma de la canción', automatico: 'Auto',
@@ -1682,11 +1991,12 @@ const TEXTOS = {
     borrarModelo: 'Delete downloaded models', mRapido: 'fast', mEstudio: 'studio', mBateria: 'drums', modeloBorrado: 'Model deleted.',
     abrir: 'Upload a song', abrirSub: 'or drop it here · mp3, m4a, wav, flac or video', subiendo: 'Reading',
     aviso: 'Everything happens on your device: the song is never uploaded. The first time it downloads the AI models (90 MB for fast, 230 MB for studio) and keeps them.',
-    separarEn: 'Split into', modoRapido: 'Fast · 4 stems', modoRapidoSub: 'Vocals, drums, bass and other',
-    modoEstudio: 'Studio · 9 stems', modoEstudioSub: 'Vocals, kick, snare, toms, cymbals, bass, guitar, piano and other',
-    modoSalsa: 'Salsa · 8 stems', modoSalsaSub: 'Vocals, congas and timbales together, kick, bell and cymbals, bass, guitar, piano and other',
+    separarEn: 'Split into', modoRapido: 'Fast', pistas4: '4 stems', pistas9: '9 stems', pistas8: '8 stems', modoRapidoSub: 'Vocals, drums, bass and other',
+    modoEstudio: 'Studio', modoEstudioSub: 'Vocals, kick, snare, toms, cymbals, bass, guitar, piano and other',
+    modoSalsa: 'Salsa', modoSalsaSub: 'Vocals, congas and timbales together, kick, bell and cymbals, bass, guitar, piano and other',
     descargandoBateria: 'Downloading the drum model (first time only)', separandoBateria: 'Splitting the drum kit',
-    vacio: 'No songs yet. Upload one to get started.', abrirBtn: 'Open', borrar: 'Delete',
+    vacio: 'Upload a song and it will show up here with its stems separated, ready to practice.', vacioT: 'Your library is empty',
+    elegir: 'Choose file', tusCanciones: 'Your songs', atras5: 'Back 5 s', adelante5: 'Forward 5 s', bajarTono: 'Key down', subirTono: 'Key up', abrirBtn: 'Open', borrar: 'Delete',
     borrarConfirma: 'Delete "{t}" and its stems?', lista: '{n} stems · {d} · ready', errorT: 'Error',
     noLeyo: 'Could not read the file. Try mp3, m4a or wav.', noAbrio: 'Could not open the song',
     ytT: 'Search YouTube', ytPh: 'Artist and song', ytBuscar: 'Search', ytBuscando: 'Searching…', ytUsar: 'Use',
@@ -1700,9 +2010,9 @@ const TEXTOS = {
     conGpu: 'on the GPU', sinGpu: 'no GPU, this will take longer', lleva: 'elapsed', faltan: 'about',
     mantenAbierta: 'Keep Ensayo open and on screen until it finishes: if you switch apps or the screen turns off, the phone pauses it.',
     cargando: 'Loading…', abrirCancion: 'Open the song',
-    volver: '← Library', acordesT: 'Chords', seccionesT: 'Sections',
+    volver: 'Library', acordesT: 'Chords', seccionesT: 'Sections',
     tocar: 'Play', pausa: 'Pause', loop: 'Loop', velocidad: 'Speed', tono: 'Key', metronomo: 'Metronome', volMetronomo: 'Metronome volume',
-    restablecer: 'Reset', descargar: '⬇ Stems', marcaPrimero: 'First drag over the waveforms or tap a section to mark the zone.',
+    restablecer: 'Reset', descargar: 'Download stems', marcaPrimero: 'First drag over the waveforms or tap a section to mark the zone.',
     ayudaOnda: 'Tap a section to loop it · drag over the waveforms to mark a loop · tap to jump', atajoTocar: 'play', atajoMetro: 'metronome',
     tonalidad: 'Key', mayor: 'major', menor: 'minor', original: 'original', silenciar: 'Mute', solo: 'Solo', volumen: 'Volume',
     vocals: 'Vocals', drums: 'Drums', bass: 'Bass', guitar: 'Guitar', piano: 'Piano', other: 'Other',
@@ -1712,7 +2022,7 @@ const TEXTOS = {
     letraT: 'Lyrics', sacarLetra: 'Get the lyrics', letraNota: 'The AI listens to the isolated vocals and writes the lyrics with the timing of every word.',
     descargandoLetra: 'Downloading the lyrics model (first time only)', escuchandoLetra: 'Listening to the vocals and writing the lyrics',
     sinLetra: 'No sung lyrics were found in this song.', ocultarLetra: 'Hide lyrics', otraVez: 'Get them again',
-    karaoke: 'Karaoke ⛶', editarLetra: 'Edit lyrics', pegarLetra: 'Paste lyrics', usarLetra: 'Sync', cargarTxt: 'Load .txt or .lrc',
+    karaoke: 'Karaoke', editarLetra: 'Edit lyrics', pegarLetra: 'Paste lyrics', usarLetra: 'Sync', cargarTxt: 'Load .txt or .lrc',
     letraInicioT: 'Lyrics (optional)', letraPh: 'Paste the lyrics here, one line per row. The app shows them in time with the vocals.',
     pegarNota: 'Paste the lyrics, one line per row. The AI listens to the vocals to know when each word is sung. An .lrc file already has the timing.',
     letraCalidadT: 'Lyrics: accuracy', calidadNormal: 'Normal · 205 MB', calidadAlta: 'High · 410 MB', letraIdiomaT: 'Lyrics: song language', automatico: 'Auto',
@@ -1901,21 +2211,25 @@ async function cargarLista() {
   pintarLista();
 }
 
+// Ícono SVG del juego de símbolos del documento
+const ic = (n) => `<svg class="icono" aria-hidden="true"><use href="#i-${n}"/></svg>`;
+
 function pintarLista() {
   const lista = $('lista');
   lista.innerHTML = '';
-  if (!canciones.length && !trabajos.length) { lista.innerHTML = `<div class="vacio">${t('vacio')}</div>`; return; }
+  if (!canciones.length && !trabajos.length) { lista.innerHTML = `<div class="vacio"><div class="vacio-icono">${ic('musica')}</div><b>${t('vacioT')}</b><span>${t('vacio')}</span></div>`; return; }
   for (const j of trabajos) {
     const el = document.createElement('div');
     el.className = 'cancion';
     const extra = (j.motor ? ` · ${t(j.motor === 'webgpu' ? 'conGpu' : 'sinGpu')}` : '') + tiempoTrabajo(j);
     el.innerHTML = `
+      <div class="cancion-icono ${j.error ? '' : 'trabajando'}">${ic(j.error ? 'alerta' : 'cargador')}</div>
       <div class="t">
         <div class="nombre"></div>
         <div class="sub ${j.error ? 'err' : ''}"></div>
         ${j.error ? '' : `<div class="barra"><i style="width:${(j.progreso || 0) * 100}%"></i></div>`}
       </div>
-      ${j.error ? '<button class="chip borrar" type="button">✕</button>' : ''}`;
+      ${j.error ? `<button class="chip icono-btn borrar" type="button" aria-label="${t('borrar')}">${ic('cerrar')}</button>` : ''}`;
     el.querySelector('.nombre').textContent = j.titulo;
     el.querySelector('.sub').textContent = j.error ? `${t('errorT')}: ${j.error}` : `${t(j.etapa)}… ${Math.round((j.progreso || 0) * 100)}%${extra}`;
     if (!j.error && j.inicio) el.querySelector('.t').insertAdjacentHTML('beforeend', `<div class="sub">${t('mantenAbierta')}</div>`);
@@ -1926,9 +2240,10 @@ function pintarLista() {
     const el = document.createElement('div');
     el.className = 'cancion';
     el.innerHTML = `
+      <div class="cancion-icono">${ic('musica')}</div>
       <div class="t"><div class="nombre"></div><div class="sub"></div></div>
       <button class="boton principal" type="button"></button>
-      <button class="chip borrar" type="button">✕</button>`;
+      <button class="chip icono-btn borrar" type="button" aria-label="${t('borrar')}">${ic('borrar')}</button>`;
     el.querySelector('.nombre').textContent = c.titulo;
     el.querySelector('.sub').textContent = t('lista', { n: c.analisis.stems.length, d: fmt(c.duracion) });
     const abrir = el.querySelector('.principal');
@@ -2253,8 +2568,10 @@ async function tocarPausar() {
   pintarPlay();
 }
 function pintarPlay() {
-  $('play').textContent = S.sonando ? '❚❚' : '▶';
-  $('kPlay').textContent = S.sonando ? '❚❚' : '▶';
+  for (const id of ['play', 'kPlay']) {
+    $(id).innerHTML = `<svg aria-hidden="true"><use href="#i-${S.sonando ? 'pausa' : 'play'}"/></svg>`;
+    $(id).classList.toggle('sonando', S.sonando);
+  }
   $('play').setAttribute('aria-label', t(S.sonando ? 'pausa' : 'tocar'));
 }
 
@@ -2676,8 +2993,8 @@ function construirReproductor() {
     carril.innerHTML = `
       <div class="pista">
         <div class="nm"><span class="punto" style="background:${colorPista(p.nombre)}"></span>${t(p.nombre)}</div>
-        <button class="chip mute ${p.mute ? 'active' : ''}" type="button" title="${t('silenciar')}">M</button>
-        <button class="chip solo ${p.solo ? 'active' : ''}" type="button" title="${t('solo')}">S</button>
+        <button class="chip mute ${p.mute ? 'active' : ''}" type="button" title="${t('silenciar')}" aria-label="${t('silenciar')} ${t(p.nombre)}">${ic('silencio')}</button>
+        <button class="chip solo ${p.solo ? 'active' : ''}" type="button" title="${t('solo')}" aria-label="${t('solo')} ${t(p.nombre)}">${ic('solo')}</button>
         <input type="range" min="0" max="150" value="${Math.round(p.vol * 100)}" aria-label="${t('volumen')} ${t(p.nombre)}">
       </div>
       <div class="onda"><canvas></canvas></div>`;
@@ -2838,14 +3155,32 @@ document.addEventListener('keydown', (e) => {
 
 addEventListener('resize', () => { if (S.a) { ubicarCapa(); dibujarOndas(); } });
 
+// Acorde que suena (grande) y el que viene; un pequeño salto cuando cambia
+function pintarAcordeAhora(i) {
+  const ac = S.a.chords, el = $('acordeAhora');
+  const nuevo = ac[i] ? nombreAcorde(ac[i]) : '–';
+  let j = i + 1;
+  while (ac[j] && nombreAcorde(ac[j]) === nuevo) j++;
+  $('acordeSig').textContent = ac[j] ? nombreAcorde(ac[j]) : '';
+  $('acordeSig').parentElement.hidden = !ac[j];
+  if (el.textContent === nuevo) return;
+  el.textContent = nuevo;
+  el.classList.remove('pop'); void el.offsetWidth; el.classList.add('pop');
+}
+
 // Animación: cabezal y tira de acordes
+let tiraX = null;
+const sinMovimiento = matchMedia('(prefers-reduced-motion: reduce)');
 function cuadro() {
   requestAnimationFrame(cuadro);
   if (!S.a || $('reproductor').hidden) return;
   const s = S.tiempo;
   $('playhead').style.left = `${(s / S.dur) * 100}%`;
   $('actual').textContent = fmt(s);
-  $('tira').style.transform = `translateX(${$('acordes').clientWidth * 0.25 - s * PPS}px)`;
+  // La tira sigue al audio con un poco de inercia (sin saltitos); en un salto grande va directo
+  const destino = $('acordes').clientWidth * 0.25 - s * PPS;
+  tiraX = tiraX === null || Math.abs(destino - tiraX) > 160 || sinMovimiento.matches ? destino : tiraX + (destino - tiraX) * 0.35;
+  $('tira').style.transform = `translateX(${tiraX.toFixed(1)}px)`;
   moverLetra(s);
   const ac = S.a.chords;
   let i = acordeActual >= 0 && acordeActual < ac.length && ac[acordeActual].start <= s ? acordeActual : 0;
@@ -2854,6 +3189,7 @@ function cuadro() {
     if (S.acordesEl[acordeActual]) S.acordesEl[acordeActual].classList.remove('ahora');
     if (S.acordesEl[i]) S.acordesEl[i].classList.add('ahora');
     acordeActual = i;
+    pintarAcordeAhora(i);
   }
 }
 requestAnimationFrame(cuadro);

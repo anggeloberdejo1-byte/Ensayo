@@ -705,6 +705,9 @@
   .e-consejo { display: flex; align-items: center; gap: 12px; margin: 0 0 10px; padding: 12px 14px; border-radius: 12px; background: color-mix(in srgb, var(--e-acento) 12%, var(--e-panel)); box-shadow: 0 0 0 1px color-mix(in srgb, var(--e-acento) 35%, transparent); color: var(--e-texto); }
   .e-consejo p { margin: 0; flex: 1; font-size: 13.5px; line-height: 1.45; }
   .e-consejo .icono { color: var(--e-acento); width: 22px; height: 22px; }
+  .e-mic { display: inline-flex; align-items: center; gap: 6px; min-height: 38px; padding: 0 4px 0 10px; border-radius: 10px; background: var(--e-panel); border: 1px solid var(--e-borde); color: var(--e-tenue); }
+  .e-mic select { max-width: 170px; min-height: 34px; border: 0; background: transparent; color: var(--e-texto); font: 500 13px var(--fuente); cursor: pointer; }
+  .e-mic select option { color: initial; }
   .e-nivel-mic { width: 44px; height: 6px; border-radius: 3px; background: var(--e-pozo); overflow: hidden; box-shadow: inset 0 0 0 1px var(--e-borde); }
   .e-nivel-mic i { display: block; height: 100%; width: 0; background: var(--e-acento); border-radius: 3px; }
   .e-nivel-mic i.alto { background: var(--ember); }
@@ -980,6 +983,7 @@
         <div class="e-herr">
           <button class="e-boton grabar" id="eGrabar" type="button" aria-pressed="false"><span class="punto-rec" aria-hidden="true"></span><span data-i18n="grabar">Grabar</span></button>
           <button class="e-boton" id="eEscuchar" type="button" aria-pressed="false" data-i18n-aria="grabEscuchar" aria-label="Escucharme mientras grabo"><svg class="icono" aria-hidden="true"><use href="#i-solo"/></svg><span data-i18n="grabEscucharCorto">Escucharme</span><span class="e-nivel-mic" id="eNivelMic" hidden><i></i></span></button>
+          <label class="e-mic"><svg class="icono" aria-hidden="true"><use href="#i-microfono"/></svg><select id="eMic" data-i18n-aria="grabMic" aria-label="Micrófono"><option value="" data-i18n="grabMicDef">El del sistema</option></select></label>
           <button class="e-boton" id="eSeguir" type="button" aria-pressed="true"><svg class="icono" aria-hidden="true"><use href="#i-seguir"/></svg><span data-i18n="eSeguir">Seguir</span></button>
           <button class="e-boton" id="eAjustar" type="button" aria-pressed="true"><svg class="icono" aria-hidden="true"><use href="#i-iman"/></svg><span data-i18n="eAjustar">Ajustar al pulso</span></button>
           <div class="e-zoom">
@@ -3904,9 +3908,20 @@ async function prepararMic() {
   if (micStream && micStream._id === id && micStream.active) return;
   cerrarMic();
   micStream = await navigator.mediaDevices.getUserMedia({
-    audio: { deviceId: id ? { exact: id } : undefined, echoCancellation: false, noiseSuppression: false, autoGainControl: false },
+    // Sin procesos del navegador (eco, ruido, ganancia) y con la menor latencia que permita el equipo
+    audio: { deviceId: id ? { exact: id } : undefined, echoCancellation: false, noiseSuppression: false, autoGainControl: false, latency: { ideal: 0 }, sampleRate: { ideal: actx.sampleRate } },
   });
   micStream._id = id;
+  // Si nunca elegiste micrófono y hay uno externo (USB, interfaz), se usa ese en vez del de la laptop
+  if (!id && !leerPref('micElegido', false)) {
+    const ext = await micExterno();
+    const actual = micStream.getAudioTracks()[0].getSettings().deviceId;
+    if (ext && ext.deviceId !== actual) {
+      guardarPref('micId', ext.deviceId);
+      cerrarMic();
+      return prepararMic();
+    }
+  }
   micFuente = actx.createMediaStreamSource(micStream);
   grabadorNodo = new AudioWorkletNode(actx, 'grabador', { numberOfInputs: 1, numberOfOutputs: 1, outputChannelCount: [1] });
   const mudo = actx.createGain(); mudo.gain.value = 0;
@@ -4069,6 +4084,12 @@ function pintarGrabar() {
 }
 
 /* ---------- Ajustes de grabación ---------- */
+// El primer micrófono que no es el de la computadora (Blue Yeti, interfaz de audio, etc.)
+async function micExterno() {
+  const lista = (await navigator.mediaDevices.enumerateDevices()).filter((d) => d.kind === 'audioinput' && d.deviceId && !/^(default|communications)$/.test(d.deviceId));
+  return lista.find((d) => d.label && !/macbook|built-?in|integrad|interno|internal|imac|studio display|airpods/i.test(d.label)) || null;
+}
+
 async function llenarMics() {
   const sel = $('grabMic');
   if (!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices) return;
@@ -4082,6 +4103,11 @@ async function llenarMics() {
     sel.appendChild(o);
   });
   sel.value = [...sel.options].some((o) => o.value === actual) ? actual : '';
+  // El mismo selector, a la vista en el estudio
+  const em = $('eMic');
+  em.innerHTML = sel.innerHTML;
+  em.value = sel.value;
+  em.title = em.selectedOptions[0] ? em.selectedOptions[0].textContent : '';
   // Salidas
   $('campoSalida').hidden = !sePuedeElegirSalida;
   $('salidaSinOpcion').hidden = sePuedeElegirSalida;
@@ -4097,7 +4123,21 @@ async function llenarMics() {
   });
   ss.value = [...ss.options].some((o) => o.value === elegida) ? elegida : '';
 }
-$('grabMic').onchange = (e) => { guardarPref('micId', e.target.value); cerrarMic(); };
+async function cambiarMic(id) {
+  guardarPref('micId', id);
+  guardarPref('micElegido', true);
+  const estaba = !!micStream;
+  cerrarMic();
+  if (estaba || leerPref('monitor', false)) {
+    try { await prepararMic(); if (monitorGan) monitorGan.gain.value = leerPref('monitor', false) ? 1 : 0; } catch (e) { aviso(t('grabSinMic')); }
+  }
+  llenarMics();
+  pintarEscuchar();
+}
+$('grabMic').onchange = (e) => cambiarMic(e.target.value);
+$('eMic').onchange = (e) => cambiarMic(e.target.value);
+// Al abrir el selector por primera vez se pide permiso, para que aparezcan los nombres de los micrófonos
+$('eMic').addEventListener('pointerdown', () => { if (!micStream) prepararMic().catch(() => {}); });
 // Salida de audio: dónde suena la app (los audífonos). Chrome y Edge dejan elegirla; Safari no.
 const sePuedeElegirSalida = typeof AudioContext !== 'undefined' && 'setSinkId' in AudioContext.prototype;
 async function aplicarSalida() {
@@ -4489,6 +4529,7 @@ function aplicarVista(v) {
   document.body.classList.toggle('modo-estudio', estudio);
   $('estudio').hidden = !estudio;
   if (estudio && !antes) {
+    llenarMics().catch(() => {});
     pedirPicos();
     construirEstudio();
     requestAnimationFrame(() => { redimensionarEstudio(); verToda(); });

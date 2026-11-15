@@ -19,6 +19,13 @@ Separa la voz, la batería, el bajo y más de cualquier canción con IA, directo
 - **Secciones** (Intro, Estrofa, Coro, Puente). Toca una para repetirla, o arrastra sobre las ondas para marcar tu propio loop.
 - **Metrónomo** sobre los pulsos detectados de la canción.
 - **Ajustes:** español o inglés, 12 paletas de colores y notación Do Re Mi o C D E.
+- **Estudio** (pensado para computadora):
+  - Línea de tiempo con zoom, regla de compases, secciones, acordes y ondas con detalle; loops ajustados al pulso.
+  - Mezclador con fader, paneo, mudo, solo y medidores por pista, y canal maestro.
+  - Efectos por pista: EQ de 3 bandas, compresor y envíos a reverb y delay (el delay sigue el tempo).
+  - Escenas (Sin batería, Sin voz, Base rítmica y las tuyas); la mezcla se recuerda con cada canción.
+  - Exportar la mezcla en WAV tal como suena (con velocidad y tono), toda la canción o solo el loop.
+  - Grabarte con el micrófono encima de la canción: la toma queda como pista nueva, alineada y con compensación de latencia (se puede calibrar).
 
 Todo pasa en tu equipo: la canción no se sube a ningún servidor. Los modelos de IA se descargan la primera vez que se usan y quedan guardados (rápido 90 MB, estudio 230 MB, letra 205 o 410 MB); después funciona sin internet. Usa la GPU con WebGPU (Chrome, Edge, Safari reciente); sin GPU también funciona, pero más lento.
 

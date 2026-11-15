@@ -702,6 +702,9 @@
   .e-lcd.rec { box-shadow: inset 0 1px 3px rgba(0,0,0,.35), 0 0 0 1.5px var(--ember); }
   .e-lcd > .e-rec { flex-direction: row; align-items: center; color: var(--ember); font: 700 13px var(--mono); letter-spacing: .05em; animation: latidoRec 1s ease-in-out infinite; }
   .e-pista.rec .e-nombre { color: var(--ember); }
+  .e-consejo { display: flex; align-items: center; gap: 12px; margin: 0 0 10px; padding: 12px 14px; border-radius: 12px; background: color-mix(in srgb, var(--e-acento) 12%, var(--e-panel)); box-shadow: 0 0 0 1px color-mix(in srgb, var(--e-acento) 35%, transparent); color: var(--e-texto); }
+  .e-consejo p { margin: 0; flex: 1; font-size: 13.5px; line-height: 1.45; }
+  .e-consejo .icono { color: var(--e-acento); width: 22px; height: 22px; }
   .e-nivel-mic { width: 44px; height: 6px; border-radius: 3px; background: var(--e-pozo); overflow: hidden; box-shadow: inset 0 0 0 1px var(--e-borde); }
   .e-nivel-mic i { display: block; height: 100%; width: 0; background: var(--e-acento); border-radius: 3px; }
   .e-nivel-mic i.alto { background: var(--ember); }
@@ -868,6 +871,11 @@
         <label class="campo-select"><span class="settings-section-title" data-i18n="grabMic">Micrófono</span>
           <select id="grabMic"><option value="" data-i18n="grabMicDef">El del sistema</option></select>
         </label>
+        <label class="campo-select" id="campoSalida" style="margin-top:14px"><span class="settings-section-title" data-i18n="grabSalida">Salida de audio (audífonos o parlantes)</span>
+          <select id="grabSalida"><option value="" data-i18n="grabMicDef">El del sistema</option></select>
+        </label>
+        <p class="nota-ajustes" id="salidaSinOpcion" data-i18n="grabSalidaSafari" hidden style="margin-top:10px">Este navegador no deja elegir la salida aquí: cámbiala en Ajustes del Sistema → Sonido → Salida.</p>
+        <p class="nota-ajustes" data-i18n="grabConsejo" style="margin-top:10px">Si tu micrófono tiene salida para audífonos (como el Blue Yeti), conéctalos ahí y elige ese micrófono también como salida: te escuchas sin ningún retraso y no hace falta «Escucharme».</p>
         <p class="settings-section-title" style="margin-top:16px" data-i18n="grabEscuchar">Escucharme mientras grabo</p>
         <div class="seg" id="grabMonitor">
           <button type="button" data-monitor="no" aria-pressed="true" data-i18n="expNo">No</button>
@@ -982,6 +990,11 @@
           <button class="e-boton" id="eTodo" type="button"><svg class="icono" aria-hidden="true"><use href="#i-expandir"/></svg><span data-i18n="eTodo">Ver toda</span></button>
           <button class="e-boton principal" id="eExportar" type="button"><svg class="icono" aria-hidden="true"><use href="#i-descargar"/></svg><span data-i18n="expT">Exportar mezcla</span></button>
         </div>
+      </div>
+      <div class="e-consejo" id="eConsejo" hidden>
+        <svg class="icono" aria-hidden="true"><use href="#i-solo"/></svg>
+        <p><b data-i18n="consejoT">¿No te escuchas mientras grabas?</b> <span data-i18n="consejoTxt">Toca «Escucharme» y usa audífonos. Si no suena nada, abre Ajustes y elige en «Salida de audio» donde están conectados tus audífonos. Si tu micrófono tiene salida para audífonos (como el Blue Yeti), conéctalos ahí: te escuchas sin retraso.</span></p>
+        <button class="e-boton" id="eConsejoOk" type="button" data-i18n="consejoOk">Entendido</button>
       </div>
       <div class="e-arreglo">
         <div class="e-cabezas" id="eCabezas"></div>
@@ -2388,7 +2401,7 @@ const TEXTOS = {
     grabar: 'Grabar', grabDetener: 'Detener', grabando: 'Grabando', grabBorrar: 'Borrar toma', grabBorrarConfirma: '¿Borrar "{t}"? No se puede deshacer.', grabLista: '{n} lista',
     grabMax: 'Ya hay 12 pistas: borra una toma para grabar otra.', grabSinMic: 'No se pudo usar el micrófono. Revisa el permiso del navegador.', grabVelocidad: 'Para grabar, la velocidad vuelve a 100 % y el tono a 0.',
     grabVacia: 'No se grabó nada.', grabSilencio: 'La toma quedó en silencio: revisa el micrófono.',
-    grabT: 'Grabación', grabEscucharCorto: 'Escucharme', grabUsaAudifonos: 'Te escuchas por la salida de audio: usa audífonos para que no se acople.', grabMic: 'Micrófono', grabMicDef: 'El del sistema', grabEscuchar: 'Escucharme mientras grabo', grabMonSi: 'Sí (con audífonos)',
+    grabT: 'Grabación', grabSalida: 'Salida de audio (audífonos o parlantes)', grabSalidaN: 'Salida', grabSalidaLista: 'Salida de audio cambiada', grabSalidaSafari: 'Este navegador no deja elegir la salida aquí: cámbiala en Ajustes del Sistema → Sonido → Salida.', grabConsejo: 'Si tu micrófono tiene salida para audífonos (como el Blue Yeti), conéctalos ahí y elige ese micrófono también como salida: te escuchas sin ningún retraso y no hace falta «Escucharme».', consejoT: '¿No te escuchas mientras grabas?', consejoTxt: 'Toca «Escucharme» y usa audífonos. Si no suena nada, abre Ajustes y elige en «Salida de audio» donde están conectados tus audífonos. Si tu micrófono tiene salida para audífonos (como el Blue Yeti), conéctalos ahí: te escuchas sin retraso.', consejoOk: 'Entendido', grabEscucharCorto: 'Escucharme', grabUsaAudifonos: 'Te escuchas por la salida de audio: usa audífonos para que no se acople.', grabMic: 'Micrófono', grabMicDef: 'El del sistema', grabEscuchar: 'Escucharme mientras grabo', grabMonSi: 'Sí (con audífonos)',
     latT: 'Compensación de latencia', latCalibrar: 'Calibrar', latAutoT: 'Automática', latAuto: 'Automática: la calcula el navegador. Para más precisión, calibra.', latCalibrada: 'Calibrada con tus parlantes y tu micrófono.', latManual: 'Ajustada a mano.',
     latEscuchando: 'Escuchando los clics… quédate en silencio.', latSinClics: 'No se escucharon los clics. Sube el volumen, quita los audífonos y prueba otra vez.', latLista: 'Latencia calibrada: {ms} ms',
     latAyuda: 'Para calibrar: quita los audífonos y sube el volumen. La app toca 6 clics y mide cuánto tardan en volver por el micrófono.',
@@ -2446,7 +2459,7 @@ const TEXTOS = {
     grabar: 'Record', grabDetener: 'Stop', grabando: 'Recording', grabBorrar: 'Delete take', grabBorrarConfirma: 'Delete "{t}"? This can’t be undone.', grabLista: '{n} ready',
     grabMax: 'There are already 12 tracks: delete a take to record another.', grabSinMic: 'Couldn’t use the microphone. Check the browser permission.', grabVelocidad: 'To record, speed goes back to 100 % and key to 0.',
     grabVacia: 'Nothing was recorded.', grabSilencio: 'The take is silent: check the microphone.',
-    grabT: 'Recording', grabEscucharCorto: 'Hear me', grabUsaAudifonos: 'You hear yourself through the audio output: use headphones so it doesn’t feed back.', grabMic: 'Microphone', grabMicDef: 'System default', grabEscuchar: 'Hear myself while recording', grabMonSi: 'Yes (with headphones)',
+    grabT: 'Recording', grabSalida: 'Audio output (headphones or speakers)', grabSalidaN: 'Output', grabSalidaLista: 'Audio output changed', grabSalidaSafari: 'This browser can’t choose the output here: change it in System Settings → Sound → Output.', grabConsejo: 'If your microphone has a headphone output (like the Blue Yeti), plug them in there and pick that microphone as the output too: you hear yourself with no delay and don’t need “Hear me”.', consejoT: 'Can’t hear yourself while recording?', consejoTxt: 'Tap “Hear me” and use headphones. If nothing sounds, open Settings and pick your headphones under “Audio output”. If your microphone has a headphone output (like the Blue Yeti), plug them in there: you hear yourself with no delay.', consejoOk: 'Got it', grabEscucharCorto: 'Hear me', grabUsaAudifonos: 'You hear yourself through the audio output: use headphones so it doesn’t feed back.', grabMic: 'Microphone', grabMicDef: 'System default', grabEscuchar: 'Hear myself while recording', grabMonSi: 'Yes (with headphones)',
     latT: 'Latency compensation', latCalibrar: 'Calibrate', latAutoT: 'Automatic', latAuto: 'Automatic: the browser estimates it. Calibrate for more precision.', latCalibrada: 'Calibrated with your speakers and microphone.', latManual: 'Set by hand.',
     latEscuchando: 'Listening to the clicks… stay quiet.', latSinClics: 'The clicks weren’t heard. Turn the volume up, remove headphones and try again.', latLista: 'Latency calibrated: {ms} ms',
     latAyuda: 'To calibrate: remove your headphones and turn the volume up. The app plays 6 clicks and measures how long they take to come back through the microphone.',
@@ -2914,6 +2927,7 @@ let actx = null, nodo = null;
 async function prepararAudio() {
   if (actx) return;
   actx = new AudioContext({ sampleRate: 44100, latencyHint: 'interactive' });
+  aplicarSalida();
   urlMotor = URL.createObjectURL(new Blob([$('codigoMotor').textContent], { type: 'text/javascript' }));
   await actx.audioWorklet.addModule(urlMotor);
   // Una salida estéreo por pista (para los efectos) y una para el metrónomo
@@ -3967,6 +3981,7 @@ async function empezarGrabacion() {
   pintarPlay();
   pintarGrabar();
   construirEstudio();
+  $('eConsejo').hidden = leerPref('monitor', false) || leerPref('consejoGrabar', false);
 }
 
 async function detenerGrabacion() {
@@ -4067,8 +4082,33 @@ async function llenarMics() {
     sel.appendChild(o);
   });
   sel.value = [...sel.options].some((o) => o.value === actual) ? actual : '';
+  // Salidas
+  $('campoSalida').hidden = !sePuedeElegirSalida;
+  $('salidaSinOpcion').hidden = sePuedeElegirSalida;
+  if (!sePuedeElegirSalida) return;
+  const salidas = (await navigator.mediaDevices.enumerateDevices()).filter((d) => d.kind === 'audiooutput');
+  const ss = $('grabSalida'), elegida = leerPref('salidaId', '');
+  ss.innerHTML = '';
+  const def2 = document.createElement('option'); def2.value = ''; def2.textContent = t('grabMicDef'); ss.appendChild(def2);
+  salidas.forEach((d, i) => {
+    if (!d.deviceId || d.deviceId === 'default') return;
+    const o = document.createElement('option'); o.value = d.deviceId; o.textContent = d.label || `${t('grabSalidaN')} ${i + 1}`;
+    ss.appendChild(o);
+  });
+  ss.value = [...ss.options].some((o) => o.value === elegida) ? elegida : '';
 }
 $('grabMic').onchange = (e) => { guardarPref('micId', e.target.value); cerrarMic(); };
+// Salida de audio: dónde suena la app (los audífonos). Chrome y Edge dejan elegirla; Safari no.
+const sePuedeElegirSalida = typeof AudioContext !== 'undefined' && 'setSinkId' in AudioContext.prototype;
+async function aplicarSalida() {
+  if (!actx || !sePuedeElegirSalida) return;
+  try { await actx.setSinkId(leerPref('salidaId', '')); } catch (e) { guardarPref('salidaId', ''); }
+}
+$('grabSalida').onchange = async (e) => {
+  guardarPref('salidaId', e.target.value);
+  await aplicarSalida();
+  aviso(t('grabSalidaLista'));
+};
 document.querySelectorAll('#grabMonitor button').forEach((b) => b.onclick = () => {
   guardarPref('monitor', b.dataset.monitor === 'si');
   pintarAjustesGrabacion();
@@ -4891,6 +4931,7 @@ document.addEventListener('click', () => { $('descargas').hidden = true; });
 
 $('abrirAjustes').onclick = () => { pintarEstadoModelo(); pintarAjustesGrabacion(); $('ajustes').showModal(); };
 $('eGrabar').onclick = () => (E.rec ? detenerGrabacion() : empezarGrabacion());
+$('eConsejoOk').onclick = () => { guardarPref('consejoGrabar', true); $('eConsejo').hidden = true; };
 // Escucharme: abre el micrófono y lo manda a los audífonos (también antes de grabar, para probar el nivel)
 $('eEscuchar').onclick = async () => {
   const on = !leerPref('monitor', false);

@@ -702,6 +702,9 @@
   .e-lcd.rec { box-shadow: inset 0 1px 3px rgba(0,0,0,.35), 0 0 0 1.5px var(--ember); }
   .e-lcd > .e-rec { flex-direction: row; align-items: center; color: var(--ember); font: 700 13px var(--mono); letter-spacing: .05em; animation: latidoRec 1s ease-in-out infinite; }
   .e-pista.rec .e-nombre { color: var(--ember); }
+  .e-nivel-mic { width: 44px; height: 6px; border-radius: 3px; background: var(--e-pozo); overflow: hidden; box-shadow: inset 0 0 0 1px var(--e-borde); }
+  .e-nivel-mic i { display: block; height: 100%; width: 0; background: var(--e-acento); border-radius: 3px; }
+  .e-nivel-mic i.alto { background: var(--ember); }
   .e-borrar-toma { width: 26px; height: 26px; border: 0; border-radius: 7px; background: transparent; color: var(--e-tenue); display: grid; place-items: center; cursor: pointer; }
   .e-borrar-toma:hover { color: var(--ember); background: color-mix(in srgb, var(--ember) 14%, transparent); }
   .e-borrar-toma .icono { width: 14px; height: 14px; }
@@ -968,6 +971,7 @@
         </div>
         <div class="e-herr">
           <button class="e-boton grabar" id="eGrabar" type="button" aria-pressed="false"><span class="punto-rec" aria-hidden="true"></span><span data-i18n="grabar">Grabar</span></button>
+          <button class="e-boton" id="eEscuchar" type="button" aria-pressed="false" data-i18n-aria="grabEscuchar" aria-label="Escucharme mientras grabo"><svg class="icono" aria-hidden="true"><use href="#i-solo"/></svg><span data-i18n="grabEscucharCorto">Escucharme</span><span class="e-nivel-mic" id="eNivelMic" hidden><i></i></span></button>
           <button class="e-boton" id="eSeguir" type="button" aria-pressed="true"><svg class="icono" aria-hidden="true"><use href="#i-seguir"/></svg><span data-i18n="eSeguir">Seguir</span></button>
           <button class="e-boton" id="eAjustar" type="button" aria-pressed="true"><svg class="icono" aria-hidden="true"><use href="#i-iman"/></svg><span data-i18n="eAjustar">Ajustar al pulso</span></button>
           <div class="e-zoom">
@@ -2384,7 +2388,7 @@ const TEXTOS = {
     grabar: 'Grabar', grabDetener: 'Detener', grabando: 'Grabando', grabBorrar: 'Borrar toma', grabBorrarConfirma: '¿Borrar "{t}"? No se puede deshacer.', grabLista: '{n} lista',
     grabMax: 'Ya hay 12 pistas: borra una toma para grabar otra.', grabSinMic: 'No se pudo usar el micrófono. Revisa el permiso del navegador.', grabVelocidad: 'Para grabar, la velocidad vuelve a 100 % y el tono a 0.',
     grabVacia: 'No se grabó nada.', grabSilencio: 'La toma quedó en silencio: revisa el micrófono.',
-    grabT: 'Grabación', grabMic: 'Micrófono', grabMicDef: 'El del sistema', grabEscuchar: 'Escucharme mientras grabo', grabMonSi: 'Sí (con audífonos)',
+    grabT: 'Grabación', grabEscucharCorto: 'Escucharme', grabUsaAudifonos: 'Te escuchas por la salida de audio: usa audífonos para que no se acople.', grabMic: 'Micrófono', grabMicDef: 'El del sistema', grabEscuchar: 'Escucharme mientras grabo', grabMonSi: 'Sí (con audífonos)',
     latT: 'Compensación de latencia', latCalibrar: 'Calibrar', latAutoT: 'Automática', latAuto: 'Automática: la calcula el navegador. Para más precisión, calibra.', latCalibrada: 'Calibrada con tus parlantes y tu micrófono.', latManual: 'Ajustada a mano.',
     latEscuchando: 'Escuchando los clics… quédate en silencio.', latSinClics: 'No se escucharon los clics. Sube el volumen, quita los audífonos y prueba otra vez.', latLista: 'Latencia calibrada: {ms} ms',
     latAyuda: 'Para calibrar: quita los audífonos y sube el volumen. La app toca 6 clics y mide cuánto tardan en volver por el micrófono.',
@@ -2442,7 +2446,7 @@ const TEXTOS = {
     grabar: 'Record', grabDetener: 'Stop', grabando: 'Recording', grabBorrar: 'Delete take', grabBorrarConfirma: 'Delete "{t}"? This can’t be undone.', grabLista: '{n} ready',
     grabMax: 'There are already 12 tracks: delete a take to record another.', grabSinMic: 'Couldn’t use the microphone. Check the browser permission.', grabVelocidad: 'To record, speed goes back to 100 % and key to 0.',
     grabVacia: 'Nothing was recorded.', grabSilencio: 'The take is silent: check the microphone.',
-    grabT: 'Recording', grabMic: 'Microphone', grabMicDef: 'System default', grabEscuchar: 'Hear myself while recording', grabMonSi: 'Yes (with headphones)',
+    grabT: 'Recording', grabEscucharCorto: 'Hear me', grabUsaAudifonos: 'You hear yourself through the audio output: use headphones so it doesn’t feed back.', grabMic: 'Microphone', grabMicDef: 'System default', grabEscuchar: 'Hear myself while recording', grabMonSi: 'Yes (with headphones)',
     latT: 'Latency compensation', latCalibrar: 'Calibrate', latAutoT: 'Automatic', latAuto: 'Automatic: the browser estimates it. Calibrate for more precision.', latCalibrada: 'Calibrated with your speakers and microphone.', latManual: 'Set by hand.',
     latEscuchando: 'Listening to the clicks… stay quiet.', latSinClics: 'The clicks weren’t heard. Turn the volume up, remove headphones and try again.', latLista: 'Latency calibrated: {ms} ms',
     latAyuda: 'To calibrate: remove your headphones and turn the volume up. The app plays 6 clicks and measures how long they take to come back through the microphone.',
@@ -3973,7 +3977,6 @@ async function detenerGrabacion() {
   if (S.sonando) { S.sonando = false; nodo.port.postMessage({ tipo: 'pausar' }); soltarPantalla(); pintarPlay(); }
   nodo.port.postMessage({ tipo: 'hasta', tiempo: null });
   if (rec.enLoop) { S.loopOn = rec.loopAntes; enviarLoop(); }
-  if (monitorGan) monitorGan.gain.value = 0;
   E.rec = null;
   pintarGrabar();
   try { await terminarToma(rec); } catch (e) { aviso(`${t('errorT')}: ${e.message}`); construirEstudio(); }
@@ -4042,6 +4045,7 @@ async function eliminarToma(nombre) {
 function pintarGrabar() {
   const b = $('eGrabar');
   if (!b) return;
+  pintarEscuchar();
   b.classList.toggle('grabando', !!E.rec);
   b.querySelector('span:last-child').textContent = t(E.rec ? 'grabDetener' : 'grabar');
   b.setAttribute('aria-pressed', E.rec ? 'true' : 'false');
@@ -4072,6 +4076,8 @@ document.querySelectorAll('#grabMonitor button').forEach((b) => b.onclick = () =
 function pintarAjustesGrabacion() {
   const mon = leerPref('monitor', false);
   document.querySelectorAll('#grabMonitor button').forEach((b) => b.setAttribute('aria-pressed', (b.dataset.monitor === 'si') === mon ? 'true' : 'false'));
+  if (monitorGan && actx) monitorGan.gain.setTargetAtTime(mon ? 1 : 0, actx.currentTime, 0.02);
+  if ($('eEscuchar')) pintarEscuchar();
   const p = leerPref('latencia', null);
   const modo = p && p.modo !== 'auto' ? p.modo : 'auto';
   $('latVal').textContent = `${Math.round(latenciaActual() * 1000)} ms`;
@@ -4835,6 +4841,12 @@ function cuadroEstudio(ahora) {
   E.nivelM = [Math.max(dl, (E.nivelM[0] === -Infinity ? -90 : E.nivelM[0]) - caida), Math.max(dr, (E.nivelM[1] === -Infinity ? -90 : E.nivelM[1]) - caida)].map((v) => (v < -80 ? -Infinity : v));
   const dm = Math.max(dl, dr);
   if (dm >= E.picoM || ahora - E.picoMT > 1200) { E.picoM = dm; E.picoMT = ahora; }
+  if (micMedidor) {
+    const v = picoDe(micMedidor), d = dbDe(v);
+    const barra = $('eNivelMic').firstElementChild;
+    barra.style.width = `${Math.max(0, Math.min(100, ((d + 60) / 60) * 100))}%`;
+    barra.classList.toggle('alto', d > -3);
+  }
   const cm = canales[S.pistas.length];
   if (cm && cm._medidor) {
     dibujarMedidor(cm._medidor, E.nivelM, E.picoM);
@@ -4879,6 +4891,22 @@ document.addEventListener('click', () => { $('descargas').hidden = true; });
 
 $('abrirAjustes').onclick = () => { pintarEstadoModelo(); pintarAjustesGrabacion(); $('ajustes').showModal(); };
 $('eGrabar').onclick = () => (E.rec ? detenerGrabacion() : empezarGrabacion());
+// Escucharme: abre el micrófono y lo manda a los audífonos (también antes de grabar, para probar el nivel)
+$('eEscuchar').onclick = async () => {
+  const on = !leerPref('monitor', false);
+  guardarPref('monitor', on);
+  if (on) {
+    try { await prepararMic(); await actx.resume(); } catch (e) { guardarPref('monitor', false); aviso(t('grabSinMic')); pintarEscuchar(); return; }
+    aviso(t('grabUsaAudifonos'));
+  }
+  if (monitorGan) monitorGan.gain.setTargetAtTime(on ? 1 : 0, actx.currentTime, 0.02);
+  pintarEscuchar();
+};
+function pintarEscuchar() {
+  const on = !!leerPref('monitor', false);
+  $('eEscuchar').setAttribute('aria-pressed', on ? 'true' : 'false');
+  $('eNivelMic').hidden = !micMedidor;
+}
 $('cerrarAjustes').onclick = () => $('ajustes').close();
 $('ajustes').addEventListener('click', (e) => { if (e.target === $('ajustes')) $('ajustes').close(); });
 document.querySelectorAll('#idiomas button').forEach((b) => b.onclick = () => aplicarIdioma(b.dataset.idioma));

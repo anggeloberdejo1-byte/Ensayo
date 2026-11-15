@@ -614,7 +614,7 @@
   body.modo-estudio .practica .valor { color: var(--e-acento); }
   body.modo-estudio .practica input[type=range] { accent-color: var(--e-acento); }
   body.modo-estudio .control + .control, body.modo-estudio .acciones-practica { border-color: var(--e-borde); }
-  body.modo-estudio .paso { background: var(--e-pozo); }
+  body.modo-estudio .practica .paso { background: var(--e-pozo); }
   body.modo-estudio .practica .chip, body.modo-estudio .practica .boton { background: var(--e-panel-2); color: var(--e-texto); border-color: var(--e-borde); box-shadow: none; }
   body.modo-estudio .practica .chip.active { background: var(--e-acento); color: var(--e-fondo); }
   body.modo-estudio .transporte { background: color-mix(in srgb, var(--e-panel) 88%, transparent); color: var(--e-texto); box-shadow: var(--sombra-3), 0 0 0 1px var(--e-borde); }
@@ -693,6 +693,23 @@
   .exp-progreso { height: 8px; border-radius: 4px; background: var(--relleno-2); overflow: hidden; margin: 16px 0 8px; }
   .exp-progreso i { display: block; height: 100%; width: 0; border-radius: 4px; background: var(--brass); transition: width .3s var(--suave); }
   .exp-estado { font-size: 14px; color: var(--parchment-dim); min-height: 20px; margin: 6px 0 0; font-variant-numeric: tabular-nums; }
+
+  /* ---- Estudio, etapa 3: grabación ---- */
+  .e-boton.grabar .punto-rec { width: 11px; height: 11px; border-radius: 50%; background: var(--ember); box-shadow: 0 0 0 3px color-mix(in srgb, var(--ember) 25%, transparent); }
+  .e-boton.grabar.grabando { background: var(--ember); color: #fff; border-color: transparent; }
+  .e-boton.grabar.grabando .punto-rec { background: #fff; box-shadow: none; animation: latidoRec 1s ease-in-out infinite; }
+  @keyframes latidoRec { 50% { opacity: .3; } }
+  .e-lcd.rec { box-shadow: inset 0 1px 3px rgba(0,0,0,.35), 0 0 0 1.5px var(--ember); }
+  .e-lcd > .e-rec { flex-direction: row; align-items: center; color: var(--ember); font: 700 13px var(--mono); letter-spacing: .05em; animation: latidoRec 1s ease-in-out infinite; }
+  .e-pista.rec .e-nombre { color: var(--ember); }
+  .e-borrar-toma { width: 26px; height: 26px; border: 0; border-radius: 7px; background: transparent; color: var(--e-tenue); display: grid; place-items: center; cursor: pointer; }
+  .e-borrar-toma:hover { color: var(--ember); background: color-mix(in srgb, var(--ember) 14%, transparent); }
+  .e-borrar-toma .icono { width: 14px; height: 14px; }
+  .campo-select { display: block; }
+  .campo-select select { width: 100%; min-height: var(--toque); border-radius: 12px; border: 1px solid var(--linea-fuerte); background: var(--bg); color: var(--parchment); font: 15px var(--fuente); padding: 0 12px; }
+  .fila-latencia { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .fila-latencia .paso { flex: 0 0 180px; }
+  .fila-latencia .valor { font-size: 17px; }
 
   @media (max-width: 860px) {
     #biblioteca { grid-template-columns: minmax(0, 1fr); gap: 24px; }
@@ -844,6 +861,29 @@
         </div>
       </div>
       <div class="settings-section">
+        <p class="settings-section-title" data-i18n="grabT">Grabación</p>
+        <label class="campo-select"><span class="settings-section-title" data-i18n="grabMic">Micrófono</span>
+          <select id="grabMic"><option value="" data-i18n="grabMicDef">El del sistema</option></select>
+        </label>
+        <p class="settings-section-title" style="margin-top:16px" data-i18n="grabEscuchar">Escucharme mientras grabo</p>
+        <div class="seg" id="grabMonitor">
+          <button type="button" data-monitor="no" aria-pressed="true" data-i18n="expNo">No</button>
+          <button type="button" data-monitor="si" aria-pressed="false" data-i18n="grabMonSi">Sí (con audífonos)</button>
+        </div>
+        <p class="settings-section-title" style="margin-top:16px" data-i18n="latT">Compensación de latencia</p>
+        <div class="fila-latencia">
+          <div class="paso">
+            <button class="chip" id="latMenos" type="button" aria-label="−1 ms">−</button>
+            <span class="valor" id="latVal">— ms</span>
+            <button class="chip" id="latMas" type="button" aria-label="+1 ms">+</button>
+          </div>
+          <button class="boton principal" id="calibrar" type="button" data-i18n="latCalibrar">Calibrar</button>
+          <button class="boton" id="latAutoBtn" type="button" data-i18n="latAutoT">Automática</button>
+        </div>
+        <p class="nota-ajustes" id="latNota" role="status" aria-live="polite" style="margin-top:10px"></p>
+        <p class="nota-ajustes" data-i18n="latAyuda">Para calibrar: quita los audífonos y sube el volumen. La app toca 6 clics y mide cuánto tardan en volver por el micrófono.</p>
+      </div>
+      <div class="settings-section">
         <p class="settings-section-title" data-i18n="modeloT">Modelo de IA</p>
         <p class="nota-ajustes" id="estadoModelo"></p>
         <button class="boton" id="borrarModelo" type="button" data-i18n="borrarModelo">Borrar modelo descargado</button>
@@ -924,8 +964,10 @@
           <div><span class="e-lcd-num" id="eTiempo">0:00.0</span><small data-i18n="eTiempoT">Tiempo</small></div>
           <div><span class="e-lcd-num" id="eBpm">—</span><small>BPM</small></div>
           <div><span class="e-lcd-num" id="eTono">—</span><small data-i18n="tonalidad">Tonalidad</small></div>
+          <div class="e-rec" id="eRec" hidden>● REC</div>
         </div>
         <div class="e-herr">
+          <button class="e-boton grabar" id="eGrabar" type="button" aria-pressed="false"><span class="punto-rec" aria-hidden="true"></span><span data-i18n="grabar">Grabar</span></button>
           <button class="e-boton" id="eSeguir" type="button" aria-pressed="true"><svg class="icono" aria-hidden="true"><use href="#i-seguir"/></svg><span data-i18n="eSeguir">Seguir</span></button>
           <button class="e-boton" id="eAjustar" type="button" aria-pressed="true"><svg class="icono" aria-hidden="true"><use href="#i-iman"/></svg><span data-i18n="eAjustar">Ajustar al pulso</span></button>
           <div class="e-zoom">
@@ -1209,6 +1251,10 @@ class Motor extends AudioWorkletProcessor {
         break;
       case 'eco': this.port.postMessage({ tipo: 'eco' }); break;
       case 'hasta': this.hasta = m.tiempo == null ? -1 : Math.round(m.tiempo * sampleRate); break;
+      case 'agregarPista':
+        // Una toma grabada entra como una pista más (mismo largo que la canción)
+        if (this.pistas.length < MAX_PISTAS) { this.pistas.push(m.datos); this.volumenes.push(1 / 32768); }
+        break;
     }
   }
 
@@ -1333,8 +1379,10 @@ class Motor extends AudioWorkletProcessor {
     const directo = this.tempo === 1 && this.tono === 1;
     const np = this.pistas.length;
     const click = outputs[MAX_PISTAS];
+    // Marca de tiempo: en qué cuadro del audio empieza este bloque y en qué punto de la canción (para alinear grabaciones)
+    const cuadro0 = currentFrame, pos0 = this.pos;
     for (let j = 0; j < n; j++) {
-      if (this.hasta >= 0 && this.pos >= this.hasta) { this.sonando = false; break; }
+      if (this.hasta >= 0 && this.pos >= this.hasta) { this.sonando = false; this.port.postMessage({ tipo: 'parado' }); break; }
       if (this.loopB > this.loopA && this.loopA >= 0 && this.pos >= this.loopB) this.ir(this.loopA);
       if (this.pos >= this.largo) {
         this.sonando = false;
@@ -1381,12 +1429,43 @@ class Motor extends AudioWorkletProcessor {
       this.pos += directo ? 1 : this.tempo;
     }
 
-    if (++this.bloques % 4 === 0) this.port.postMessage({ tipo: 'pos', tiempo: this.pos / sampleRate });
+    if (++this.bloques % 4 === 0) this.port.postMessage({ tipo: 'pos', tiempo: this.pos / sampleRate, cuadro: cuadro0, p0: pos0, directo });
     return true;
   }
 }
 
 registerProcessor('motor', Motor);
+
+// Grabador: guarda lo que entra por el micrófono (en mono) con el cuadro exacto en que llegó
+class Grabador extends AudioWorkletProcessor {
+  constructor() {
+    super();
+    this.activo = false;
+    this.buf = new Float32Array(16384);
+    this.n = 0;
+    this.cuadro = 0;
+    this.port.onmessage = (e) => {
+      if (e.data.tipo === 'iniciar') { this.activo = true; this.n = 0; }
+      if (e.data.tipo === 'detener') { this.enviar(); this.activo = false; this.port.postMessage({ tipo: 'fin' }); }
+    };
+  }
+  enviar() {
+    if (!this.n) return;
+    this.port.postMessage({ tipo: 'datos', cuadro: this.cuadro, datos: this.buf.slice(0, this.n) });
+    this.n = 0;
+  }
+  process(inputs) {
+    const ent = inputs[0];
+    if (!this.activo || !ent || !ent.length) return true;
+    const a = ent[0], b = ent[1] || ent[0];
+    if (this.n === 0) this.cuadro = currentFrame;
+    for (let j = 0; j < a.length; j++) this.buf[this.n++] = (a[j] + b[j]) * 0.5;
+    if (this.n > this.buf.length - 256) this.enviar();
+    return true;
+  }
+}
+
+registerProcessor('grabador', Grabador);
 </script>
 
 <!-- =====================================================================
@@ -2302,6 +2381,13 @@ const TEXTOS = {
     letraInicioT: 'Letra (opcional)', letraPh: 'Pega aquí la letra, una línea por renglón. La app la pone en pantalla al ritmo de la voz.',
     pegarNota: 'Pega la letra, una línea por renglón. La IA escucha la voz para saber cuándo se canta cada palabra. Un archivo .lrc ya trae los tiempos.',
     vistaEnsayo: 'Ensayo', vistaEstudio: 'Estudio', eCompasT: 'Compás', eTiempoT: 'Tiempo', eSeguir: 'Seguir', eAjustar: 'Ajustar al pulso', eTodo: 'Ver toda', eAcercar: 'Acercar', eAlejar: 'Alejar', eZoomT: 'Zoom', eMapaT: 'Vista general de la canción', eMezcladorT: 'Mezclador', ePistas: 'Pistas', eOndas: 'Dibujando ondas con detalle…', maestro: 'Maestro', paneo: 'Paneo', panIzq: 'I', panDer: 'D',
+    grabar: 'Grabar', grabDetener: 'Detener', grabando: 'Grabando', grabBorrar: 'Borrar toma', grabBorrarConfirma: '¿Borrar "{t}"? No se puede deshacer.', grabLista: '{n} lista',
+    grabMax: 'Ya hay 12 pistas: borra una toma para grabar otra.', grabSinMic: 'No se pudo usar el micrófono. Revisa el permiso del navegador.', grabVelocidad: 'Para grabar, la velocidad vuelve a 100 % y el tono a 0.',
+    grabVacia: 'No se grabó nada.', grabSilencio: 'La toma quedó en silencio: revisa el micrófono.',
+    grabT: 'Grabación', grabMic: 'Micrófono', grabMicDef: 'El del sistema', grabEscuchar: 'Escucharme mientras grabo', grabMonSi: 'Sí (con audífonos)',
+    latT: 'Compensación de latencia', latCalibrar: 'Calibrar', latAutoT: 'Automática', latAuto: 'Automática: la calcula el navegador. Para más precisión, calibra.', latCalibrada: 'Calibrada con tus parlantes y tu micrófono.', latManual: 'Ajustada a mano.',
+    latEscuchando: 'Escuchando los clics… quédate en silencio.', latSinClics: 'No se escucharon los clics. Sube el volumen, quita los audífonos y prueba otra vez.', latLista: 'Latencia calibrada: {ms} ms',
+    latAyuda: 'Para calibrar: quita los audífonos y sube el volumen. La app toca 6 clics y mide cuánto tardan en volver por el micrófono.',
     fxVer: 'Efectos', fxEq: 'EQ', fxGraves: 'Graves', fxMedios: 'Medios', fxAgudos: 'Agudos', fxDinamica: 'Dinámica', fxComp: 'Compresor', fxApagado: 'Apagado', fxEnvios: 'Envíos', fxRetornos: 'Retornos', fxReverb: 'Reverb', fxDelay: 'Delay', fxNotaAyuda: 'Figura del delay (sigue el tempo). Toca para cambiarla.',
     escenasT: 'Escenas', escOriginal: 'Original', escSinBateria: 'Sin batería', escSinVoz: 'Sin voz', escRitmo: 'Base rítmica', escGuardar: 'Guardar escena', escena: 'Escena', escNombre: 'Nombre de la escena', escGuardada: 'Escena guardada',
     expT: 'Exportar mezcla', expRangoT: 'Qué exportar', expCancion: 'Toda la canción', expLoopT: 'Solo el loop', expSinLoop: '(marca uno primero)', expClickT: 'Metrónomo en el archivo', expNo: 'No', expSi: 'Sí',
@@ -2353,6 +2439,13 @@ const TEXTOS = {
     letraInicioT: 'Lyrics (optional)', letraPh: 'Paste the lyrics here, one line per row. The app shows them in time with the vocals.',
     pegarNota: 'Paste the lyrics, one line per row. The AI listens to the vocals to know when each word is sung. An .lrc file already has the timing.',
     vistaEnsayo: 'Practice', vistaEstudio: 'Studio', eCompasT: 'Bar', eTiempoT: 'Time', eSeguir: 'Follow', eAjustar: 'Snap to beat', eTodo: 'Fit all', eAcercar: 'Zoom in', eAlejar: 'Zoom out', eZoomT: 'Zoom', eMapaT: 'Song overview', eMezcladorT: 'Mixer', ePistas: 'Tracks', eOndas: 'Drawing detailed waveforms…', maestro: 'Master', paneo: 'Pan', panIzq: 'L', panDer: 'R',
+    grabar: 'Record', grabDetener: 'Stop', grabando: 'Recording', grabBorrar: 'Delete take', grabBorrarConfirma: 'Delete "{t}"? This can’t be undone.', grabLista: '{n} ready',
+    grabMax: 'There are already 12 tracks: delete a take to record another.', grabSinMic: 'Couldn’t use the microphone. Check the browser permission.', grabVelocidad: 'To record, speed goes back to 100 % and key to 0.',
+    grabVacia: 'Nothing was recorded.', grabSilencio: 'The take is silent: check the microphone.',
+    grabT: 'Recording', grabMic: 'Microphone', grabMicDef: 'System default', grabEscuchar: 'Hear myself while recording', grabMonSi: 'Yes (with headphones)',
+    latT: 'Latency compensation', latCalibrar: 'Calibrate', latAutoT: 'Automatic', latAuto: 'Automatic: the browser estimates it. Calibrate for more precision.', latCalibrada: 'Calibrated with your speakers and microphone.', latManual: 'Set by hand.',
+    latEscuchando: 'Listening to the clicks… stay quiet.', latSinClics: 'The clicks weren’t heard. Turn the volume up, remove headphones and try again.', latLista: 'Latency calibrated: {ms} ms',
+    latAyuda: 'To calibrate: remove your headphones and turn the volume up. The app plays 6 clicks and measures how long they take to come back through the microphone.',
     fxVer: 'Effects', fxEq: 'EQ', fxGraves: 'Low', fxMedios: 'Mid', fxAgudos: 'High', fxDinamica: 'Dynamics', fxComp: 'Compressor', fxApagado: 'Off', fxEnvios: 'Sends', fxRetornos: 'Returns', fxReverb: 'Reverb', fxDelay: 'Delay', fxNotaAyuda: 'Delay note value (follows the tempo). Tap to change it.',
     escenasT: 'Scenes', escOriginal: 'Original', escSinBateria: 'No drums', escSinVoz: 'No vocals', escRitmo: 'Rhythm section', escGuardar: 'Save scene', escena: 'Scene', escNombre: 'Scene name', escGuardada: 'Scene saved',
     expT: 'Export mix', expRangoT: 'What to export', expCancion: 'Whole song', expLoopT: 'Loop only', expSinLoop: '(mark one first)', expClickT: 'Metronome in the file', expNo: 'No', expSi: 'Yes',
@@ -2527,6 +2620,8 @@ async function bdGuardar(cancion, pistas) {
   await bdHacer('canciones', 'readwrite', (s) => s.put(cancion));
 }
 async function bdBorrar(id) {
+  const c = await bdCancion(id).catch(() => null);
+  for (const tm of (c && c.tomas) || []) await bdHacer('pistas', 'readwrite', (s) => s.delete(`${id}:${tm.nombre}`));
   await bdHacer('canciones', 'readwrite', (s) => s.delete(id));
   await bdHacer('pistas', 'readwrite', (s) => s.delete(id));
 }
@@ -2820,9 +2915,14 @@ async function prepararAudio() {
   // Una salida estéreo por pista (para los efectos) y una para el metrónomo
   nodo = new AudioWorkletNode(actx, 'motor', { numberOfInputs: 0, numberOfOutputs: MAX_SALIDAS + 1, outputChannelCount: Array(MAX_SALIDAS + 1).fill(2) });
   nodo.port.onmessage = (e) => {
-    if (e.data.tipo === 'pos') S.tiempo = e.data.tiempo;
+    if (e.data.tipo === 'pos') {
+      S.tiempo = e.data.tiempo;
+      // Marca de tiempo para alinear la toma (solo las de esta grabación y a velocidad original)
+      if (E.rec && e.data.directo && e.data.cuadro >= (E.rec.desde || 0) - 128) E.rec.mapa = { cuadro: e.data.cuadro, p0: e.data.p0 };
+    }
+    if (e.data.tipo === 'parado') { S.sonando = false; soltarPantalla(); pintarPlay(); if (E.rec) detenerGrabacion(); }
     if (e.data.tipo === 'picos') recibirPicos(e.data);
-    if (e.data.tipo === 'fin') { S.sonando = false; S.tiempo = 0; soltarPantalla(); pintarPlay(); }
+    if (e.data.tipo === 'fin') { S.sonando = false; S.tiempo = 0; soltarPantalla(); pintarPlay(); if (E.rec) detenerGrabacion(); }
   };
 }
 
@@ -2833,9 +2933,10 @@ async function abrirCancion(id) {
   try {
     await prepararAudio();
     const cancion = await bdCancion(id);
-    const datos = await bdPistas(id);
+    for (const tm of cancion.tomas || []) registrarToma(tm.nombre, tm.numero);
+    const datos = await bdTodasLasPistas(cancion);
     const a = cancion.analisis;
-    const nombres = ORDEN_PISTAS.filter((n) => datos[n]);
+    const nombres = ORDEN_PISTAS.filter((n) => datos[n]).concat((cancion.tomas || []).map((x) => x.nombre).filter((n) => datos[n]));
     const pistas = nombres.map((n) => datos[n]);
     const largo = Math.min(...pistas.map((p) => p.length / 2));
     // Las pistas pasan al motor sin copiarse (para descargar se vuelven a leer de la base de datos)
@@ -2899,10 +3000,12 @@ function enviarClick() {
   $('click').classList.toggle('active', S.clickOn);
 }
 function saltar(s) {
+  if (E.rec) return;   // mientras se graba no se salta (la toma va en línea con la canción)
   S.tiempo = Math.max(0, Math.min(S.dur - 0.05, s));
   nodo.port.postMessage({ tipo: 'saltar', tiempo: S.tiempo });
 }
 async function tocarPausar() {
+  if (E.rec) { detenerGrabacion(); return; }   // grabando: tocar = detener la toma
   await actx.resume();
   S.sonando = !S.sonando;
   nodo.port.postMessage({ tipo: S.sonando ? 'tocar' : 'pausar' });
@@ -3371,7 +3474,7 @@ function construirReproductor() {
 
 // Arma un .wav de 16 bits a partir de la pista guardada
 async function descargarPista(nombre) {
-  const datos = (await bdPistas(S.cancion.id))[nombre];
+  const datos = esToma(nombre) ? await bdHacer('pistas', 'readonly', (st) => st.get(claveToma(S.cancion.id, nombre))) : (await bdPistas(S.cancion.id))[nombre];
   const bytes = datos.length * 2;
   const cab = new DataView(new ArrayBuffer(44));
   const txt = (o, s) => { for (let i = 0; i < 4; i++) cab.setUint8(o + i, s.charCodeAt(i)); };
@@ -3681,7 +3784,7 @@ async function exportarMezcla() {
   const a = enLoop ? S.loop.a : 0, b = enLoop ? S.loop.b : S.dur;
   const cola = 2.5;                                    // segundos extra para que se apaguen reverb y delay
   const sr = 44100, frames = Math.ceil(((b - a) / S.tempo + cola) * sr);
-  const datos = await bdPistas(S.cancion.id);
+  const datos = await bdTodasLasPistas(S.cancion);
   const pistas = S.pistas.map((p) => datos[p.nombre]);
   const largo = Math.min(...pistas.map((p) => p.length / 2));
   const off = new OfflineAudioContext(2, frames, sr);
@@ -3749,6 +3852,286 @@ function wavDe(buf, ganancia = 1) {
   }
   return new Blob([vista.buffer], { type: 'audio/wav' });
 }
+
+/* =====================================================================
+ * Grabación: tu toma encima de la canción, alineada al cuadro exacto y
+ * con compensación de latencia. Queda como una pista más.
+ * ===================================================================== */
+let micStream = null, micFuente = null, grabadorNodo = null, monitorGan = null, micMedidor = null;
+let esperaFinGrabador = null;
+const COLORES_TOMA = [['--ember', 0.62], ['--focus', 0.75], ['--rust', 0.75]];
+
+// Las tomas se llaman toma1, toma2… y se muestran como "Toma 1" / "Take 1"
+function registrarToma(nombre, numero) {
+  TEXTOS.es[nombre] = `Toma ${numero}`;
+  TEXTOS.en[nombre] = `Take ${numero}`;
+  COLOR_PISTA[nombre] = COLORES_TOMA[(numero - 1) % COLORES_TOMA.length];
+}
+const esToma = (n) => /^toma\d+$/.test(n);
+const claveToma = (id, nombre) => `${id}:${nombre}`;
+
+// Las pistas separadas más las tomas grabadas (guardadas aparte para no reescribir las pistas)
+async function bdTodasLasPistas(c) {
+  const datos = { ...(await bdPistas(c.id)) };
+  for (const tm of c.tomas || []) {
+    const d = await bdHacer('pistas', 'readonly', (s) => s.get(claveToma(c.id, tm.nombre)));
+    if (d) datos[tm.nombre] = d;
+  }
+  return datos;
+}
+
+async function prepararMic() {
+  await prepararAudio();
+  const id = leerPref('micId', '');
+  if (micStream && micStream._id === id && micStream.active) return;
+  cerrarMic();
+  micStream = await navigator.mediaDevices.getUserMedia({
+    audio: { deviceId: id ? { exact: id } : undefined, echoCancellation: false, noiseSuppression: false, autoGainControl: false },
+  });
+  micStream._id = id;
+  micFuente = actx.createMediaStreamSource(micStream);
+  grabadorNodo = new AudioWorkletNode(actx, 'grabador', { numberOfInputs: 1, numberOfOutputs: 1, outputChannelCount: [1] });
+  const mudo = actx.createGain(); mudo.gain.value = 0;
+  grabadorNodo.connect(mudo).connect(actx.destination);   // conectado para que el navegador lo procese
+  micFuente.connect(grabadorNodo);
+  monitorGan = actx.createGain(); monitorGan.gain.value = 0;
+  micFuente.connect(monitorGan).connect(actx.destination);
+  micMedidor = actx.createAnalyser(); micMedidor.fftSize = 1024;
+  micFuente.connect(micMedidor);
+  grabadorNodo.port.onmessage = (e) => recibirGrabador(e.data);
+  llenarMics();
+}
+function cerrarMic() {
+  if (micStream) micStream.getTracks().forEach((tr) => tr.stop());
+  for (const n of [micFuente, grabadorNodo, monitorGan, micMedidor]) { try { n && n.disconnect(); } catch (e) {} }
+  micStream = micFuente = grabadorNodo = monitorGan = micMedidor = null;
+}
+
+// Latencia total (salida + entrada): la calibrada o la que informa el navegador
+function latenciaAuto() {
+  const pista = micStream && micStream.getAudioTracks()[0];
+  const ent = (pista && pista.getSettings && pista.getSettings().latency) || 0.01;
+  return actx ? (actx.baseLatency || 0) + (actx.outputLatency || 0) + ent : 0.03;
+}
+function latenciaActual() {
+  const p = leerPref('latencia', null);
+  return p && typeof p.ms === 'number' && p.modo !== 'auto' ? p.ms / 1000 : latenciaAuto();
+}
+
+function recibirGrabador(m) {
+  if (m.tipo === 'fin') { if (esperaFinGrabador) { esperaFinGrabador(); esperaFinGrabador = null; } return; }
+  if (m.tipo !== 'datos') return;
+  const destino = E.calib || E.rec;
+  if (!destino) return;
+  // Picos cada 256 muestras para dibujar la toma mientras se graba
+  const pk = new Float32Array(Math.ceil(m.datos.length / 256));
+  for (let i = 0; i < m.datos.length; i++) { const v = Math.abs(m.datos[i]); if (v > pk[i >> 8]) pk[i >> 8] = v; }
+  destino.trozos.push({ cuadro: m.cuadro, datos: m.datos, picos: pk });
+  if (E.rec) E.sucio = true;
+}
+function detenerGrabador() {
+  return new Promise((ok) => {
+    esperaFinGrabador = ok;
+    grabadorNodo.port.postMessage({ tipo: 'detener' });
+    setTimeout(() => { if (esperaFinGrabador === ok) { esperaFinGrabador = null; ok(); } }, 1500);
+  });
+}
+
+async function empezarGrabacion() {
+  if (E.rec || !S.a) return;
+  if (S.pistas.length >= MAX_SALIDAS) { aviso(t('grabMax')); return; }
+  try { await prepararMic(); } catch (e) { aviso(t('grabSinMic')); return; }
+  await actx.resume();
+  if (S.sonando) await tocarPausar();
+  if (S.tempo !== 1 || S.semis !== 0) {
+    // La toma se guarda en el tiempo de la canción: se graba a velocidad y tono originales
+    S.tempo = 1; S.semis = 0; enviarVelocidad();
+    aviso(t('grabVelocidad'));
+  }
+  const enLoop = !!(S.loopOn && S.loop);
+  const inicio = enLoop ? S.loop.a : S.tiempo;
+  const preroll = (4 * 60) / (S.a.bpm || 120);           // un compás antes para entrar a tiempo
+  saltar(Math.max(0, inicio - preroll));
+  E.rec = { trozos: [], mapa: null, enLoop, loopAntes: S.loopOn };
+  if (enLoop) { S.loopOn = false; enviarLoop(); nodo.port.postMessage({ tipo: 'hasta', tiempo: S.loop.b }); }
+  monitorGan.gain.value = leerPref('monitor', false) ? 1 : 0;
+  E.rec.desde = Math.round(actx.currentTime * actx.sampleRate);   // marcas de tiempo anteriores no sirven
+  grabadorNodo.port.postMessage({ tipo: 'iniciar' });
+  S.sonando = true;
+  nodo.port.postMessage({ tipo: 'tocar' });
+  mantenerPantalla();
+  pintarPlay();
+  pintarGrabar();
+  construirEstudio();
+}
+
+async function detenerGrabacion() {
+  const rec = E.rec;
+  if (!rec || rec.terminando) return;
+  rec.terminando = true;
+  await detenerGrabador();
+  if (S.sonando) { S.sonando = false; nodo.port.postMessage({ tipo: 'pausar' }); soltarPantalla(); pintarPlay(); }
+  nodo.port.postMessage({ tipo: 'hasta', tiempo: null });
+  if (rec.enLoop) { S.loopOn = rec.loopAntes; enviarLoop(); }
+  if (monitorGan) monitorGan.gain.value = 0;
+  E.rec = null;
+  pintarGrabar();
+  try { await terminarToma(rec); } catch (e) { aviso(`${t('errorT')}: ${e.message}`); construirEstudio(); }
+}
+
+async function terminarToma(rec) {
+  const sr = 44100, largo = Math.round(S.dur * sr);
+  if (!rec.mapa || !rec.trozos.length) { aviso(t('grabVacia')); construirEstudio(); return; }
+  const lat = Math.round(latenciaActual() * sr);
+  const datos = new Int16Array(largo * 2);
+  let pico = 0;
+  for (const tr of rec.trozos) {
+    const base = rec.mapa.p0 + (tr.cuadro - rec.mapa.cuadro) - lat;
+    for (let j = 0; j < tr.datos.length; j++) {
+      const p = base + j;
+      if (p < 0 || p >= largo) continue;
+      const v = Math.max(-32768, Math.min(32767, Math.round(tr.datos[j] * 32767)));
+      datos[2 * p] = v; datos[2 * p + 1] = v;
+      if (Math.abs(v) > pico) pico = Math.abs(v);
+    }
+  }
+  if (pico < 33) { aviso(t('grabSilencio')); construirEstudio(); return; }   // nada por encima de −60 dB
+  const c = S.cancion;
+  const usados = (c.tomas || []).map((x) => x.numero);
+  const numero = usados.length ? Math.max(...usados) + 1 : 1;
+  const nombre = `toma${numero}`;
+  registrarToma(nombre, numero);
+  // Ondas: 1500 puntos para la vista ensayo y detalle cada 256 muestras para el estudio
+  const pk = new Array(1500).fill(0), tam = Math.ceil(largo / 1500);
+  const det = new Float32Array(Math.ceil(largo / RES_PICOS));
+  for (let i = 0; i < largo; i++) {
+    const v = Math.abs(datos[2 * i]);
+    if (v) {
+      const a = Math.min(100, Math.round((v / 32767) * 100));
+      if (a > pk[(i / tam) | 0]) pk[(i / tam) | 0] = a;
+      const d = v / 32768;
+      if (d > det[(i / RES_PICOS) | 0]) det[(i / RES_PICOS) | 0] = d;
+    }
+  }
+  c.tomas = [...(c.tomas || []), { nombre, numero, creada: Date.now() }];
+  c.analisis.peaks[nombre] = pk;
+  await bdHacer('pistas', 'readwrite', (s) => s.put(datos, claveToma(c.id, nombre)));
+  await bdHacer('canciones', 'readwrite', (s) => s.put(c));
+  nodo.port.postMessage({ tipo: 'agregarPista', datos }, [datos.buffer]);
+  S.pistas.push(pistaNueva(nombre));
+  E.picos[nombre] = det;
+  conectarMezcla();
+  enviarVolumenes();
+  construirReproductor();
+  aviso(t('grabLista', { n: t(nombre) }));
+}
+
+async function eliminarToma(nombre) {
+  if (!confirm(t('grabBorrarConfirma', { t: t(nombre) }))) return;
+  if (S.sonando) await tocarPausar();
+  const c = S.cancion;
+  c.tomas = (c.tomas || []).filter((x) => x.nombre !== nombre);
+  delete c.analisis.peaks[nombre];
+  if (c.mezcla && c.mezcla.pistas) delete c.mezcla.pistas[nombre];
+  await bdHacer('pistas', 'readwrite', (s) => s.delete(claveToma(c.id, nombre)));
+  await bdHacer('canciones', 'readwrite', (s) => s.put(c));
+  E.idPicos = null;
+  await abrirCancion(c.id);
+}
+
+function pintarGrabar() {
+  const b = $('eGrabar');
+  if (!b) return;
+  b.classList.toggle('grabando', !!E.rec);
+  b.querySelector('span:last-child').textContent = t(E.rec ? 'grabDetener' : 'grabar');
+  b.setAttribute('aria-pressed', E.rec ? 'true' : 'false');
+  $('eRec').hidden = !E.rec;
+  document.querySelector('.e-lcd').classList.toggle('rec', !!E.rec);
+}
+
+/* ---------- Ajustes de grabación ---------- */
+async function llenarMics() {
+  const sel = $('grabMic');
+  if (!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices) return;
+  const lista = (await navigator.mediaDevices.enumerateDevices()).filter((d) => d.kind === 'audioinput');
+  const actual = leerPref('micId', '');
+  sel.innerHTML = '';
+  const def = document.createElement('option'); def.value = ''; def.textContent = t('grabMicDef'); sel.appendChild(def);
+  lista.forEach((d, i) => {
+    if (!d.deviceId || d.deviceId === 'default') return;
+    const o = document.createElement('option'); o.value = d.deviceId; o.textContent = d.label || `${t('grabMic')} ${i + 1}`;
+    sel.appendChild(o);
+  });
+  sel.value = [...sel.options].some((o) => o.value === actual) ? actual : '';
+}
+$('grabMic').onchange = (e) => { guardarPref('micId', e.target.value); cerrarMic(); };
+document.querySelectorAll('#grabMonitor button').forEach((b) => b.onclick = () => {
+  guardarPref('monitor', b.dataset.monitor === 'si');
+  pintarAjustesGrabacion();
+});
+function pintarAjustesGrabacion() {
+  const mon = leerPref('monitor', false);
+  document.querySelectorAll('#grabMonitor button').forEach((b) => b.setAttribute('aria-pressed', (b.dataset.monitor === 'si') === mon ? 'true' : 'false'));
+  const p = leerPref('latencia', null);
+  const modo = p && p.modo !== 'auto' ? p.modo : 'auto';
+  $('latVal').textContent = `${Math.round(latenciaActual() * 1000)} ms`;
+  $('latNota').textContent = t(modo === 'calibrada' ? 'latCalibrada' : modo === 'manual' ? 'latManual' : 'latAuto');
+  llenarMics();
+}
+const moverLatencia = (d) => { guardarPref('latencia', { ms: Math.max(0, Math.round(latenciaActual() * 1000) + d), modo: 'manual' }); pintarAjustesGrabacion(); };
+$('latMenos').onclick = () => moverLatencia(-1);
+$('latMas').onclick = () => moverLatencia(1);
+$('latAutoBtn').onclick = () => { guardarPref('latencia', { modo: 'auto' }); pintarAjustesGrabacion(); };
+
+// Calibrar: suenan 6 clics por los parlantes, el micrófono los escucha y se mide cuánto tardan en volver
+$('calibrar').onclick = async () => {
+  const nota = $('latNota'), boton = $('calibrar');
+  boton.disabled = true;
+  try {
+    await prepararMic();
+    await actx.resume();
+    nota.textContent = t('latEscuchando');
+    const sr = actx.sampleRate, t0 = actx.currentTime + 0.4, paso = 0.45, n = 6;
+    for (let k = 0; k < n; k++) {
+      const o = actx.createOscillator(), g = actx.createGain();
+      o.type = 'square'; o.frequency.value = 1800;
+      g.gain.setValueAtTime(0, t0 + k * paso); g.gain.setValueAtTime(0.7, t0 + k * paso); g.gain.exponentialRampToValueAtTime(0.001, t0 + k * paso + 0.02);
+      o.connect(g).connect(actx.destination);
+      o.start(t0 + k * paso); o.stop(t0 + k * paso + 0.03);
+    }
+    E.calib = { trozos: [] };
+    grabadorNodo.port.postMessage({ tipo: 'iniciar' });
+    await new Promise((ok) => setTimeout(ok, (0.4 + n * paso + 0.5) * 1000));
+    await detenerGrabador();
+    const trozos = E.calib.trozos; E.calib = null;
+    if (!trozos.length) throw new Error(t('latSinClics'));
+    const c0 = trozos[0].cuadro, total = trozos.reduce((a, x) => Math.max(a, x.cuadro - c0 + x.datos.length), 0);
+    const señal = new Float32Array(total);
+    for (const x of trozos) señal.set(x.datos, x.cuadro - c0);
+    const retrasos = [];
+    for (let k = 0; k < n; k++) {
+      const esperado = Math.round((t0 + k * paso) * sr) - c0;
+      const a = Math.max(0, esperado - Math.round(0.05 * sr)), b = Math.min(total, esperado + Math.round(0.35 * sr));
+      let ruido = 0, cuenta = 0, max = 0;
+      for (let i = a; i < Math.max(a, esperado - 5); i++) { ruido += señal[i] * señal[i]; cuenta++; }
+      for (let i = Math.max(0, esperado); i < b; i++) max = Math.max(max, Math.abs(señal[i]));
+      ruido = Math.sqrt(ruido / Math.max(1, cuenta));
+      if (max < Math.max(0.01, ruido * 6)) continue;
+      const umbral = Math.max(ruido * 4, max * 0.35);
+      for (let i = Math.max(0, esperado); i < b; i++) if (Math.abs(señal[i]) >= umbral) { retrasos.push(i - esperado); break; }
+    }
+    if (retrasos.length < 3) throw new Error(t('latSinClics'));
+    retrasos.sort((x, y) => x - y);
+    const ms = Math.round((retrasos[retrasos.length >> 1] / sr) * 1000);
+    guardarPref('latencia', { ms, modo: 'calibrada' });
+    pintarAjustesGrabacion();
+    aviso(t('latLista', { ms }));
+  } catch (e) {
+    E.calib = null;
+    nota.textContent = e && e.name === 'NotAllowedError' ? t('grabSinMic') : (e.message || t('latSinClics'));
+  }
+  boton.disabled = false;
+};
 
 /* =====================================================================
  * Estudio: línea de tiempo con zoom, vista general y mezclador
@@ -3855,11 +4238,12 @@ function construirEstudio() {
     fila.style.height = ALTO.pista + 'px';
     fila.style.setProperty('--c', color);
     fila.innerHTML = `<div class="e-nombre"></div>
-      <div class="e-ms"><button class="m" type="button" data-k="${k}" title="${t('silenciar')}" aria-label="${t('silenciar')} ${t(p.nombre)}">M</button><button class="s" type="button" data-k="${k}" title="${t('solo')}" aria-label="${t('solo')} ${t(p.nombre)}">S</button></div>`;
+      <div class="e-ms"><button class="m" type="button" data-k="${k}" title="${t('silenciar')}" aria-label="${t('silenciar')} ${t(p.nombre)}">M</button><button class="s" type="button" data-k="${k}" title="${t('solo')}" aria-label="${t('solo')} ${t(p.nombre)}">S</button>${esToma(p.nombre) ? `<button type="button" class="e-borrar-toma" data-n="${p.nombre}" title="${t('grabBorrar')}" aria-label="${t('grabBorrar')} ${t(p.nombre)}"><svg class="icono" aria-hidden="true"><use href="#i-borrar"/></svg></button>` : ''}</div>`;
     fila.querySelector('.e-nombre').textContent = t(p.nombre);
     cab.appendChild(fila);
     mez.appendChild(crearCanal(p, k, color));
   });
+  if (E.rec) cab.insertAdjacentHTML('beforeend', `<div class="e-pista rec" style="height:${ALTO.pista}px;--c:var(--ember)"><div class="e-nombre">● ${t('grabando')}</div></div>`);
   mez.appendChild(crearCanal(null, -1, rgbTxt(E.col.acento)));
   mez.classList.toggle('sin-fx', !E.verFx);
   pintarEscenas();
@@ -4030,13 +4414,15 @@ function pintarMS() {
     const p = S.pistas[+b.dataset.k];
     b.classList.toggle('active', b.classList.contains('m') ? p.mute : p.solo);
   });
-  document.querySelectorAll('.e-pista').forEach((f) => {
+  document.querySelectorAll('.e-pista[data-k]').forEach((f) => {
     const p = S.pistas[+f.dataset.k];
     f.classList.toggle('apagada', p.mute || (haySolo && !p.solo));
   });
   E.sucio = E.sucioMapa = true;
 }
 $('estudio').addEventListener('click', (e) => {
+  const bt = e.target.closest('.e-borrar-toma');
+  if (bt) { eliminarToma(bt.dataset.n); return; }
   const b = e.target.closest('.e-ms button[data-k]');
   if (!b) return;
   const p = S.pistas[+b.dataset.k];
@@ -4087,7 +4473,7 @@ function redimensionarEstudio() {
   const lienzo = $('eLienzo'), cv = $('eCanvas');
   E.dpr = devicePixelRatio || 1;
   E.w = lienzo.clientWidth;
-  E.h = ALTO.regla + ALTO.secc + ALTO.acordes + S.pistas.length * ALTO.pista;
+  E.h = ALTO.regla + ALTO.secc + ALTO.acordes + (S.pistas.length + (E.rec ? 1 : 0)) * ALTO.pista;
   cv.style.height = E.h + 'px';
   cv.width = Math.round(E.w * E.dpr); cv.height = Math.round(E.h * E.dpr);
   if (!E.base) E.base = document.createElement('canvas');
@@ -4301,6 +4687,25 @@ function dibujarBase() {
     g.fill();
     g.fillStyle = rgbTxt(C.texto, 0.07); g.fillRect(0, y + ALTO.pista - 1, w, 1);
   });
+  // Toma en curso, dibujada mientras llega
+  if (E.rec) {
+    const y = yP + S.pistas.length * ALTO.pista, cy = y + ALTO.pista / 2, alto = ALTO.pista / 2 - 6;
+    g.fillStyle = rgbTxt(C.ember, 0.1); g.fillRect(0, y, w, ALTO.pista);
+    const mapa = E.rec.mapa;
+    if (mapa) {
+      g.fillStyle = rgbTxt(C.ember, 0.95);
+      const ancho = Math.max(1, (256 / 44100) * E.zoom);
+      for (const tr of E.rec.trozos) {
+        const base = mapa.p0 + (tr.cuadro - mapa.cuadro);
+        for (let i = 0; i < tr.picos.length; i++) {
+          const x = xDe((base + i * 256) / 44100);
+          if (x < -ancho || x > w) continue;
+          const a = Math.min(1, Math.pow(tr.picos[i], 0.75) * 1.05) * alto;
+          if (a > 0.3) g.fillRect(x, cy - a, ancho, a * 2);
+        }
+      }
+    }
+  }
   // Fin de la canción
   const xf = xDe(S.dur);
   if (xf < w) { g.fillStyle = rgbTxt(C.pozo, 0.6); g.fillRect(xf, ALTO.regla, w - xf, h - ALTO.regla); }
@@ -4472,7 +4877,8 @@ $('restablecer').onclick = () => {
 $('descargarBtn').onclick = (e) => { e.stopPropagation(); $('descargas').hidden = !$('descargas').hidden; };
 document.addEventListener('click', () => { $('descargas').hidden = true; });
 
-$('abrirAjustes').onclick = () => { pintarEstadoModelo(); $('ajustes').showModal(); };
+$('abrirAjustes').onclick = () => { pintarEstadoModelo(); pintarAjustesGrabacion(); $('ajustes').showModal(); };
+$('eGrabar').onclick = () => (E.rec ? detenerGrabacion() : empezarGrabacion());
 $('cerrarAjustes').onclick = () => $('ajustes').close();
 $('ajustes').addEventListener('click', (e) => { if (e.target === $('ajustes')) $('ajustes').close(); });
 document.querySelectorAll('#idiomas button').forEach((b) => b.onclick = () => aplicarIdioma(b.dataset.idioma));

@@ -632,6 +632,68 @@
     .e-herr { margin-left: 0; }
   }
 
+  /* ---- Estudio, etapa 2: efectos, escenas y exportar ---- */
+  .e-boton.principal { background: var(--e-acento); color: var(--e-fondo); border-color: transparent; font-weight: 600; }
+  .e-boton.principal:hover { filter: brightness(1.08); background: var(--e-acento); }
+  .e-mando { display: flex; flex-direction: column; align-items: center; gap: 5px; min-width: 0; }
+  .e-mando-txt { font-size: 10.5px; line-height: 1; color: var(--e-tenue); white-space: nowrap; min-height: 11px; font-variant-numeric: tabular-nums; }
+  .e-perilla { --hueco: 21.5px; }
+  .e-perilla::before {
+    inset: -6px;
+    background: conic-gradient(from 225deg, color-mix(in srgb, var(--e-texto) 13%, transparent) 0 var(--a, 0deg), var(--e-acento) var(--a, 0deg) var(--b, 0deg), color-mix(in srgb, var(--e-texto) 13%, transparent) var(--b, 0deg) 270deg, transparent 270deg);
+    -webkit-mask: radial-gradient(circle, transparent var(--hueco), #000 calc(var(--hueco) + .5px)); mask: radial-gradient(circle, transparent var(--hueco), #000 calc(var(--hueco) + .5px));
+  }
+  .e-perilla-aguja::after { background: color-mix(in srgb, var(--e-texto) 70%, transparent); }
+  .e-perilla.activa .e-perilla-aguja::after { background: var(--e-acento); }
+  .e-mando.chica .e-perilla { width: 26px; height: 26px; --hueco: 15.5px; }
+  .e-mando.chica .e-perilla::before { inset: -5px; }
+  .e-mando.chica .e-perilla-aguja::after { top: 3px; height: 8px; width: 2.5px; margin-left: -1.25px; }
+  .e-mando.chica .e-mando-txt { font-size: 9.5px; }
+  .e-fx { width: 100%; display: grid; gap: 9px; padding: 2px 0 10px; border-bottom: 1px solid var(--e-borde); }
+  .e-fx-grupo { display: grid; gap: 6px; }
+  .e-fx-titulo { font-size: 9.5px; font-weight: 700; color: var(--e-tenue); text-align: center; opacity: .8; }
+  .e-fx-fila { display: flex; justify-content: center; gap: 5px; }
+  .e-mezclador.sin-fx .e-fx { display: none; }
+  .e-canal { flex-basis: 108px; }
+  .e-canal.maestro { flex-basis: 124px; }
+  .e-pan-vacio { height: 57px; }
+  .e-canal .e-fader-zona { margin-top: auto; }
+  .e-nota { width: auto !important; padding: 0 8px; font-size: 10.5px !important; font-weight: 600 !important; color: var(--e-texto) !important; }
+  .e-mezcla-cabeza { gap: 12px; flex-wrap: wrap; }
+  .e-escenas { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; flex: 1; min-width: 0; }
+  .e-escenas-t { font-size: 12px; color: var(--e-tenue); margin-right: 2px; }
+  .e-escenas-sep { width: 1px; height: 20px; background: var(--e-borde); margin: 0 4px; }
+  .e-escena {
+    display: inline-flex; align-items: center; gap: 6px; min-height: 32px; padding: 0 12px; border-radius: 999px; cursor: pointer;
+    background: var(--e-panel); border: 1px solid var(--e-borde); color: var(--e-texto); font: 500 12.5px var(--fuente);
+    transition: background-color .15s, transform .2s var(--resorte);
+  }
+  .e-escena:hover { background: var(--e-panel-2); }
+  .e-escena:active { transform: scale(.95); }
+  .e-escena .icono { width: 15px; height: 15px; }
+  .e-escena.nueva { border-style: dashed; color: var(--e-tenue); }
+  .e-escena.propia { padding: 0 4px 0 0; background: color-mix(in srgb, var(--e-acento) 12%, var(--e-panel)); border-color: color-mix(in srgb, var(--e-acento) 35%, transparent); }
+  .e-escena.propia:active { transform: none; }
+  .e-escena-usar { background: none; border: 0; color: inherit; font: inherit; padding: 0 4px 0 12px; min-height: 30px; cursor: pointer; }
+  .e-escena-x { background: none; border: 0; color: var(--e-tenue); width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; cursor: pointer; }
+  .e-escena-x:hover { background: var(--e-panel-2); color: var(--e-texto); }
+  .e-escena-x .icono { width: 13px; height: 13px; }
+  .e-escena-campo { min-height: 32px; width: 150px; border-radius: 999px; border: 1px solid var(--e-acento); background: var(--e-pozo); color: var(--e-texto); font: 500 12.5px var(--fuente); padding: 0 12px; }
+  .e-escena-campo:focus-visible { outline: none; box-shadow: 0 0 0 3px color-mix(in srgb, var(--e-acento) 30%, transparent); }
+
+  .aviso-flotante {
+    position: fixed; left: 50%; bottom: calc(110px + env(safe-area-inset-bottom)); z-index: 30; transform: translate(-50%, 12px); opacity: 0; pointer-events: none;
+    background: var(--parchment); color: var(--bg); padding: 10px 18px; border-radius: 999px; font-size: 14px; font-weight: 600; box-shadow: var(--sombra-3);
+    transition: opacity .2s, transform .35s var(--resorte);
+  }
+  .aviso-flotante.visible { opacity: 1; transform: translate(-50%, 0); }
+
+  .exportar .seg { margin-bottom: 4px; }
+  .exportar .seg button:disabled { opacity: .45; cursor: default; }
+  .exp-progreso { height: 8px; border-radius: 4px; background: var(--relleno-2); overflow: hidden; margin: 16px 0 8px; }
+  .exp-progreso i { display: block; height: 100%; width: 0; border-radius: 4px; background: var(--brass); transition: width .3s var(--suave); }
+  .exp-estado { font-size: 14px; color: var(--parchment-dim); min-height: 20px; margin: 6px 0 0; font-variant-numeric: tabular-nums; }
+
   @media (max-width: 860px) {
     #biblioteca { grid-template-columns: minmax(0, 1fr); gap: 24px; }
     .panel.practica { grid-template-columns: 1fr 1fr; }
@@ -721,6 +783,7 @@
   <symbol id="i-seguir" viewBox="0 0 24 24"><path d="M4 4v16"/><path d="m10 8 6 4-6 4V8z" fill="currentColor"/><path d="M20 4v16"/></symbol>
   <symbol id="i-iman" viewBox="0 0 24 24"><path d="M6 3h4v8a2 2 0 0 0 4 0V3h4v8a6 6 0 0 1-12 0V3z"/><path d="M6 7h4"/><path d="M14 7h4"/></symbol>
   <symbol id="i-expandir" viewBox="0 0 24 24"><path d="M3 12h18"/><path d="m7 8-4 4 4 4"/><path d="m17 8 4 4-4 4"/></symbol>
+  <symbol id="i-mas" viewBox="0 0 24 24"><path d="M12 5v14"/><path d="M5 12h14"/></symbol>
   <symbol id="i-buscar" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></symbol>
 </svg>
 
@@ -871,6 +934,7 @@
             <button id="eAcercar" type="button" data-i18n-aria="eAcercar" aria-label="Acercar">+</button>
           </div>
           <button class="e-boton" id="eTodo" type="button"><svg class="icono" aria-hidden="true"><use href="#i-expandir"/></svg><span data-i18n="eTodo">Ver toda</span></button>
+          <button class="e-boton principal" id="eExportar" type="button"><svg class="icono" aria-hidden="true"><use href="#i-descargar"/></svg><span data-i18n="expT">Exportar mezcla</span></button>
         </div>
       </div>
       <div class="e-arreglo">
@@ -878,7 +942,11 @@
         <div class="e-lienzo" id="eLienzo"><canvas id="eCanvas"></canvas><span class="e-cargando-ondas" id="eCargandoOndas" data-i18n="eOndas" hidden>Dibujando ondas con detalle…</span></div>
       </div>
       <div class="e-mapa" id="eMapa" data-i18n-aria="eMapaT" aria-label="Vista general"><canvas id="eMapaCanvas"></canvas><div class="e-ventana" id="eVentana"></div></div>
-      <div class="e-mezcla-cabeza"><h3 data-i18n="eMezcladorT">Mezclador</h3></div>
+      <div class="e-mezcla-cabeza">
+        <h3 data-i18n="eMezcladorT">Mezclador</h3>
+        <div class="e-escenas" id="eEscenas"></div>
+        <button class="e-boton" id="eFx" type="button" aria-pressed="true"><svg class="icono" aria-hidden="true"><use href="#i-mezcla"/></svg><span data-i18n="fxVer">Efectos</span></button>
+      </div>
       <div class="e-mezclador" id="eMezclador"></div>
     </section>
 
@@ -1009,6 +1077,36 @@
   </div>
 </dialog>
 
+<dialog class="ajustes exportar" id="dialogoExportar">
+  <div class="ajustes-cabeza">
+    <h2 data-i18n="expT">Exportar mezcla</h2>
+    <button class="boton" id="cerrarExportar" type="button" data-i18n="cerrar">Cerrar</button>
+  </div>
+  <div class="ajustes-cuerpo">
+    <div class="settings-section">
+      <p class="settings-section-title" data-i18n="expRangoT">Qué exportar</p>
+      <div class="seg" id="expRango">
+        <button type="button" data-rango="cancion" aria-pressed="true" data-i18n="expCancion">Toda la canción</button>
+        <button type="button" data-rango="loop" id="expLoop" aria-pressed="false"><span data-i18n="expLoopT">Solo el loop</span> <small id="expLoopTxt" class="num"></small></button>
+      </div>
+    </div>
+    <div class="settings-section">
+      <p class="settings-section-title" data-i18n="expClickT">Metrónomo en el archivo</p>
+      <div class="seg" id="expClick">
+        <button type="button" data-click="no" aria-pressed="true" data-i18n="expNo">No</button>
+        <button type="button" data-click="si" aria-pressed="false" data-i18n="expSi">Sí</button>
+      </div>
+    </div>
+    <div class="settings-section">
+      <p class="nota-ajustes" id="expNota"></p>
+      <p class="nota-ajustes" data-i18n="expFormato">WAV estéreo · 16 bits · 44.1 kHz</p>
+      <div class="exp-progreso" id="expProgreso" hidden><i></i></div>
+      <p class="exp-estado" id="expEstado" role="status" aria-live="polite"></p>
+      <div class="fila-botones"><button class="boton principal" id="expIr" type="button"><svg class="icono" aria-hidden="true"><use href="#i-descargar"/></svg><span data-i18n="expIr">Exportar</span></button></div>
+    </div>
+  </div>
+</dialog>
+
 <div class="karaoke" id="karaoke" hidden>
   <div class="k-cabeza">
     <button class="play" id="kPlay" type="button" data-i18n-aria="tocar" aria-label="Tocar"><svg aria-hidden="true"><use href="#i-play"/></svg></button>
@@ -1035,6 +1133,8 @@ const HS = N / 2;        // salto de síntesis
 const BUSQUEDA = 512;    // margen para alinear ventanas
 const ANILLO = 8192;
 const MASCARA = ANILLO - 1;
+const MAX_PISTAS = 12;   // salidas 0..11: una por pista; salida 12: metrónomo
+const UNIDAD = 1 / 32768;
 
 class Motor extends AudioWorkletProcessor {
   constructor() {
@@ -1056,23 +1156,20 @@ class Motor extends AudioWorkletProcessor {
     this.clickT = -1;
     this.clickFrec = 1000;
     this.bloques = 0;
-    // Estudio: paneo por pista (balance), medidores y ondas detalladas
-    this.pl = [];
-    this.pr = [];
-    this.medir = false;
-    this.niveles = new Float32Array(0);
-    this.nivL = 0;
-    this.nivR = 0;
     this.trabajoPicos = null;
+    this.hasta = -1;         // para exportar: dejar de tocar en esta muestra
 
     this.ventana = new Float32Array(N);
     for (let i = 0; i < N; i++) this.ventana[i] = 0.5 - 0.5 * Math.cos((2 * Math.PI * i) / N);
-    this.acum = [new Float32Array(N), new Float32Array(N)];
-    this.cuadro = [new Float32Array(N), new Float32Array(N)];
-    this.anillo = [new Float32Array(ANILLO), new Float32Array(ANILLO)];
+    // Cada pista estira el tiempo por su cuenta, pero todas usan el mismo punto de corte (calculado con la mezcla)
+    this.acum = [];
+    this.anillo = [];
+    for (let k = 0; k < MAX_PISTAS; k++) {
+      this.acum.push([new Float32Array(N), new Float32Array(N)]);
+      this.anillo.push([new Float32Array(ANILLO), new Float32Array(ANILLO)]);
+    }
     this.plantilla = new Float32Array(HS);
     this.candidato = new Float32Array(HS + 2 * BUSQUEDA);
-    this.una = [new Float32Array(1), new Float32Array(1)];
 
     this.port.onmessage = (e) => this.mensaje(e.data);
     this.reiniciar();
@@ -1081,12 +1178,9 @@ class Motor extends AudioWorkletProcessor {
   mensaje(m) {
     switch (m.tipo) {
       case 'cargar':
-        this.pistas = m.pistas;
+        this.pistas = m.pistas.slice(0, MAX_PISTAS);
         this.largo = m.largo;
-        this.volumenes = m.pistas.map(() => 1 / 32768);
-        this.pl = m.pistas.map(() => 1);
-        this.pr = m.pistas.map(() => 1);
-        this.niveles = new Float32Array(m.pistas.length);
+        this.volumenes = this.pistas.map(() => 1 / 32768);
         this.trabajoPicos = null;
         this.sonando = false;
         this.ir(0);
@@ -1110,14 +1204,11 @@ class Motor extends AudioWorkletProcessor {
         this.sigPulso = this.buscarPulso(this.pos);
         break;
       case 'metronomo': this.clickOn = m.activo; this.clickVol = m.volumen; break;
-      case 'paneos':
-        // Balance: al centro las dos salidas quedan igual que sin paneo
-        m.paneos.forEach((p, k) => { this.pl[k] = Math.min(1, 1 - p); this.pr[k] = Math.min(1, 1 + p); });
-        break;
-      case 'medir': this.medir = !!m.activo; break;
       case 'picos':
         this.trabajoPicos = { id: m.id, res: m.res, k: 0, b: 0, salida: null };
         break;
+      case 'eco': this.port.postMessage({ tipo: 'eco' }); break;
+      case 'hasta': this.hasta = m.tiempo == null ? -1 : Math.round(m.tiempo * sampleRate); break;
     }
   }
 
@@ -1165,43 +1256,14 @@ class Motor extends AudioWorkletProcessor {
   }
 
   reiniciar() {
-    this.acum[0].fill(0);
-    this.acum[1].fill(0);
+    for (const [aL, aR] of this.acum) { aL.fill(0); aR.fill(0); }
     this.escrito = 0;
     this.leido = 0;
     this.posAnalisis = this.pos;
     this.previo = Math.round(this.pos) - HS;
   }
 
-  // Suma las pistas en [inicio, inicio+cant) dentro de L/R (que deben venir en cero)
-  mezclar(inicio, cant, L, R) {
-    const lo = Math.max(0, -inicio), hi = Math.min(cant, this.largo - inicio);
-    for (let k = 0; k < this.pistas.length; k++) {
-      const g = this.volumenes[k];
-      if (!g) continue;
-      const d = this.pistas[k];
-      const gl = g * this.pl[k], gr = g * this.pr[k];
-      if (this.medir) {
-        let m = this.niveles[k];
-        for (let j = lo; j < hi; j++) {
-          const i = (inicio + j) * 2;
-          const a = d[i] * gl, b = d[i + 1] * gr;
-          L[j] += a;
-          R[j] += b;
-          if (a > m) m = a; else if (-a > m) m = -a;
-          if (b > m) m = b; else if (-b > m) m = -b;
-        }
-        this.niveles[k] = m;
-      } else {
-        for (let j = lo; j < hi; j++) {
-          const i = (inicio + j) * 2;
-          L[j] += d[i] * gl;
-          R[j] += d[i + 1] * gr;
-        }
-      }
-    }
-  }
-
+  // Mezcla en mono (con los volúmenes) solo para elegir dónde cortar cada ventana
   mezclarMono(inicio, cant, out) {
     out.fill(0);
     const lo = Math.max(0, -inicio), hi = Math.min(cant, this.largo - inicio);
@@ -1216,7 +1278,7 @@ class Motor extends AudioWorkletProcessor {
     }
   }
 
-  // Genera HS muestras más de la etapa que estira el tiempo (WSOLA)
+  // Genera HS muestras más de cada pista (WSOLA con el mismo corte para todas)
   ventanaWsola() {
     const nominal = Math.round(this.posAnalisis);
     // Buscar el inicio cuyo contenido continúa mejor lo que ya sonó
@@ -1234,40 +1296,45 @@ class Motor extends AudioWorkletProcessor {
       if (puntaje > mejorPuntaje) { mejorPuntaje = puntaje; mejor = off; }
     }
     const x = nominal - BUSQUEDA + mejor;
+    const lo = Math.max(0, -x), hi = Math.min(N, this.largo - x);
 
-    const [fL, fR] = this.cuadro;
-    fL.fill(0); fR.fill(0);
-    this.mezclar(x, N, fL, fR);
-    const [aL, aR] = this.acum;
-    for (let j = 0; j < N; j++) {
-      aL[j] += fL[j] * this.ventana[j];
-      aR[j] += fR[j] * this.ventana[j];
-    }
-    const [rL, rR] = this.anillo;
-    for (let j = 0; j < HS; j++) {
-      rL[(this.escrito + j) & MASCARA] = aL[j];
-      rR[(this.escrito + j) & MASCARA] = aR[j];
+    for (let k = 0; k < this.pistas.length; k++) {
+      const [aL, aR] = this.acum[k], [rL, rR] = this.anillo[k];
+      if (this.volumenes[k]) {
+        const d = this.pistas[k];
+        for (let j = lo; j < hi; j++) {
+          const i = (x + j) * 2, w = this.ventana[j] * UNIDAD;
+          aL[j] += d[i] * w;
+          aR[j] += d[i + 1] * w;
+        }
+        for (let j = 0; j < HS; j++) {
+          rL[(this.escrito + j) & MASCARA] = aL[j];
+          rR[(this.escrito + j) & MASCARA] = aR[j];
+        }
+        aL.copyWithin(0, HS); aL.fill(0, N - HS);
+        aR.copyWithin(0, HS); aR.fill(0, N - HS);
+      } else {
+        // Pista apagada: silencio (y sin restos para cuando se vuelva a prender)
+        aL.fill(0); aR.fill(0);
+        for (let j = 0; j < HS; j++) { rL[(this.escrito + j) & MASCARA] = 0; rR[(this.escrito + j) & MASCARA] = 0; }
+      }
     }
     this.escrito += HS;
-    aL.copyWithin(0, HS); aL.fill(0, N - HS);
-    aR.copyWithin(0, HS); aR.fill(0, N - HS);
-
     this.previo = x;
     this.posAnalisis += (HS * this.tempo) / this.tono;
   }
 
   process(inputs, outputs) {
-    const out = outputs[0];
-    const L = out[0], R = out[1] || out[0];
-    const n = L.length;
-    L.fill(0);
-    if (R !== L) R.fill(0);
+    const n = outputs[0][0].length;
+    for (const o of outputs) for (const c of o) c.fill(0);
     if (this.trabajoPicos) this.avanzarPicos();
     if (!this.sonando || !this.largo) return true;
 
     const directo = this.tempo === 1 && this.tono === 1;
-    const una = this.una;
+    const np = this.pistas.length;
+    const click = outputs[MAX_PISTAS];
     for (let j = 0; j < n; j++) {
+      if (this.hasta >= 0 && this.pos >= this.hasta) { this.sonando = false; break; }
       if (this.loopB > this.loopA && this.loopA >= 0 && this.pos >= this.loopB) this.ir(this.loopA);
       if (this.pos >= this.largo) {
         this.sonando = false;
@@ -1275,17 +1342,26 @@ class Motor extends AudioWorkletProcessor {
         this.port.postMessage({ tipo: 'fin' });
         break;
       }
-      let l, r;
       if (directo) {
-        una[0][0] = 0; una[1][0] = 0;
-        this.mezclar(Math.floor(this.pos), 1, una[0], una[1]);
-        l = una[0][0]; r = una[1][0];
+        const p = Math.floor(this.pos);
+        if (p >= 0) {
+          for (let k = 0; k < np; k++) {
+            if (!this.volumenes[k]) continue;
+            const d = this.pistas[k], o = outputs[k];
+            o[0][j] = d[2 * p] * UNIDAD;
+            o[1][j] = d[2 * p + 1] * UNIDAD;
+          }
+        }
       } else {
         while (this.escrito - Math.floor(this.leido) < 3) this.ventanaWsola();
         const i = Math.floor(this.leido), f = this.leido - i;
-        const [rL, rR] = this.anillo;
-        l = rL[i & MASCARA] * (1 - f) + rL[(i + 1) & MASCARA] * f;
-        r = rR[i & MASCARA] * (1 - f) + rR[(i + 1) & MASCARA] * f;
+        const a = i & MASCARA, b = (i + 1) & MASCARA;
+        for (let k = 0; k < np; k++) {
+          if (!this.volumenes[k]) continue;
+          const [rL, rR] = this.anillo[k], o = outputs[k];
+          o[0][j] = rL[a] * (1 - f) + rL[b] * f;
+          o[1][j] = rR[a] * (1 - f) + rR[b] * f;
+        }
         this.leido += this.tono;
       }
 
@@ -1299,30 +1375,13 @@ class Motor extends AudioWorkletProcessor {
       if (this.clickT >= 0) {
         const t = this.clickT / sampleRate;
         const c = Math.sin(2 * Math.PI * this.clickFrec * t) * Math.exp(-t * 120) * this.clickVol;
-        l += c; r += c;
+        click[0][j] = c; click[1][j] = c;
         if (++this.clickT > sampleRate * 0.05) this.clickT = -1;
       }
-
-      L[j] = l;
-      R[j] = r;
       this.pos += directo ? 1 : this.tempo;
     }
 
-    if (this.medir) {
-      for (let j = 0; j < n; j++) {
-        const a = L[j] < 0 ? -L[j] : L[j], b = R[j] < 0 ? -R[j] : R[j];
-        if (a > this.nivL) this.nivL = a;
-        if (b > this.nivR) this.nivR = b;
-      }
-    }
-    if (++this.bloques % 4 === 0) {
-      const m = { tipo: 'pos', tiempo: this.pos / sampleRate };
-      if (this.medir) {
-        m.niveles = Array.from(this.niveles); m.nivL = this.nivL; m.nivR = this.nivR;
-        this.niveles.fill(0); this.nivL = 0; this.nivR = 0;
-      }
-      this.port.postMessage(m);
-    }
+    if (++this.bloques % 4 === 0) this.port.postMessage({ tipo: 'pos', tiempo: this.pos / sampleRate });
     return true;
   }
 }
@@ -2243,6 +2302,11 @@ const TEXTOS = {
     letraInicioT: 'Letra (opcional)', letraPh: 'Pega aquí la letra, una línea por renglón. La app la pone en pantalla al ritmo de la voz.',
     pegarNota: 'Pega la letra, una línea por renglón. La IA escucha la voz para saber cuándo se canta cada palabra. Un archivo .lrc ya trae los tiempos.',
     vistaEnsayo: 'Ensayo', vistaEstudio: 'Estudio', eCompasT: 'Compás', eTiempoT: 'Tiempo', eSeguir: 'Seguir', eAjustar: 'Ajustar al pulso', eTodo: 'Ver toda', eAcercar: 'Acercar', eAlejar: 'Alejar', eZoomT: 'Zoom', eMapaT: 'Vista general de la canción', eMezcladorT: 'Mezclador', ePistas: 'Pistas', eOndas: 'Dibujando ondas con detalle…', maestro: 'Maestro', paneo: 'Paneo', panIzq: 'I', panDer: 'D',
+    fxVer: 'Efectos', fxEq: 'EQ', fxGraves: 'Graves', fxMedios: 'Medios', fxAgudos: 'Agudos', fxDinamica: 'Dinámica', fxComp: 'Compresor', fxApagado: 'Apagado', fxEnvios: 'Envíos', fxRetornos: 'Retornos', fxReverb: 'Reverb', fxDelay: 'Delay', fxNotaAyuda: 'Figura del delay (sigue el tempo). Toca para cambiarla.',
+    escenasT: 'Escenas', escOriginal: 'Original', escSinBateria: 'Sin batería', escSinVoz: 'Sin voz', escRitmo: 'Base rítmica', escGuardar: 'Guardar escena', escena: 'Escena', escNombre: 'Nombre de la escena', escGuardada: 'Escena guardada',
+    expT: 'Exportar mezcla', expRangoT: 'Qué exportar', expCancion: 'Toda la canción', expLoopT: 'Solo el loop', expSinLoop: '(marca uno primero)', expClickT: 'Metrónomo en el archivo', expNo: 'No', expSi: 'Sí',
+    expNota: 'Se exporta tal como suena ahora: la mezcla, los efectos, la velocidad y el tono', expFormato: 'WAV estéreo · 16 bits · 44.1 kHz', expIr: 'Exportar', expPreparando: 'Preparando las pistas…', expMezclando: 'Mezclando…', expMezcla: 'mezcla',
+    expListo: 'Listo. El archivo se guardó en Descargas.', expListoBajado: 'Listo. Se bajó {d} dB para que no se distorsione. El archivo se guardó en Descargas.',
     letraCalidadT: 'Letra: precisión', calidadNormal: 'Normal · 205 MB', calidadAlta: 'Alta · 410 MB', letraIdiomaT: 'Letra: idioma de la canción', automatico: 'Auto',
   },
   en: {
@@ -2289,6 +2353,11 @@ const TEXTOS = {
     letraInicioT: 'Lyrics (optional)', letraPh: 'Paste the lyrics here, one line per row. The app shows them in time with the vocals.',
     pegarNota: 'Paste the lyrics, one line per row. The AI listens to the vocals to know when each word is sung. An .lrc file already has the timing.',
     vistaEnsayo: 'Practice', vistaEstudio: 'Studio', eCompasT: 'Bar', eTiempoT: 'Time', eSeguir: 'Follow', eAjustar: 'Snap to beat', eTodo: 'Fit all', eAcercar: 'Zoom in', eAlejar: 'Zoom out', eZoomT: 'Zoom', eMapaT: 'Song overview', eMezcladorT: 'Mixer', ePistas: 'Tracks', eOndas: 'Drawing detailed waveforms…', maestro: 'Master', paneo: 'Pan', panIzq: 'L', panDer: 'R',
+    fxVer: 'Effects', fxEq: 'EQ', fxGraves: 'Low', fxMedios: 'Mid', fxAgudos: 'High', fxDinamica: 'Dynamics', fxComp: 'Compressor', fxApagado: 'Off', fxEnvios: 'Sends', fxRetornos: 'Returns', fxReverb: 'Reverb', fxDelay: 'Delay', fxNotaAyuda: 'Delay note value (follows the tempo). Tap to change it.',
+    escenasT: 'Scenes', escOriginal: 'Original', escSinBateria: 'No drums', escSinVoz: 'No vocals', escRitmo: 'Rhythm section', escGuardar: 'Save scene', escena: 'Scene', escNombre: 'Scene name', escGuardada: 'Scene saved',
+    expT: 'Export mix', expRangoT: 'What to export', expCancion: 'Whole song', expLoopT: 'Loop only', expSinLoop: '(mark one first)', expClickT: 'Metronome in the file', expNo: 'No', expSi: 'Yes',
+    expNota: 'It exports exactly as it sounds now: the mix, the effects, the speed and the key', expFormato: 'Stereo WAV · 16-bit · 44.1 kHz', expIr: 'Export', expPreparando: 'Preparing the stems…', expMezclando: 'Mixing…', expMezcla: 'mix',
+    expListo: 'Done. The file was saved to Downloads.', expListoBajado: 'Done. It was lowered {d} dB so it doesn’t distort. The file was saved to Downloads.',
     letraCalidadT: 'Lyrics: accuracy', calidadNormal: 'Normal · 205 MB', calidadAlta: 'High · 410 MB', letraIdiomaT: 'Lyrics: song language', automatico: 'Auto',
   },
 };
@@ -2746,13 +2815,12 @@ let actx = null, nodo = null;
 async function prepararAudio() {
   if (actx) return;
   actx = new AudioContext({ sampleRate: 44100, latencyHint: 'interactive' });
-  const url = URL.createObjectURL(new Blob([$('codigoMotor').textContent], { type: 'text/javascript' }));
-  await actx.audioWorklet.addModule(url);
-  nodo = new AudioWorkletNode(actx, 'motor', { outputChannelCount: [2] });
-  maestro = actx.createGain();
-  nodo.connect(maestro).connect(actx.destination);
+  urlMotor = URL.createObjectURL(new Blob([$('codigoMotor').textContent], { type: 'text/javascript' }));
+  await actx.audioWorklet.addModule(urlMotor);
+  // Una salida estéreo por pista (para los efectos) y una para el metrónomo
+  nodo = new AudioWorkletNode(actx, 'motor', { numberOfInputs: 0, numberOfOutputs: MAX_SALIDAS + 1, outputChannelCount: Array(MAX_SALIDAS + 1).fill(2) });
   nodo.port.onmessage = (e) => {
-    if (e.data.tipo === 'pos') { S.tiempo = e.data.tiempo; if (e.data.niveles && E.activo) recibirNiveles(e.data); }
+    if (e.data.tipo === 'pos') S.tiempo = e.data.tiempo;
     if (e.data.tipo === 'picos') recibirPicos(e.data);
     if (e.data.tipo === 'fin') { S.sonando = false; S.tiempo = 0; soltarPantalla(); pintarPlay(); }
   };
@@ -2774,7 +2842,9 @@ async function abrirCancion(id) {
     nodo.port.postMessage({ tipo: 'cargar', pistas, largo }, pistas.map((p) => p.buffer));
 
     Object.assign(S, { cancion, a, sonando: false, tiempo: 0, dur: largo / 44100, loop: null, loopOn: false, tempo: 1, semis: 0 });
-    S.pistas = nombres.map((n) => ({ nombre: n, vol: 1, mute: false, solo: false, pan: 0 }));
+    S.pistas = nombres.map(pistaNueva);
+    restaurarMezcla(cancion.mezcla);   // la mezcla que dejaste la última vez
+    conectarMezcla();
     const fase = a.downbeat_phase;
     nodo.port.postMessage({ tipo: 'pulsos', pulsos: a.beats, acentos: a.beats.map((_, i) => (((i - fase) % 4) + 4) % 4 === 0) });
     enviarClick();
@@ -2797,10 +2867,12 @@ function enviarVolumenes() {
   const haySolo = S.pistas.some((p) => p.solo);
   nodo.port.postMessage({ tipo: 'volumenes', volumenes: S.pistas.map((p) => (p.mute || (haySolo && !p.solo) ? 0 : p.vol / 32768)) });
   dibujarOndas();
+  aplicarMezcla();
   E.sucio = E.sucioMapa = true;
 }
 function enviarVelocidad() {
   nodo.port.postMessage({ tipo: 'velocidad', tempo: S.tempo, tono: Math.pow(2, S.semis / 12) });
+  aplicarMezcla();   // el delay sigue al tempo
   $('tempo').value = Math.round(S.tempo * 100);
   $('tempoVal').textContent = `${Math.round(S.tempo * 100)}%`;
   $('tonoVal').textContent = (S.semis > 0 ? '+' : '') + S.semis;
@@ -3346,6 +3418,339 @@ function dibujarOndas() {
 }
 
 /* =====================================================================
+ * Mezcla: cada pista pasa por EQ → compresor → fader → paneo, con envíos
+ * a una reverb y un delay compartidos; todo termina en el maestro.
+ * La misma cadena se arma para sonar en vivo y para exportar.
+ * ===================================================================== */
+const MAX_SALIDAS = 12;                 // salidas del motor por pista (la 12 es el metrónomo)
+const GRUPO_BATERIA = ['drums', 'kick', 'snare', 'toms', 'cymbals', 'congas', 'campana'];
+const NOTAS_DELAY = { '1/4': 1, '1/8.': 0.75, '1/8': 0.5, '1/16': 0.25 };
+let mezcla = null;      // la cadena que suena
+let urlMotor = null;    // código del motor (también se usa al exportar)
+
+const pistaNueva = (nombre) => ({ nombre, vol: 1, mute: false, solo: false, pan: 0, eq: [0, 0, 0], comp: 0, rev: 0, del: 0 });
+const maestroNuevo = () => ({ vol: 1, rev: 1, del: 1, nota: '1/8.' });
+S.maestro = maestroNuevo();
+
+// Respuesta de una sala: ruido que se apaga, más oscuro hacia el final (se genera aquí, sin archivos)
+function impulsoReverb(ctx, seg = 2.4) {
+  const largo = Math.round(ctx.sampleRate * seg), b = ctx.createBuffer(2, largo, ctx.sampleRate);
+  for (let c = 0; c < 2; c++) {
+    const d = b.getChannelData(c);
+    let semilla = c ? 987654321 : 123456789, filtro = 0;
+    for (let i = 0; i < largo; i++) {
+      semilla = (semilla * 1664525 + 1013904223) >>> 0;
+      const ruido = semilla / 4294967296 * 2 - 1, t = i / largo;
+      const k = 0.15 + 0.8 * t;                 // cada vez más opaco
+      filtro += (ruido - filtro) * (1 - k);
+      d[i] = filtro * Math.pow(1 - t, 2.2) * (i < ctx.sampleRate * 0.012 ? i / (ctx.sampleRate * 0.012) : 1) * 0.6;
+    }
+  }
+  return b;
+}
+
+function construirMezcla(ctx, motor, destino, conClick) {
+  const m = { ctx, canales: [] };
+  m.maestro = ctx.createGain();
+  m.maestro.connect(destino);
+  // Medidor estéreo del maestro
+  const div = ctx.createChannelSplitter(2);
+  m.maestro.connect(div);
+  m.medL = ctx.createAnalyser(); m.medR = ctx.createAnalyser();
+  m.medL.fftSize = m.medR.fftSize = 1024;
+  div.connect(m.medL, 0); div.connect(m.medR, 1);
+  // Reverb
+  m.rev = ctx.createConvolver();
+  m.rev.buffer = impulsoReverb(ctx);
+  m.revRet = ctx.createGain();
+  m.rev.connect(m.revRet).connect(m.maestro);
+  // Delay con repeticiones que se van oscureciendo
+  m.delEnt = ctx.createGain();
+  m.del = ctx.createDelay(2.5);
+  m.delFiltro = ctx.createBiquadFilter(); m.delFiltro.type = 'lowpass'; m.delFiltro.frequency.value = 3800;
+  m.delFb = ctx.createGain(); m.delFb.gain.value = 0.36;
+  m.delRet = ctx.createGain();
+  m.delEnt.connect(m.del); m.del.connect(m.delFiltro); m.delFiltro.connect(m.delFb).connect(m.del); m.delFiltro.connect(m.delRet).connect(m.maestro);
+
+  S.pistas.forEach((p, k) => {
+    const c = {};
+    c.eqG = ctx.createBiquadFilter(); c.eqG.type = 'lowshelf'; c.eqG.frequency.value = 120;
+    c.eqM = ctx.createBiquadFilter(); c.eqM.type = 'peaking'; c.eqM.frequency.value = 1000; c.eqM.Q.value = 0.8;
+    c.eqA = ctx.createBiquadFilter(); c.eqA.type = 'highshelf'; c.eqA.frequency.value = 7000;
+    c.comp = ctx.createDynamicsCompressor(); c.comp.knee.value = 6; c.comp.attack.value = 0.006; c.comp.release.value = 0.16;
+    c.compGan = ctx.createGain();
+    c.fader = ctx.createGain();
+    c.pan = ctx.createStereoPanner();
+    c.envRev = ctx.createGain(); c.envDel = ctx.createGain();
+    c.med = ctx.createAnalyser(); c.med.fftSize = 1024;
+    motor.connect(c.eqG, k, 0);
+    c.eqG.connect(c.eqM).connect(c.eqA);
+    c.comp.connect(c.compGan).connect(c.fader);
+    c.eqA.connect(c.fader);
+    c.compActivo = false;
+    c.fader.connect(c.pan);
+    c.pan.connect(m.maestro);
+    c.pan.connect(c.envRev).connect(m.rev);
+    c.pan.connect(c.envDel).connect(m.delEnt);
+    c.pan.connect(c.med);
+    m.canales.push(c);
+  });
+  if (conClick) motor.connect(destino, MAX_SALIDAS, 0);
+  aplicarMezcla(m, true);
+  return m;
+}
+
+// Pasa el estado (S.pistas y S.maestro) a la cadena
+function aplicarMezcla(m = mezcla, inmediato = false) {
+  if (!m) return;
+  const ctx = m.ctx, ahora = ctx.currentTime;
+  const fijar = (param, v) => { if (inmediato) param.value = v; else param.setTargetAtTime(v, ahora, 0.012); };
+  const haySolo = S.pistas.some((p) => p.solo);
+  S.pistas.forEach((p, k) => {
+    const c = m.canales[k];
+    if (!c) return;
+    const suena = !(p.mute || (haySolo && !p.solo));
+    fijar(c.fader.gain, suena ? p.vol : 0);
+    fijar(c.pan.pan, p.pan || 0);
+    fijar(c.eqG.gain, p.eq[0]); fijar(c.eqM.gain, p.eq[1]); fijar(c.eqA.gain, p.eq[2]);
+    // El compresor solo se conecta si se usa (así no agrega retraso)
+    const usar = p.comp > 0.001;
+    if (usar !== c.compActivo) {
+      c.eqA.disconnect();
+      c.eqA.connect(usar ? c.comp : c.fader);
+      c.compActivo = usar;
+    }
+    if (usar) {
+      fijar(c.comp.threshold, -p.comp * 32);
+      fijar(c.comp.ratio, 1.5 + p.comp * 6);
+      fijar(c.compGan.gain, Math.pow(10, (p.comp * 4) / 20));   // compensa en parte lo que baja
+    }
+    fijar(c.envRev.gain, p.rev);
+    fijar(c.envDel.gain, p.del);
+  });
+  const M = S.maestro;
+  fijar(m.maestro.gain, M.vol);
+  fijar(m.revRet.gain, M.rev);
+  fijar(m.delRet.gain, M.del);
+  const bpm = (S.a ? S.a.bpm : 120) * S.tempo;
+  fijar(m.del.delayTime, Math.min(2.4, (60 / bpm) * (NOTAS_DELAY[M.nota] || 0.75)));
+  if (m === mezcla) guardarMezclaPronto();
+}
+
+function conectarMezcla() {
+  if (!actx || !nodo) return;
+  nodo.disconnect();
+  if (mezcla) { try { mezcla.maestro.disconnect(); } catch (e) {} }
+  mezcla = construirMezcla(actx, nodo, actx.destination, true);
+}
+
+/* ---------- Guardar la mezcla con la canción ---------- */
+function instantanea() {
+  const pistas = {};
+  for (const p of S.pistas) pistas[p.nombre] = { vol: p.vol, pan: p.pan, mute: p.mute, solo: p.solo, eq: p.eq.slice(), comp: p.comp, rev: p.rev, del: p.del };
+  return { pistas, maestro: { ...S.maestro } };
+}
+function restaurarMezcla(guardada) {
+  S.pistas = S.pistas.map((p) => ({ ...pistaNueva(p.nombre), ...((guardada && guardada.pistas && guardada.pistas[p.nombre]) || {}) }));
+  S.pistas.forEach((p) => { p.eq = (Array.isArray(p.eq) && p.eq.length === 3 ? p.eq : [0, 0, 0]).slice(); });
+  S.maestro = { ...maestroNuevo(), ...((guardada && guardada.maestro) || {}) };
+}
+let temporizadorMezcla = null;
+function guardarMezclaPronto() {
+  if (!S.cancion) return;
+  clearTimeout(temporizadorMezcla);
+  const c = S.cancion;
+  temporizadorMezcla = setTimeout(() => {
+    c.mezcla = instantanea();
+    bdHacer('canciones', 'readwrite', (st) => st.put(c)).catch(() => {});
+  }, 700);
+}
+function restablecerMezcla() {
+  restaurarMezcla(null);
+}
+
+/* ---------- Escenas ---------- */
+const ESCENAS_RAPIDAS = [
+  ['escOriginal', () => restablecerMezcla()],
+  ['escSinBateria', () => S.pistas.forEach((p) => { p.solo = false; p.mute = GRUPO_BATERIA.includes(p.nombre); })],
+  ['escSinVoz', () => S.pistas.forEach((p) => { p.solo = false; p.mute = p.nombre === 'vocals'; })],
+  ['escRitmo', () => S.pistas.forEach((p) => { p.mute = false; p.solo = GRUPO_BATERIA.includes(p.nombre) || p.nombre === 'bass'; })],
+];
+function usarEscena(fn) {
+  fn();
+  enviarVolumenes();
+  construirReproductor();
+}
+function pintarEscenas() {
+  const caja = $('eEscenas');
+  if (!caja || !S.cancion) return;
+  caja.innerHTML = `<span class="e-escenas-t">${t('escenasT')}</span>`;
+  for (const [clave, fn] of ESCENAS_RAPIDAS) {
+    const b = document.createElement('button');
+    b.type = 'button'; b.className = 'e-escena'; b.textContent = t(clave);
+    b.onclick = () => usarEscena(fn);
+    caja.appendChild(b);
+  }
+  const propias = S.cancion.escenas || [];
+  if (propias.length) caja.insertAdjacentHTML('beforeend', '<span class="e-escenas-sep"></span>');
+  propias.forEach((esc, i) => {
+    const b = document.createElement('span');
+    b.className = 'e-escena propia';
+    b.innerHTML = `<button type="button" class="e-escena-usar"></button><button type="button" class="e-escena-x" aria-label="${t('borrar')}"><svg class="icono" aria-hidden="true"><use href="#i-cerrar"/></svg></button>`;
+    b.firstChild.textContent = esc.nombre;
+    b.firstChild.onclick = () => usarEscena(() => restaurarMezcla(esc.mezcla));
+    b.lastChild.onclick = () => { propias.splice(i, 1); guardarMezclaPronto(); pintarEscenas(); };
+    caja.appendChild(b);
+  });
+  const nueva = document.createElement('button');
+  nueva.type = 'button'; nueva.className = 'e-escena nueva';
+  nueva.innerHTML = `<svg class="icono" aria-hidden="true"><use href="#i-mas"/></svg><span></span>`;
+  nueva.lastChild.textContent = t('escGuardar');
+  nueva.onclick = () => {
+    const campo = document.createElement('input');
+    campo.className = 'e-escena-campo'; campo.maxLength = 30;
+    campo.value = `${t('escena')} ${propias.length + 1}`;
+    campo.setAttribute('aria-label', t('escNombre'));
+    nueva.replaceWith(campo);
+    campo.focus(); campo.select();
+    let hecho = false;
+    const terminar = (guardar) => {
+      if (hecho) return; hecho = true;
+      if (guardar && campo.value.trim()) {
+        S.cancion.escenas = propias;
+        propias.push({ nombre: campo.value.trim(), mezcla: instantanea() });
+        guardarMezclaPronto();
+        aviso(t('escGuardada'));
+      }
+      pintarEscenas();
+    };
+    campo.onkeydown = (e) => { if (e.key === 'Enter') terminar(true); if (e.key === 'Escape') terminar(false); e.stopPropagation(); };
+    campo.onblur = () => terminar(true);
+  };
+  caja.appendChild(nueva);
+}
+
+// Mensaje flotante breve
+function aviso(texto) {
+  let el = $('avisoFlotante');
+  if (!el) { el = document.createElement('div'); el.id = 'avisoFlotante'; el.className = 'aviso-flotante'; el.setAttribute('role', 'status'); document.body.appendChild(el); }
+  el.textContent = texto;
+  el.classList.remove('visible'); void el.offsetWidth; el.classList.add('visible');
+  clearTimeout(el._t); el._t = setTimeout(() => el.classList.remove('visible'), 2200);
+}
+
+/* ---------- Exportar la mezcla (WAV) ---------- */
+function abrirExportar() {
+  if (!S.a) return;
+  const hayLoop = !!S.loop;
+  $('expLoop').disabled = !hayLoop;
+  if (!hayLoop) E.expRango = 'cancion';
+  document.querySelectorAll('#expRango button').forEach((b) => b.setAttribute('aria-pressed', b.dataset.rango === (E.expRango || 'cancion') ? 'true' : 'false'));
+  document.querySelectorAll('#expClick button').forEach((b) => b.setAttribute('aria-pressed', b.dataset.click === (E.expClick ? 'si' : 'no') ? 'true' : 'false'));
+  $('expLoopTxt').textContent = hayLoop ? `${fmt(S.loop.a)}–${fmt(S.loop.b)}` : t('expSinLoop');
+  const partes = [];
+  if (S.tempo !== 1) partes.push(`${t('velocidad')} ${Math.round(S.tempo * 100)} %`);
+  if (S.semis) partes.push(`${t('tono')} ${S.semis > 0 ? '+' : ''}${S.semis}`);
+  $('expNota').textContent = t('expNota') + (partes.length ? ` (${partes.join(', ')})` : '');
+  $('expProgreso').hidden = true;
+  $('expEstado').textContent = '';
+  $('expIr').disabled = false;
+  $('dialogoExportar').showModal();
+}
+document.querySelectorAll('#expRango button').forEach((b) => b.onclick = () => {
+  if (b.disabled) return;
+  E.expRango = b.dataset.rango;
+  document.querySelectorAll('#expRango button').forEach((x) => x.setAttribute('aria-pressed', x === b ? 'true' : 'false'));
+});
+document.querySelectorAll('#expClick button').forEach((b) => b.onclick = () => {
+  E.expClick = b.dataset.click === 'si';
+  document.querySelectorAll('#expClick button').forEach((x) => x.setAttribute('aria-pressed', x === b ? 'true' : 'false'));
+});
+$('cerrarExportar').onclick = () => { if (!E.exportando) $('dialogoExportar').close(); };
+$('expIr').onclick = () => exportarMezcla().catch((e) => { E.exportando = false; $('expIr').disabled = false; $('expEstado').textContent = `${t('errorT')}: ${e.message}`; });
+
+async function exportarMezcla() {
+  if (E.exportando) return;
+  E.exportando = true;
+  $('expIr').disabled = true;
+  $('expProgreso').hidden = false;
+  const barra = $('expProgreso').firstElementChild;
+  barra.style.width = '0%';
+  $('expEstado').textContent = t('expPreparando');
+  const enLoop = E.expRango === 'loop' && S.loop;
+  const a = enLoop ? S.loop.a : 0, b = enLoop ? S.loop.b : S.dur;
+  const cola = 2.5;                                    // segundos extra para que se apaguen reverb y delay
+  const sr = 44100, frames = Math.ceil(((b - a) / S.tempo + cola) * sr);
+  const datos = await bdPistas(S.cancion.id);
+  const pistas = S.pistas.map((p) => datos[p.nombre]);
+  const largo = Math.min(...pistas.map((p) => p.length / 2));
+  const off = new OfflineAudioContext(2, frames, sr);
+  await off.audioWorklet.addModule(urlMotor);
+  const motor = new AudioWorkletNode(off, 'motor', { numberOfInputs: 0, numberOfOutputs: MAX_SALIDAS + 1, outputChannelCount: Array(MAX_SALIDAS + 1).fill(2) });
+  const listo = new Promise((ok) => { motor.port.onmessage = (e) => { if (e.data.tipo === 'eco') ok(); }; });
+  const haySolo = S.pistas.some((p) => p.solo);
+  const fase = S.a.downbeat_phase;
+  motor.port.postMessage({ tipo: 'cargar', pistas, largo }, pistas.map((p) => p.buffer));
+  motor.port.postMessage({ tipo: 'volumenes', volumenes: S.pistas.map((p) => (p.mute || (haySolo && !p.solo) ? 0 : p.vol / 32768)) });
+  motor.port.postMessage({ tipo: 'velocidad', tempo: S.tempo, tono: Math.pow(2, S.semis / 12) });
+  motor.port.postMessage({ tipo: 'pulsos', pulsos: S.a.beats, acentos: S.a.beats.map((_, i) => (((i - fase) % 4) + 4) % 4 === 0) });
+  motor.port.postMessage({ tipo: 'metronomo', activo: !!E.expClick, volumen: S.clickVol });
+  motor.port.postMessage({ tipo: 'saltar', tiempo: a });
+  motor.port.postMessage({ tipo: 'hasta', tiempo: b });
+  motor.port.postMessage({ tipo: 'tocar' });
+  motor.port.postMessage({ tipo: 'eco' });
+  await listo;
+  construirMezcla(off, motor, off.destination, !!E.expClick);
+  // Avance: el render se detiene un instante cada 5 % para actualizar la barra
+  const total = frames / sr;
+  for (let i = 1; i < 20; i++) {
+    const tt = Math.floor((total * i) / 20 * sr / 128) * 128 / sr;
+    off.suspend(tt).then(() => { barra.style.width = `${i * 5}%`; $('expEstado').textContent = `${t('expMezclando')} ${i * 5} %`; off.resume(); });
+  }
+  $('expEstado').textContent = `${t('expMezclando')} 0 %`;
+  const buf = await off.startRendering();
+  barra.style.width = '100%';
+  // Si la mezcla pasa de 0 dB, se baja lo justo para que no se distorsione
+  let pico = 0;
+  for (let c = 0; c < 2; c++) { const d = buf.getChannelData(c); for (let i = 0; i < d.length; i++) { const v = d[i] < 0 ? -d[i] : d[i]; if (v > pico) pico = v; } }
+  const objetivo = Math.pow(10, -0.3 / 20);
+  const ajuste = pico > objetivo ? objetivo / pico : 1;
+  const blob = wavDe(buf, ajuste);
+  const partes = [S.cancion.titulo, t('expMezcla')];
+  if (enLoop) partes.push(`${fmt(a).replace(':', 'm')}s a ${fmt(b).replace(':', 'm')}s`);
+  if (S.tempo !== 1) partes.push(`${Math.round(S.tempo * 100)}%`);
+  if (S.semis) partes.push(`${t('tono')} ${S.semis > 0 ? '+' : ''}${S.semis}`);
+  const url = URL.createObjectURL(blob);
+  const enlace = document.createElement('a');
+  enlace.href = url; enlace.download = partes.join(' - ') + '.wav';
+  enlace.click();
+  setTimeout(() => URL.revokeObjectURL(url), 20000);
+  $('expEstado').textContent = ajuste < 1 ? t('expListoBajado', { d: (-20 * Math.log10(ajuste)).toFixed(1) }) : t('expListo');
+  E.exportando = false;
+  $('expIr').disabled = false;
+}
+
+// WAV de 16 bits, estéreo, con un poco de dither
+function wavDe(buf, ganancia = 1) {
+  const n = buf.length, L = buf.getChannelData(0), R = buf.getChannelData(1);
+  const bytes = n * 4, vista = new DataView(new ArrayBuffer(44 + bytes));
+  const txt = (o, s) => { for (let i = 0; i < 4; i++) vista.setUint8(o + i, s.charCodeAt(i)); };
+  txt(0, 'RIFF'); vista.setUint32(4, 36 + bytes, true); txt(8, 'WAVE'); txt(12, 'fmt ');
+  vista.setUint32(16, 16, true); vista.setUint16(20, 1, true); vista.setUint16(22, 2, true);
+  vista.setUint32(24, buf.sampleRate, true); vista.setUint32(28, buf.sampleRate * 4, true); vista.setUint16(32, 4, true); vista.setUint16(34, 16, true);
+  txt(36, 'data'); vista.setUint32(40, bytes, true);
+  let o = 44;
+  for (let i = 0; i < n; i++) {
+    for (const d of [L, R]) {
+      const v = d[i] * ganancia * 32767 + (Math.random() - Math.random());
+      vista.setInt16(o, Math.max(-32768, Math.min(32767, Math.round(v))), true);
+      o += 2;
+    }
+  }
+  return new Blob([vista.buffer], { type: 'audio/wav' });
+}
+
+/* =====================================================================
  * Estudio: línea de tiempo con zoom, vista general y mezclador
  * ===================================================================== */
 const ALTO = { regla: 30, secc: 26, acordes: 28, pista: 62 };
@@ -3354,10 +3759,9 @@ const E = {
   activo: false, zoom: 40, inicio: 0, seguir: true, ajustar: true,
   picos: {}, idPicos: null, faltanPicos: 0,
   sucio: true, sucioMapa: true, base: null, w: 0, h: 0, dpr: 1,
-  col: {}, crudo: [], nivel: [], pico: [], picoT: [], maestroGanancia: 1,
+  col: {}, nivel: [], pico: [], picoT: [], anBuf: new Float32Array(1024), verFx: true, expRango: 'cancion', expClick: false,
   ultimoCuadro: 0, lcd: {},
 };
-let maestro = null;  // GainNode de salida (volumen maestro)
 
 /* ---------- Colores: versión oscura de la paleta actual ---------- */
 const hexRgb = (h) => { h = h.replace('#', ''); return [0, 2, 4].map((i) => parseInt(h.slice(i, i + 2), 16)); };
@@ -3457,13 +3861,57 @@ function construirEstudio() {
     mez.appendChild(crearCanal(p, k, color));
   });
   mez.appendChild(crearCanal(null, -1, rgbTxt(E.col.acento)));
-  E.crudo = S.pistas.map(() => 0); E.nivel = S.pistas.map(() => -Infinity); E.pico = S.pistas.map(() => -Infinity); E.picoT = S.pistas.map(() => 0);
-  E.nivelM = [-Infinity, -Infinity]; E.crudoM = [0, 0]; E.picoM = -Infinity; E.picoMT = 0;
+  mez.classList.toggle('sin-fx', !E.verFx);
+  pintarEscenas();
+  E.nivel = S.pistas.map(() => -Infinity); E.pico = S.pistas.map(() => -Infinity); E.picoT = S.pistas.map(() => 0);
+  E.nivelM = [-Infinity, -Infinity]; E.picoM = -Infinity; E.picoMT = 0;
   pintarMS();
   E.lcd = {};
   E.sucio = E.sucioMapa = true;
   if (E.activo) requestAnimationFrame(redimensionarEstudio);
 }
+
+// Perilla giratoria: se arrastra hacia arriba o abajo (Shift = fino), doble clic vuelve al valor normal
+function crearPerilla({ etiqueta, aria, min, max, defecto, bipolar, chica, leer, poner, formato, siempreValor }) {
+  const caja = document.createElement('div');
+  caja.className = 'e-mando' + (chica ? ' chica' : '');
+  caja.innerHTML = `<div class="e-perilla" role="slider" tabindex="0"><div class="e-perilla-aguja"></div></div><div class="e-mando-txt"></div>`;
+  const kn = caja.firstElementChild, aguja = kn.firstElementChild, txt = caja.lastElementChild;
+  kn.setAttribute('aria-label', aria);
+  kn.setAttribute('aria-valuemin', min); kn.setAttribute('aria-valuemax', max);
+  let verValor = false;
+  const pintar = () => {
+    const v = leer(), f = (v - min) / (max - min), o = bipolar ? 0.5 : 0;
+    aguja.style.transform = `rotate(${f * 270 - 135}deg)`;
+    kn.style.setProperty('--a', `${Math.min(o, f) * 270}deg`);
+    kn.style.setProperty('--b', `${Math.max(o, f) * 270}deg`);
+    kn.classList.toggle('activa', Math.abs(v - defecto) > 1e-6);
+    txt.textContent = siempreValor || verValor ? formato(v) : etiqueta;
+    kn.setAttribute('aria-valuenow', Math.round(v * 100) / 100);
+    kn.setAttribute('aria-valuetext', formato(v));
+  };
+  const fijar = (v) => { poner(Math.max(min, Math.min(max, v))); pintar(); };
+  arrastrarVertical(kn, () => { verValor = true; pintar(); return leer(); }, (base, dy, fino) => fijar(base - (dy / (fino ? 600 : 150)) * (max - min)));
+  kn.addEventListener('pointerenter', () => { verValor = true; pintar(); });
+  kn.addEventListener('pointerleave', () => { if (!kn.hasPointerCapture || !kn.matches(':active')) { verValor = false; pintar(); } });
+  kn.addEventListener('pointerup', () => setTimeout(() => { if (!kn.matches(':hover')) { verValor = false; pintar(); } }, 600));
+  kn.addEventListener('focus', () => { verValor = true; pintar(); });
+  kn.addEventListener('blur', () => { verValor = false; pintar(); });
+  kn.ondblclick = () => fijar(defecto);
+  kn.onkeydown = (e) => {
+    const paso = (max - min) / (e.shiftKey ? 200 : 40);
+    if (e.key === 'ArrowUp' || e.key === 'ArrowRight') { e.preventDefault(); fijar(leer() + paso); }
+    if (e.key === 'ArrowDown' || e.key === 'ArrowLeft') { e.preventDefault(); fijar(leer() - paso); }
+  };
+  kn.addEventListener('wheel', (e) => { e.preventDefault(); fijar(leer() - Math.sign(e.deltaY) * (max - min) / 40); }, { passive: false });
+  pintar();
+  caja._pintar = pintar;
+  return caja;
+}
+
+const fmtDbEq = (v) => (Math.abs(v) < 0.05 ? '0 dB' : `${v > 0 ? '+' : '−'}${Math.abs(v).toFixed(1)} dB`);
+const fmtPorc = (v) => (v < 0.005 ? t('fxApagado') : `${Math.round(v * 100)} %`);
+const fmtEnvio = (v) => (v < 0.005 ? '−∞' : `${Math.round(v * 100)} %`);
 
 function crearCanal(p, k, color) {
   const esMaestro = k < 0;
@@ -3474,8 +3922,9 @@ function crearCanal(p, k, color) {
   const marcas = [6, 0, -6, -12, -24, -48].map((d) => `<span style="bottom:${(posDeGanancia(Math.pow(10, d / 20)) * 100).toFixed(1)}%">${d > 0 ? '+' + d : d}</span>`).join('');
   c.innerHTML = `
     <div class="e-canal-nombre"></div>
-    ${esMaestro ? '<div style="height:38px"></div><div class="e-pan-txt"></div>' : `<div class="e-perilla" role="slider" tabindex="0" aria-valuemin="-100" aria-valuemax="100" aria-label="${t('paneo')} ${nombre}"><div class="e-perilla-aguja"></div></div><div class="e-pan-txt"></div>`}
-    ${esMaestro ? '<div class="e-ms" style="visibility:hidden"><button type="button" tabindex="-1">M</button></div>' : `<div class="e-ms"><button class="m" type="button" data-k="${k}" aria-label="${t('silenciar')} ${nombre}">M</button><button class="s" type="button" data-k="${k}" aria-label="${t('solo')} ${nombre}">S</button></div>`}
+    <div class="e-fx"></div>
+    <div class="e-pan"></div>
+    ${esMaestro ? '<div class="e-ms"><button type="button" class="e-nota" id="eNota"></button></div>' : `<div class="e-ms"><button class="m" type="button" data-k="${k}" aria-label="${t('silenciar')} ${nombre}">M</button><button class="s" type="button" data-k="${k}" aria-label="${t('solo')} ${nombre}">S</button></div>`}
     <div class="e-fader-zona">
       <div class="e-escala">${marcas}</div>
       <canvas class="e-medidor"></canvas>
@@ -3483,8 +3932,42 @@ function crearCanal(p, k, color) {
     </div>
     <div class="e-db"></div>`;
   c.querySelector('.e-canal-nombre').textContent = nombre;
+  const fx = c.querySelector('.e-fx');
+  const fila = (titulo, ...mandos) => {
+    const f = document.createElement('div');
+    f.className = 'e-fx-grupo';
+    f.innerHTML = `<div class="e-fx-titulo"></div><div class="e-fx-fila"></div>`;
+    f.firstElementChild.textContent = titulo;
+    mandos.forEach((m) => f.lastElementChild.appendChild(m));
+    fx.appendChild(f);
+  };
+  const cambio = () => aplicarMezcla();
+  if (!esMaestro) {
+    const eq = (i, et) => crearPerilla({ etiqueta: et, aria: `${t('fxEq')} ${et} ${nombre}`, min: -12, max: 12, defecto: 0, bipolar: true, chica: true, leer: () => p.eq[i], poner: (v) => { p.eq[i] = Math.round(v * 10) / 10; cambio(); }, formato: fmtDbEq });
+    fila(t('fxEq'), eq(0, t('fxGraves')), eq(1, t('fxMedios')), eq(2, t('fxAgudos')));
+    fila(t('fxDinamica'), crearPerilla({ etiqueta: t('fxComp'), aria: `${t('fxComp')} ${nombre}`, min: 0, max: 1, defecto: 0, chica: true, leer: () => p.comp, poner: (v) => { p.comp = v; cambio(); }, formato: fmtPorc }));
+    fila(t('fxEnvios'),
+      crearPerilla({ etiqueta: t('fxReverb'), aria: `${t('fxReverb')} ${nombre}`, min: 0, max: 1, defecto: 0, chica: true, leer: () => p.rev, poner: (v) => { p.rev = v; cambio(); }, formato: fmtEnvio }),
+      crearPerilla({ etiqueta: t('fxDelay'), aria: `${t('fxDelay')} ${nombre}`, min: 0, max: 1, defecto: 0, chica: true, leer: () => p.del, poner: (v) => { p.del = v; cambio(); }, formato: fmtEnvio }));
+    c.querySelector('.e-pan').appendChild(crearPerilla({
+      etiqueta: '', aria: `${t('paneo')} ${nombre}`, min: -1, max: 1, defecto: 0, bipolar: true, siempreValor: true,
+      leer: () => p.pan || 0, poner: (v) => { p.pan = Math.round(v * 100) / 100; cambio(); },
+      formato: (v) => (Math.abs(v) < 0.005 ? 'C' : `${v < 0 ? t('panIzq') : t('panDer')} ${Math.round(Math.abs(v) * 100)}`),
+    }));
+  } else {
+    const M = S.maestro;
+    fila(t('fxRetornos'),
+      crearPerilla({ etiqueta: t('fxReverb'), aria: `${t('fxReverb')} ${nombre}`, min: 0, max: 1.5, defecto: 1, chica: true, leer: () => M.rev, poner: (v) => { M.rev = v; cambio(); }, formato: fmtEnvio }),
+      crearPerilla({ etiqueta: t('fxDelay'), aria: `${t('fxDelay')} ${nombre}`, min: 0, max: 1.5, defecto: 1, chica: true, leer: () => M.del, poner: (v) => { M.del = v; cambio(); }, formato: fmtEnvio }));
+    c.querySelector('.e-pan').innerHTML = '<div class="e-pan-vacio"></div>';
+    // Figura rítmica del delay (sigue el BPM de la canción)
+    const nota = c.querySelector('#eNota');
+    const pintarNota = () => { nota.textContent = `${t('fxDelay')} ${M.nota}`; nota.title = t('fxNotaAyuda'); };
+    nota.onclick = () => { const ns = Object.keys(NOTAS_DELAY); M.nota = ns[(ns.indexOf(M.nota) + 1) % ns.length]; pintarNota(); cambio(); };
+    pintarNota();
+  }
   const fader = c.querySelector('.e-fader'), perilla = c.querySelector('.e-fader-perilla'), relleno = c.querySelector('.e-fader-relleno'), db = c.querySelector('.e-db');
-  const leer = () => (esMaestro ? E.maestroGanancia : p.vol);
+  const leer = () => (esMaestro ? S.maestro.vol : p.vol);
   const pintarFader = () => {
     const g = leer(), pos = posDeGanancia(g);
     perilla.style.top = `${(1 - pos) * 100}%`;
@@ -3495,22 +3978,16 @@ function crearCanal(p, k, color) {
   };
   const poner = (g) => {
     g = Math.max(0, Math.min(2, g));
-    if (esMaestro) {
-      E.maestroGanancia = g;
-      if (maestro) maestro.gain.setTargetAtTime(g, actx.currentTime, 0.015);
-    } else { p.vol = g; enviarVolumenes(); }
+    if (esMaestro) { S.maestro.vol = g; aplicarMezcla(); } else { p.vol = g; enviarVolumenes(); }
     pintarFader();
   };
   arrastrarVertical(fader, (dy, inicio, ev) => {
     const alto = fader.clientHeight;
-    if (inicio) {
-      // Tocar fuera de la perilla la lleva ahí; tocar la perilla la arrastra sin saltos
-      const r = fader.getBoundingClientRect(), y = ev.clientY - r.top;
-      const yPerilla = (1 - posDeGanancia(leer())) * alto;
-      if (Math.abs(y - yPerilla) > 22) poner(gananciaDePos(1 - y / alto));
-      return posDeGanancia(leer());
-    }
-    return null;
+    // Tocar fuera de la perilla la lleva ahí; tocar la perilla la arrastra sin saltos
+    const r = fader.getBoundingClientRect(), y = ev.clientY - r.top;
+    const yPerilla = (1 - posDeGanancia(leer())) * alto;
+    if (Math.abs(y - yPerilla) > 22) poner(gananciaDePos(1 - y / alto));
+    return posDeGanancia(leer());
   }, (base, dy, fino) => poner(gananciaDePos(base - (dy / fader.clientHeight) * (fino ? 0.25 : 1))));
   fader.ondblclick = () => poner(1);
   fader.onkeydown = (e) => {
@@ -3520,26 +3997,6 @@ function crearCanal(p, k, color) {
   };
   fader.addEventListener('wheel', (e) => { e.preventDefault(); poner(gananciaDePos(posDeGanancia(leer()) - Math.sign(e.deltaY) * 0.01)); }, { passive: false });
   pintarFader();
-
-  if (!esMaestro) {
-    const kn = c.querySelector('.e-perilla'), aguja = c.querySelector('.e-perilla-aguja'), txt = c.querySelector('.e-pan-txt');
-    const pintarPan = () => {
-      const v = p.pan || 0;
-      aguja.style.transform = `rotate(${v * 135}deg)`;
-      txt.textContent = Math.abs(v) < 0.005 ? 'C' : `${v < 0 ? t('panIzq') : t('panDer')} ${Math.round(Math.abs(v) * 100)}`;
-      kn.setAttribute('aria-valuenow', Math.round(v * 100));
-      kn.setAttribute('aria-valuetext', txt.textContent);
-    };
-    const ponerPan = (v) => { p.pan = Math.max(-1, Math.min(1, Math.round(v * 100) / 100)); enviarPaneos(); pintarPan(); };
-    arrastrarVertical(kn, () => p.pan || 0, (base, dy, fino) => ponerPan(base - dy / (fino ? 600 : 150)));
-    kn.ondblclick = () => ponerPan(0);
-    kn.onkeydown = (e) => {
-      if (e.key === 'ArrowUp' || e.key === 'ArrowRight') { e.preventDefault(); ponerPan((p.pan || 0) + 0.05); }
-      if (e.key === 'ArrowDown' || e.key === 'ArrowLeft') { e.preventDefault(); ponerPan((p.pan || 0) - 0.05); }
-    };
-    kn.addEventListener('wheel', (e) => { e.preventDefault(); ponerPan((p.pan || 0) - Math.sign(e.deltaY) * 0.05); }, { passive: false });
-    pintarPan();
-  }
   c._medidor = c.querySelector('.e-medidor');
   c._db = db;
   return c;
@@ -3588,9 +4045,7 @@ $('estudio').addEventListener('click', (e) => {
   pintarMS();
 });
 
-function enviarPaneos() {
-  if (nodo) nodo.port.postMessage({ tipo: 'paneos', paneos: S.pistas.map((p) => p.pan || 0) });
-}
+function enviarPaneos() { aplicarMezcla(); }
 
 /* ---------- Abrir y cerrar el estudio ---------- */
 function aplicarVista(v) {
@@ -3601,7 +4056,6 @@ function aplicarVista(v) {
   E.activo = estudio;
   document.body.classList.toggle('modo-estudio', estudio);
   $('estudio').hidden = !estudio;
-  if (nodo) nodo.port.postMessage({ tipo: 'medir', activo: estudio });
   if (estudio && !antes) {
     pedirPicos();
     construirEstudio();
@@ -3663,6 +4117,8 @@ $('eZoom').oninput = (e) => zoomEn(zoomMin() * Math.pow(ZOOM_MAX / zoomMin(), e.
 $('eAcercar').onclick = () => zoomEn(E.zoom * 1.5, anclaZoom());
 $('eAlejar').onclick = () => zoomEn(E.zoom / 1.5, anclaZoom());
 $('eTodo').onclick = verToda;
+$('eExportar').onclick = abrirExportar;
+$('eFx').onclick = () => { E.verFx = !E.verFx; $('eFx').setAttribute('aria-pressed', E.verFx); $('eMezclador').classList.toggle('sin-fx', !E.verFx); requestAnimationFrame(redimensionarEstudio); };
 $('eSeguir').onclick = () => { E.seguir = !E.seguir; $('eSeguir').setAttribute('aria-pressed', E.seguir); };
 $('eAjustar').onclick = () => { E.ajustar = !E.ajustar; $('eAjustar').setAttribute('aria-pressed', E.ajustar); };
 
@@ -3905,9 +4361,13 @@ function dibujarMedidor(cv, valores, picoDb) {
 }
 
 // Llega con cada mensaje de posición del motor mientras suena
-function recibirNiveles(m) {
-  m.niveles.forEach((v, k) => { E.crudo[k] = Math.max(E.crudo[k] || 0, v); });
-  E.crudoM[0] = Math.max(E.crudoM[0], m.nivL); E.crudoM[1] = Math.max(E.crudoM[1], m.nivR);
+// Pico de lo que pasa ahora por un medidor (después de efectos y fader)
+function picoDe(an) {
+  if (!an) return 0;
+  an.getFloatTimeDomainData(E.anBuf);
+  let m = 0;
+  for (let i = 0; i < E.anBuf.length; i++) { const v = E.anBuf[i] < 0 ? -E.anBuf[i] : E.anBuf[i]; if (v > m) m = v; }
+  return m;
 }
 
 function ponerTexto(id, txt) { if (E.lcd[id] !== txt) { E.lcd[id] = txt; $(id).textContent = txt; } }
@@ -3959,17 +4419,14 @@ function cuadroEstudio(ahora) {
   const canales = $('eMezclador').children;
   const caida = 26 * dt;
   S.pistas.forEach((p, i) => {
-    const d = dbDe(E.crudo[i] || 0);
-    E.crudo[i] = 0;
+    const d = dbDe(mezcla && mezcla.canales[i] ? picoDe(mezcla.canales[i].med) : 0);
     E.nivel[i] = Math.max(d, (E.nivel[i] === -Infinity ? -90 : E.nivel[i]) - caida);
     if (E.nivel[i] < -80) E.nivel[i] = -Infinity;
     if (d >= E.pico[i] || ahora - E.picoT[i] > 1200) { E.pico[i] = d; E.picoT[i] = ahora; }
     const c = canales[i];
     if (c && c._medidor) dibujarMedidor(c._medidor, [E.nivel[i]], E.pico[i]);
   });
-  const gm = E.maestroGanancia;
-  const dl = dbDe(E.crudoM[0] * gm), dr = dbDe(E.crudoM[1] * gm);
-  E.crudoM = [0, 0];
+  const dl = dbDe(mezcla ? picoDe(mezcla.medL) : 0), dr = dbDe(mezcla ? picoDe(mezcla.medR) : 0);
   E.nivelM = [Math.max(dl, (E.nivelM[0] === -Infinity ? -90 : E.nivelM[0]) - caida), Math.max(dr, (E.nivelM[1] === -Infinity ? -90 : E.nivelM[1]) - caida)].map((v) => (v < -80 ? -Infinity : v));
   const dm = Math.max(dl, dr);
   if (dm >= E.picoM || ahora - E.picoMT > 1200) { E.picoM = dm; E.picoMT = ahora; }
@@ -3990,7 +4447,6 @@ $('volver').onclick = () => {
   $('biblioteca').hidden = false;
   E.activo = false;
   document.body.classList.remove('modo-estudio');
-  if (nodo) nodo.port.postMessage({ tipo: 'medir', activo: false });
   history.replaceState(null, '', location.pathname);
   cargarLista();
 };
@@ -4009,8 +4465,8 @@ $('click').onclick = () => { S.clickOn = !S.clickOn; enviarClick(); };
 $('clickVol').oninput = (e) => { S.clickVol = e.target.value / 100; enviarClick(); };
 $('restablecer').onclick = () => {
   S.tempo = 1; S.semis = 0; enviarVelocidad();
-  S.pistas.forEach((p) => { p.mute = false; p.solo = false; p.vol = 1; p.pan = 0; });
-  enviarPaneos();
+  restablecerMezcla();
+  enviarVolumenes();
   construirReproductor();
 };
 $('descargarBtn').onclick = (e) => { e.stopPropagation(); $('descargas').hidden = !$('descargas').hidden; };

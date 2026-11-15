@@ -2435,7 +2435,7 @@ const TEXTOS = {
     grabar: 'Grabar', grabDetener: 'Detener', grabando: 'Grabando', grabBorrar: 'Borrar toma', grabBorrarConfirma: '¿Borrar "{t}"? No se puede deshacer.', grabLista: '{n} lista',
     grabMax: 'Ya hay 12 pistas: borra una toma para grabar otra.', grabSinMic: 'No se pudo usar el micrófono. Revisa el permiso del navegador.', grabVelocidad: 'Para grabar, la velocidad vuelve a 100 % y el tono a 0.',
     grabVacia: 'No se grabó nada.', grabSilencio: 'La toma quedó en silencio: revisa el micrófono.',
-    grabT: 'Grabación', micConectado: 'Micrófono conectado: {n}', micDesconectado: 'Se desconectó el micrófono: vuelve el del sistema', grabSalida: 'Salida de audio (audífonos o parlantes)', grabSalidaN: 'Salida', grabSalidaLista: 'Salida de audio cambiada', grabSalidaSafari: 'Este navegador no deja elegir la salida aquí: cámbiala en Ajustes del Sistema → Sonido → Salida.', grabConsejo: 'Si tu micrófono tiene salida para audífonos (como el Blue Yeti), conéctalos ahí y elige ese micrófono también como salida: te escuchas sin ningún retraso y no hace falta «Escucharme».', consejoT: '¿No te escuchas mientras grabas?', consejoTxt: 'Toca «Escucharme» y usa audífonos. Si no suena nada, abre Ajustes y elige en «Salida de audio» donde están conectados tus audífonos. Si tu micrófono tiene salida para audífonos (como el Blue Yeti), conéctalos ahí: te escuchas sin retraso.', consejoOk: 'Entendido', grabEscucharCorto: 'Escucharme', grabUsaAudifonos: 'Te escuchas por la salida de audio: usa audífonos para que no se acople.', grabMic: 'Micrófono', grabMicDef: 'El del sistema', grabEscuchar: 'Escucharme mientras grabo', grabMonSi: 'Sí (con audífonos)',
+    grabT: 'Grabación', micSeCorto: 'Se cortó el micrófono: reconectando…', micVolvio: 'Micrófono reconectado', micNoVolvio: 'El micrófono no volvió. Revisa el cable: mejor conéctalo directo a la Mac, sin adaptador.', micConectado: 'Micrófono conectado: {n}', micDesconectado: 'Se desconectó el micrófono: vuelve el del sistema', grabSalida: 'Salida de audio (audífonos o parlantes)', grabSalidaN: 'Salida', grabSalidaLista: 'Salida de audio cambiada', grabSalidaSafari: 'Este navegador no deja elegir la salida aquí: cámbiala en Ajustes del Sistema → Sonido → Salida.', grabConsejo: 'Si tu micrófono tiene salida para audífonos (como el Blue Yeti), conéctalos ahí y elige ese micrófono también como salida: te escuchas sin ningún retraso y no hace falta «Escucharme».', consejoT: '¿No te escuchas mientras grabas?', consejoTxt: 'Toca «Escucharme» y usa audífonos. Si no suena nada, abre Ajustes y elige en «Salida de audio» donde están conectados tus audífonos. Si tu micrófono tiene salida para audífonos (como el Blue Yeti), conéctalos ahí: te escuchas sin retraso.', consejoOk: 'Entendido', grabEscucharCorto: 'Escucharme', grabUsaAudifonos: 'Te escuchas por la salida de audio: usa audífonos para que no se acople.', grabMic: 'Micrófono', grabMicDef: 'El del sistema', grabEscuchar: 'Escucharme mientras grabo', grabMonSi: 'Sí (con audífonos)',
     latT: 'Compensación de latencia', latCalibrar: 'Calibrar', latAutoT: 'Automática', latAuto: 'Automática: la calcula el navegador. Para más precisión, calibra.', latCalibrada: 'Calibrada con tus parlantes y tu micrófono.', latManual: 'Ajustada a mano.',
     latEscuchando: 'Escuchando los clics… quédate en silencio.', latSinClics: 'No se escucharon los clics. Sube el volumen, quita los audífonos y prueba otra vez.', latLista: 'Latencia calibrada: {ms} ms',
     latAyuda: 'Para calibrar: quita los audífonos y sube el volumen. La app toca 6 clics y mide cuánto tardan en volver por el micrófono.',
@@ -2494,7 +2494,7 @@ const TEXTOS = {
     grabar: 'Record', grabDetener: 'Stop', grabando: 'Recording', grabBorrar: 'Delete take', grabBorrarConfirma: 'Delete "{t}"? This can’t be undone.', grabLista: '{n} ready',
     grabMax: 'There are already 12 tracks: delete a take to record another.', grabSinMic: 'Couldn’t use the microphone. Check the browser permission.', grabVelocidad: 'To record, speed goes back to 100 % and key to 0.',
     grabVacia: 'Nothing was recorded.', grabSilencio: 'The take is silent: check the microphone.',
-    grabT: 'Recording', micConectado: 'Microphone connected: {n}', micDesconectado: 'The microphone was unplugged: back to the system one', grabSalida: 'Audio output (headphones or speakers)', grabSalidaN: 'Output', grabSalidaLista: 'Audio output changed', grabSalidaSafari: 'This browser can’t choose the output here: change it in System Settings → Sound → Output.', grabConsejo: 'If your microphone has a headphone output (like the Blue Yeti), plug them in there and pick that microphone as the output too: you hear yourself with no delay and don’t need “Hear me”.', consejoT: 'Can’t hear yourself while recording?', consejoTxt: 'Tap “Hear me” and use headphones. If nothing sounds, open Settings and pick your headphones under “Audio output”. If your microphone has a headphone output (like the Blue Yeti), plug them in there: you hear yourself with no delay.', consejoOk: 'Got it', grabEscucharCorto: 'Hear me', grabUsaAudifonos: 'You hear yourself through the audio output: use headphones so it doesn’t feed back.', grabMic: 'Microphone', grabMicDef: 'System default', grabEscuchar: 'Hear myself while recording', grabMonSi: 'Yes (with headphones)',
+    grabT: 'Recording', micSeCorto: 'The microphone dropped: reconnecting…', micVolvio: 'Microphone reconnected', micNoVolvio: 'The microphone didn’t come back. Check the cable: better plug it straight into the Mac, without an adapter.', micConectado: 'Microphone connected: {n}', micDesconectado: 'The microphone was unplugged: back to the system one', grabSalida: 'Audio output (headphones or speakers)', grabSalidaN: 'Output', grabSalidaLista: 'Audio output changed', grabSalidaSafari: 'This browser can’t choose the output here: change it in System Settings → Sound → Output.', grabConsejo: 'If your microphone has a headphone output (like the Blue Yeti), plug them in there and pick that microphone as the output too: you hear yourself with no delay and don’t need “Hear me”.', consejoT: 'Can’t hear yourself while recording?', consejoTxt: 'Tap “Hear me” and use headphones. If nothing sounds, open Settings and pick your headphones under “Audio output”. If your microphone has a headphone output (like the Blue Yeti), plug them in there: you hear yourself with no delay.', consejoOk: 'Got it', grabEscucharCorto: 'Hear me', grabUsaAudifonos: 'You hear yourself through the audio output: use headphones so it doesn’t feed back.', grabMic: 'Microphone', grabMicDef: 'System default', grabEscuchar: 'Hear myself while recording', grabMonSi: 'Yes (with headphones)',
     latT: 'Latency compensation', latCalibrar: 'Calibrate', latAutoT: 'Automatic', latAuto: 'Automatic: the browser estimates it. Calibrate for more precision.', latCalibrada: 'Calibrated with your speakers and microphone.', latManual: 'Set by hand.',
     latEscuchando: 'Listening to the clicks… stay quiet.', latSinClics: 'The clicks weren’t heard. Turn the volume up, remove headphones and try again.', latLista: 'Latency calibrated: {ms} ms',
     latAyuda: 'To calibrate: remove your headphones and turn the volume up. The app plays 6 clicks and measures how long they take to come back through the microphone.',
@@ -3933,6 +3933,37 @@ async function bdTodasLasPistas(c) {
   return datos;
 }
 
+let micDebeEstar = false, reconectando = null;
+async function micCortado() {
+  if (!micStream) return;
+  aviso(t('micSeCorto'));
+  if (E.rec) await detenerGrabacion();   // la toma hasta ese momento se guarda
+  cerrarMic();
+  pintarEscuchar();
+  intentarReconectar();
+}
+// Prueba cada segundo (hasta 40 s) volver a abrir el micrófono elegido
+function intentarReconectar() {
+  if (reconectando) return;
+  let n = 0;
+  reconectando = setInterval(async () => {
+    n++;
+    try {
+      const id = leerPref('micId', '');
+      const lista = (await navigator.mediaDevices.enumerateDevices()).filter((d) => d.kind === 'audioinput');
+      if (!id || lista.some((d) => d.deviceId === id)) {
+        clearInterval(reconectando); reconectando = null;
+        await prepararMic();
+        if (monitorGan) monitorGan.gain.value = leerPref('monitor', false) ? 1 : 0;
+        llenarMics(); pintarEscuchar();
+        aviso(t('micVolvio'));
+        return;
+      }
+    } catch (e) {}
+    if (n >= 40) { clearInterval(reconectando); reconectando = null; aviso(t('micNoVolvio')); }
+  }, 1000);
+}
+
 async function prepararMic() {
   await prepararAudio();
   const id = leerPref('micId', '');
@@ -3943,6 +3974,9 @@ async function prepararMic() {
     audio: { deviceId: id ? { exact: id } : undefined, echoCancellation: false, noiseSuppression: false, autoGainControl: false, latency: { ideal: 0 }, sampleRate: { ideal: actx.sampleRate } },
   });
   micStream._id = id;
+  micDebeEstar = true;
+  // Si el micrófono se corta (USB que se reinicia, cable flojo), se reconecta solo
+  micStream.getAudioTracks()[0].addEventListener('ended', micCortado);
   // Si nunca elegiste micrófono y hay uno externo (USB, interfaz), se usa ese en vez del de la laptop
   if (!id && !leerPref('micElegido', false)) {
     const ext = await micExterno();
@@ -4174,7 +4208,7 @@ if (navigator.mediaDevices && navigator.mediaDevices.addEventListener) {
       await llenarMics();
       const actual = leerPref('micId', '');
       const lista = (await navigator.mediaDevices.enumerateDevices()).filter((d) => d.kind === 'audioinput');
-      const sigue = !actual || lista.some((d) => d.deviceId === actual);
+      const esta = !actual || lista.some((d) => d.deviceId === actual);
       if (!leerPref('micElegido', false)) {
         const ext = await micExterno();
         if (ext && ext.deviceId !== actual) {
@@ -4185,8 +4219,8 @@ if (navigator.mediaDevices && navigator.mediaDevices.addEventListener) {
           return;
         }
       }
-      // Si se desconectó el micrófono elegido, volver al del sistema
-      if (!sigue && !E.rec) { guardarPref('micId', ''); if (micStream) cerrarMic(); llenarMics(); pintarEscuchar(); aviso(t('micDesconectado')); }
+      // El micrófono elegido NO se olvida si desaparece un momento: cuando vuelve, se reconecta solo
+      if (esta && micDebeEstar && (!micStream || !micStream.active)) intentarReconectar();
     } catch (e) {}
   });
 }

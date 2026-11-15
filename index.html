@@ -717,6 +717,18 @@
   /* Página Pistas: solo el arreglo, a lo ancho y alto de la pantalla */
   body.modo-estudio.estudio-pistas .panel.practica { display: none; }
   body.modo-estudio.estudio-pistas .tool { max-width: none; }
+  /* Ventana angosta: la barra del estudio cabe en una fila (íconos sin texto; el nombre aparece al pasar el mouse) */
+  @media (max-width: 1360px) {
+    .estudio .txt-angosto { display: none; }
+    .estudio .e-barra { gap: 8px; }
+    .estudio .e-herr { gap: 5px; }
+    .estudio .e-lcd > div { padding: 4px 10px; }
+    .estudio .e-lcd-num, .estudio .e-lcd .grande .e-lcd-num { font-size: 18px; }
+    .estudio .e-lcd small { font-size: 10px; }
+    .estudio .e-zoom input { width: 70px; }
+    .estudio .e-mic select { max-width: 110px; }
+    .estudio .e-paginas button { padding: 0 10px; }
+  }
   .e-consejo { display: flex; align-items: center; gap: 12px; margin: 0 0 10px; padding: 12px 14px; border-radius: 12px; background: color-mix(in srgb, var(--e-acento) 12%, var(--e-panel)); box-shadow: 0 0 0 1px color-mix(in srgb, var(--e-acento) 35%, transparent); color: var(--e-texto); }
   .e-consejo p { margin: 0; flex: 1; font-size: 13.5px; line-height: 1.45; }
   .e-consejo .icono { color: var(--e-acento); width: 22px; height: 22px; }
@@ -1009,15 +1021,15 @@
             <button type="button" data-herramienta="flecha" aria-pressed="false" data-i18n-aria="herrFlecha" aria-label="Flecha" title="Flecha (V)"><svg class="icono" aria-hidden="true"><use href="#i-flecha-cursor"/></svg></button>
             <button type="button" data-herramienta="seleccion" aria-pressed="true" data-i18n-aria="herrSeleccion" aria-label="Selección" title="Selección (I)"><svg class="icono" aria-hidden="true"><use href="#i-cursor-texto"/></svg></button>
           </div>
-          <button class="e-boton e-solo-pistas" id="eSeguir" type="button" aria-pressed="true"><svg class="icono" aria-hidden="true"><use href="#i-seguir"/></svg><span data-i18n="eSeguir">Seguir</span></button>
-          <button class="e-boton e-solo-pistas" id="eAjustar" type="button" aria-pressed="true"><svg class="icono" aria-hidden="true"><use href="#i-iman"/></svg><span data-i18n="eAjustar">Ajustar al pulso</span></button>
+          <button class="e-boton e-solo-pistas" id="eSeguir" type="button" data-i18n-titulo="eSeguir" aria-pressed="true"><svg class="icono" aria-hidden="true"><use href="#i-seguir"/></svg><span class="txt-angosto" data-i18n="eSeguir">Seguir</span></button>
+          <button class="e-boton e-solo-pistas" id="eAjustar" type="button" data-i18n-titulo="eAjustar" aria-pressed="true"><svg class="icono" aria-hidden="true"><use href="#i-iman"/></svg><span class="txt-angosto" data-i18n="eAjustar">Ajustar al pulso</span></button>
           <div class="e-zoom e-solo-pistas">
             <button id="eAlejar" type="button" data-i18n-aria="eAlejar" aria-label="Alejar">−</button>
             <input type="range" id="eZoom" min="0" max="1000" value="0" data-i18n-aria="eZoomT" aria-label="Zoom">
             <button id="eAcercar" type="button" data-i18n-aria="eAcercar" aria-label="Acercar">+</button>
           </div>
-          <button class="e-boton e-solo-pistas" id="eTodo" type="button"><svg class="icono" aria-hidden="true"><use href="#i-expandir"/></svg><span data-i18n="eTodo">Ver toda</span></button>
-          <button class="e-boton principal" id="eExportar" type="button"><svg class="icono" aria-hidden="true"><use href="#i-descargar"/></svg><span data-i18n="expT">Exportar mezcla</span></button>
+          <button class="e-boton e-solo-pistas" id="eTodo" type="button" data-i18n-titulo="eTodo"><svg class="icono" aria-hidden="true"><use href="#i-expandir"/></svg><span class="txt-angosto" data-i18n="eTodo">Ver toda</span></button>
+          <button class="e-boton principal" id="eExportar" type="button" data-i18n-titulo="expT"><svg class="icono" aria-hidden="true"><use href="#i-descargar"/></svg><span class="txt-angosto" data-i18n="expT">Exportar mezcla</span></button>
         </div>
       </div>
       <div class="e-consejo" id="eConsejo" hidden>
@@ -2525,6 +2537,7 @@ function aplicarIdioma(nuevo) {
   document.querySelectorAll('[data-i18n]').forEach((el) => { el.textContent = t(el.dataset.i18n); });
   document.querySelectorAll('[data-i18n-aria]').forEach((el) => el.setAttribute('aria-label', t(el.dataset.i18nAria)));
   document.querySelectorAll('[data-i18n-ph]').forEach((el) => { el.placeholder = t(el.dataset.i18nPh); });
+  document.querySelectorAll('[data-i18n-titulo]').forEach((el) => { el.title = t(el.dataset.i18nTitulo); });
   document.querySelectorAll('#idiomas button').forEach((b) => b.setAttribute('aria-pressed', b.dataset.idioma === idioma ? 'true' : 'false'));
   guardarPref('idioma', idioma);
   pintarTemas();
@@ -4650,7 +4663,10 @@ function aplicarVista(v) {
     llenarMics().catch(() => {});
     pedirPicos();
     construirEstudio();
-    requestAnimationFrame(() => { redimensionarEstudio(); verToda(); });
+    requestAnimationFrame(() => {
+      redimensionarEstudio(); verToda();
+      if (E.pagina === 'pistas') $('estudio').scrollIntoView({ block: 'start' });
+    });
   } else if (!estudio && antes && S.a) {
     construirReproductor();
   }
@@ -4681,9 +4697,12 @@ function redimensionarEstudio() {
   // En la página Pistas los carriles crecen para llenar la pantalla
   if (E.pagina === 'pistas') {
     const filas = S.pistas.length + (E.rec ? 1 : 0);
+    // Se mide lo que de verdad ocupa cada cosa (la barra puede ir en dos filas si la ventana es angosta)
     const barra = $('estudio').querySelector('.e-barra').offsetHeight + ($('eConsejo').hidden ? 0 : $('eConsejo').offsetHeight + 10);
-    const libre = innerHeight - barra - ALTO.regla - ALTO.secc - ALTO.acordes - 44 - 110 - 30;
-    const alto = Math.max(62, Math.min(170, Math.floor(libre / Math.max(1, filas))));
+    const transporte = (document.querySelector('.transporte').offsetHeight || 80) + 24;
+    const mapa = $('eMapa').offsetHeight + 8;
+    const libre = innerHeight - 20 - barra - 10 - ALTO.regla - ALTO.secc - ALTO.acordes - mapa - transporte - 12;
+    const alto = Math.max(44, Math.min(170, Math.floor(libre / Math.max(1, filas))));
     if (alto !== ALTO.pista) {
       ALTO.pista = alto;
       document.querySelectorAll('.e-pista').forEach((f) => { f.style.height = alto + 'px'; });

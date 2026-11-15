@@ -230,6 +230,21 @@
   .letra-inicio { margin-top: 12px; }
   .letra-inicio summary { cursor: pointer; font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--parchment-dim); }
   .letra-inicio textarea { min-height: 120px; margin-top: 8px; }
+
+  /* Buscar en YouTube (con Descargador Pro abierto en la Mac) */
+  .yt-fila { display: flex; gap: 8px; margin-top: 10px; }
+  .yt-campo { flex: 1; min-width: 0; font: 15px 'Work Sans', sans-serif; padding: 10px 12px; border-radius: 8px; border: 1px solid var(--surface-2); background: var(--bg); color: var(--parchment); }
+  .yt-campo:focus-visible { outline: 2px solid var(--focus); outline-offset: 1px; }
+  .yt-estado { font-size: 13px; color: var(--parchment-dim); min-height: 18px; margin: 8px 0 0; overflow-wrap: anywhere; }
+  .yt-estado.error { color: var(--ember); }
+  .yt-lista { list-style: none; margin: 6px 0 0; padding: 0; }
+  .yt-lista li { display: flex; gap: 10px; align-items: center; padding: 8px 0; border-top: 1px solid var(--surface-2); }
+  .yt-lista img { width: 96px; aspect-ratio: 16 / 9; object-fit: cover; border-radius: 5px; flex-shrink: 0; background: var(--surface-2); }
+  .yt-info { flex: 1; min-width: 0; }
+  .yt-titulo { font-size: 13.5px; font-weight: 600; margin: 0; overflow-wrap: anywhere; }
+  .yt-meta { font: 11.5px 'IBM Plex Mono', monospace; color: var(--parchment-dim); margin: 2px 0 0; }
+  .yt-oficial { display: inline-block; font: 600 10px 'IBM Plex Mono', monospace; letter-spacing: .06em; text-transform: uppercase; background: var(--brass); color: var(--ink); padding: 1px 5px; border-radius: 4px; margin-right: 6px; vertical-align: 1px; }
+  .yt-lista .chip { flex-shrink: 0; }
   .fila-botones { display: flex; gap: 8px; justify-content: flex-end; margin-top: 10px; flex-wrap: wrap; align-items: center; }
   .fila-botones .izq { margin-right: auto; }
   .letra-vacia { display: grid; gap: 8px; justify-items: center; padding: 4px 0 2px; }
@@ -366,6 +381,16 @@
         <div class="fila-botones">
           <span class="carga-letra izq"><span class="label" data-i18n="cargarTxt">Cargar .txt o .lrc</span><input type="file" id="archivoLetraInicio" class="archivo chico" data-i18n-aria="cargarTxt" aria-label="Cargar .txt o .lrc"></span>
         </div>
+      </details>
+      <details class="letra-inicio" id="buscarYT" hidden>
+        <summary data-i18n="ytT">Buscar en YouTube</summary>
+        <form class="yt-fila" id="ytForm" role="search">
+          <input class="yt-campo" id="ytPedido" type="search" autocomplete="off" data-i18n-ph="ytPh" placeholder="Artista y canción" data-i18n-aria="ytPh" aria-label="Artista y canción">
+          <button class="boton principal" type="submit" data-i18n="ytBuscar">Buscar</button>
+        </form>
+        <p class="yt-estado" id="ytEstado" role="status" aria-live="polite"></p>
+        <ul class="yt-lista" id="ytLista"></ul>
+        <p class="aviso" style="text-align:left" data-i18n="ytNota">Descargador Pro la baja en tu Mac en WAV HiFi y aquí se separa con el modo elegido arriba.</p>
       </details>
       <p class="aviso" data-i18n="aviso">Todo pasa en tu equipo: la canción no se sube a ningún servidor. La primera vez descarga los modelos de IA (90 MB el rápido, 230 MB el de estudio) y quedan guardados.</p>
     </div>
@@ -1620,6 +1645,12 @@ const TEXTOS = {
     vacio: 'Todavía no hay canciones. Sube una para empezar.', abrirBtn: 'Abrir', borrar: 'Borrar',
     borrarConfirma: '¿Borrar "{t}" y sus pistas?', lista: '{n} pistas · {d} · lista', errorT: 'Error',
     noLeyo: 'No se pudo leer el archivo. Prueba con mp3, m4a o wav.', noAbrio: 'No se pudo abrir la canción',
+    ytT: 'Buscar en YouTube', ytPh: 'Artista y canción', ytBuscar: 'Buscar', ytBuscando: 'Buscando…', ytUsar: 'Usar',
+    ytNada: 'No encontré videos con esa búsqueda.', ytOficial: 'Oficial',
+    ytSinMotor: 'Abre Descargador Pro en tu Mac para buscar y bajar canciones.',
+    ytBajando: 'Bajando "{t}"… {p} %', ytConvirtiendo: 'Pasando "{t}" a WAV HiFi…', ytTrayendo: 'Trayendo "{t}" a Ensayo…',
+    ytListo: '"{t}" ya está en la lista para separarse.',
+    ytNota: 'Descargador Pro la baja en tu Mac en WAV HiFi y aquí se separa con el modo elegido arriba.',
     enCola: 'En cola', leyendo: 'Leyendo el audio', descargando: 'Descargando el modelo de IA (solo la primera vez)',
     preparando: 'Preparando el modelo', separando: 'Separando pistas', analizando: 'Analizando tempo, tonalidad y acordes',
     conGpu: 'con la GPU', sinGpu: 'sin GPU, va a tardar más', lleva: 'lleva', faltan: 'faltan',
@@ -1658,6 +1689,12 @@ const TEXTOS = {
     vacio: 'No songs yet. Upload one to get started.', abrirBtn: 'Open', borrar: 'Delete',
     borrarConfirma: 'Delete "{t}" and its stems?', lista: '{n} stems · {d} · ready', errorT: 'Error',
     noLeyo: 'Could not read the file. Try mp3, m4a or wav.', noAbrio: 'Could not open the song',
+    ytT: 'Search YouTube', ytPh: 'Artist and song', ytBuscar: 'Search', ytBuscando: 'Searching…', ytUsar: 'Use',
+    ytNada: 'No videos found for that search.', ytOficial: 'Official',
+    ytSinMotor: 'Open Descargador Pro on your Mac to search and download songs.',
+    ytBajando: 'Downloading "{t}"… {p} %', ytConvirtiendo: 'Converting "{t}" to HiFi WAV…', ytTrayendo: 'Bringing "{t}" into Ensayo…',
+    ytListo: '"{t}" is in the list to be separated.',
+    ytNota: 'Descargador Pro downloads it on your Mac as HiFi WAV and it gets separated here with the mode chosen above.',
     enCola: 'Queued', leyendo: 'Reading audio', descargando: 'Downloading the AI model (first time only)',
     preparando: 'Preparing the model', separando: 'Splitting stems', analizando: 'Analyzing tempo, key and chords',
     conGpu: 'on the GPU', sinGpu: 'no GPU, this will take longer', lleva: 'elapsed', faltan: 'about',
@@ -1995,6 +2032,106 @@ document.querySelectorAll('#modos button').forEach((b) => b.onclick = () => {
   document.querySelectorAll('#modos button').forEach((x) => x.setAttribute('aria-pressed', x === b ? 'true' : 'false'));
   guardarPref('modo', modo);
 });
+
+/* =====================================================================
+ * Buscar en YouTube con Descargador Pro (app aparte que corre en la Mac).
+ * Solo aparece si se activó abriendo Ensayo con ?descargador (el botón
+ * "Abrir Ensayo" de Descargador Pro lo hace); para el resto no existe.
+ * ===================================================================== */
+const DESCARGADOR = 'http://127.0.0.1:8765';
+let ytOcupado = false;
+
+async function ytPedir(ruta, opciones) {
+  let r;
+  try { r = await fetch(DESCARGADOR + ruta, opciones); } catch (e) { throw new Error(t('ytSinMotor')); }
+  const d = await r.json();
+  if (!r.ok || d.error) throw new Error(d.error || r.statusText);
+  return d;
+}
+
+function ytEstado(texto, error) {
+  $('ytEstado').textContent = texto;
+  $('ytEstado').classList.toggle('error', !!error);
+}
+
+function ytReloj(seg) {
+  seg = Math.round(seg || 0);
+  return Math.floor(seg / 60) + ':' + String(seg % 60).padStart(2, '0');
+}
+
+async function ytBuscar() {
+  const pedido = $('ytPedido').value.trim();
+  if (!pedido || ytOcupado) return;
+  guardarPref('ytPedido', pedido);
+  ytEstado(t('ytBuscando'));
+  $('ytLista').innerHTML = '';
+  try {
+    const { resultados } = await ytPedir('/buscar?q=' + encodeURIComponent(pedido));
+    ytEstado(resultados.length ? '' : t('ytNada'));
+    resultados.slice(0, 8).forEach((r) => {
+      const li = document.createElement('li');
+      const img = document.createElement('img');
+      img.crossOrigin = 'anonymous';  // con el aislamiento de Ensayo, las imágenes de otros sitios necesitan esto
+      img.alt = ''; img.src = r.miniatura;
+      const info = document.createElement('div');
+      info.className = 'yt-info';
+      const titulo = document.createElement('p');
+      titulo.className = 'yt-titulo';
+      if (r.oficial) {
+        const sello = document.createElement('span');
+        sello.className = 'yt-oficial';
+        sello.textContent = t('ytOficial');
+        titulo.appendChild(sello);
+      }
+      titulo.appendChild(document.createTextNode(r.titulo));
+      const meta = document.createElement('p');
+      meta.className = 'yt-meta';
+      meta.textContent = r.canal + ' · ' + ytReloj(r.duracion);
+      info.append(titulo, meta);
+      const b = document.createElement('button');
+      b.type = 'button'; b.className = 'chip'; b.textContent = t('ytUsar');
+      b.onclick = () => ytUsar(r);
+      li.append(img, info, b);
+      $('ytLista').appendChild(li);
+    });
+  } catch (e) { ytEstado(e.message, true); }
+}
+
+// Pide a Descargador Pro el audio en WAV HiFi, lo trae y lo pone en la cola como si lo hubieras subido.
+async function ytUsar(r) {
+  if (ytOcupado) return;
+  ytOcupado = true;
+  document.querySelectorAll('#ytLista .chip').forEach((b) => { b.disabled = true; });
+  const titulo = r.titulo;
+  try {
+    const { id } = await ytPedir('/descargar', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url: 'https://www.youtube.com/watch?v=' + r.id, formato: 'wav' }),
+    });
+    ytEstado(t('ytBajando', { t: titulo, p: 0 }));
+    let s;
+    for (;;) {
+      await new Promise((ok) => setTimeout(ok, 700));
+      s = await ytPedir('/estado?id=' + id).catch((e) => ({ status: 'error', error: e.message }));
+      if (s.status === 'error') throw new Error(s.error);
+      if (s.status === 'listo') break;
+      ytEstado(s.status === 'convirtiendo' ? t('ytConvirtiendo', { t: titulo }) : t('ytBajando', { t: titulo, p: Math.round(s.percent || 0) }));
+    }
+    ytEstado(t('ytTrayendo', { t: titulo }));
+    const resp = await fetch(DESCARGADOR + '/archivo/' + encodeURIComponent(s.file));
+    if (!resp.ok) throw new Error(t('ytSinMotor'));
+    const blob = await resp.blob();
+    agregarArchivo(new File([blob], s.file, { type: 'audio/wav' }));
+    ytEstado(t('ytListo', { t: titulo }));
+  } catch (e) {
+    ytEstado(e.message, true);
+  }
+  ytOcupado = false;
+  document.querySelectorAll('#ytLista .chip').forEach((b) => { b.disabled = false; });
+}
+
+$('ytForm').onsubmit = (e) => { e.preventDefault(); $('ytPedido').blur(); ytBuscar(); };
 
 const zona = $('zona');
 $('archivo').onchange = (e) => { for (const f of e.target.files) agregarArchivo(f); e.target.value = ''; };
@@ -2732,6 +2869,15 @@ document.querySelectorAll('#modos button').forEach((b) => b.setAttribute('aria-p
 aplicarTema(leerPref('tema', 'calido'));
 aplicarIdioma(leerPref('idioma', 'es'));
 cargarLista();
+// Buscar en YouTube: se activa una vez entrando con ?descargador y queda guardado.
+if (new URLSearchParams(location.search).has('descargador')) {
+  guardarPref('descargador', true);
+  history.replaceState(null, '', location.pathname + location.hash);
+}
+if (leerPref('descargador', false)) {
+  $('buscarYT').hidden = false;
+  $('ytPedido').value = leerPref('ytPedido', '');
+}
 // Pedir que el navegador no borre las canciones guardadas cuando falte espacio
 if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
 

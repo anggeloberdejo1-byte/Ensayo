@@ -9,7 +9,7 @@
  * versión de CACHE (v1 -> v2 ...) para que los usuarios reciban la versión
  * nueva en vez de la vieja cacheada.
  */
-const CACHE = "ensayo-v8";
+const CACHE = "ensayo-v9";
 const ARCHIVOS = [
   "./",
   "./index.html",
@@ -56,6 +56,8 @@ self.addEventListener("fetch", (evento) => {
   if (req.method !== "GET") return;
   // Los modelos (cientos de MB) los guarda la app; no duplicarlos aquí.
   if (req.url.includes("/models/") || /(^|\.)(huggingface\.co|hf\.co)$/.test(new URL(req.url).hostname)) return;
+  // Descargador Pro (corre en la Mac) y las miniaturas de YouTube: directo, sin guardarlos.
+  if (/^(127\.0\.0\.1|i\.ytimg\.com)$/.test(new URL(req.url).hostname)) return;
 
   const propia = new URL(req.url).origin === self.location.origin;
   evento.respondWith(

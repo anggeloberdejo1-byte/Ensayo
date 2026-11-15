@@ -484,6 +484,154 @@
   .credit a { color: var(--brass); text-decoration: none; }
   .credit a:hover { text-decoration: underline; }
 
+
+  /* =====================================================================
+     Estudio: arreglo con línea de tiempo y mezclador. Los colores salen de
+     la paleta (coloresEstudio los calcula en una versión oscura).
+     ===================================================================== */
+  body.modo-estudio .tool { max-width: 1600px; }
+  body.modo-estudio #acordes, body.modo-estudio #panelLetra, body.modo-estudio #panelPistas, body.modo-estudio .atajos { display: none; }
+  .seg.vista { flex: 0 0 auto; }
+  .seg.vista button { padding: 8px 16px; display: inline-flex; align-items: center; gap: 7px; }
+  .seg.vista .icono { width: 17px; height: 17px; }
+
+  .estudio {
+    --e-r: 12px;
+    background: var(--e-fondo); color: var(--e-texto); border-radius: 18px; padding: 10px;
+    box-shadow: var(--sombra-2), 0 0 0 1px var(--e-borde); margin-bottom: 14px;
+    font-size: 13px; user-select: none; -webkit-user-select: none;
+    animation: entrar .3s var(--suave);
+  }
+  .estudio button { font-family: var(--fuente); }
+  .e-num { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+
+  /* Barra superior */
+  .e-barra { display: flex; align-items: stretch; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; }
+  .e-lcd {
+    display: flex; align-items: stretch; background: var(--e-pozo); border-radius: var(--e-r);
+    box-shadow: inset 0 1px 3px rgba(0,0,0,.35), 0 0 0 1px var(--e-borde);
+  }
+  .e-lcd > div { display: flex; flex-direction: column; justify-content: center; padding: 6px 16px; min-width: 0; }
+  .e-lcd > div + div { border-left: 1px solid var(--e-borde); }
+  .e-lcd-num { font-family: var(--mono); font-variant-numeric: tabular-nums; font-size: 22px; font-weight: 600; line-height: 1.1; color: var(--e-acento); letter-spacing: -0.01em; white-space: nowrap; }
+  .e-lcd .grande .e-lcd-num { font-size: 28px; }
+  .e-lcd small { font-size: 11px; color: var(--e-tenue); margin-top: 1px; }
+  .e-herr { display: flex; align-items: center; gap: 6px; margin-left: auto; flex-wrap: wrap; }
+  .e-boton {
+    display: inline-flex; align-items: center; gap: 7px; min-height: 38px; padding: 0 12px; border-radius: 10px;
+    background: var(--e-panel); color: var(--e-texto); border: 1px solid var(--e-borde); font-size: 13px; font-weight: 500; cursor: pointer;
+    transition: background-color .15s, color .15s, transform .2s var(--resorte);
+  }
+  .e-boton:hover { background: var(--e-panel-2); }
+  .e-boton:active { transform: scale(.95); }
+  .e-boton[aria-pressed="true"] { color: var(--e-acento); border-color: color-mix(in srgb, var(--e-acento) 45%, transparent); background: color-mix(in srgb, var(--e-acento) 12%, var(--e-panel)); }
+  .e-boton .icono { width: 17px; height: 17px; }
+  .e-boton.icono-solo { width: 38px; padding: 0; justify-content: center; }
+  .e-zoom { display: flex; align-items: center; gap: 4px; background: var(--e-panel); border: 1px solid var(--e-borde); border-radius: 10px; padding: 0 4px; min-height: 38px; }
+  .e-zoom button { width: 30px; height: 30px; border: 0; border-radius: 7px; background: transparent; color: var(--e-texto); font-size: 17px; cursor: pointer; display: grid; place-items: center; }
+  .e-zoom button:hover { background: var(--e-panel-2); }
+  .e-zoom input { width: 110px; height: 30px; accent-color: var(--e-acento); }
+
+  /* Arreglo */
+  .e-arreglo {
+    display: grid; grid-template-columns: 196px minmax(0, 1fr); border-radius: var(--e-r); overflow: hidden;
+    background: var(--e-panel); box-shadow: 0 0 0 1px var(--e-borde);
+  }
+  .e-cabezas { background: var(--e-panel); border-right: 1px solid var(--e-borde); position: relative; z-index: 1; box-shadow: 4px 0 12px -6px rgba(0,0,0,.4); }
+  .e-fila { display: flex; align-items: center; gap: 8px; padding: 0 8px 0 12px; border-bottom: 1px solid var(--e-borde); color: var(--e-tenue); font-size: 12px; font-weight: 600; }
+  .e-fila.regla { background: var(--e-panel-2); }
+  .e-pista { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 6px; padding: 0 8px 0 16px; border-bottom: 1px solid var(--e-borde); }
+  .e-pista::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 5px; background: var(--c); }
+  .e-pista .e-nombre { font-size: 13.5px; font-weight: 600; color: var(--e-texto); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .e-pista .e-sub { font-size: 11px; color: var(--e-tenue); font-family: var(--mono); font-variant-numeric: tabular-nums; }
+  .e-ms { display: flex; gap: 4px; }
+  .e-ms button {
+    width: 30px; height: 26px; border-radius: 7px; border: 1px solid var(--e-borde); background: var(--e-pozo); color: var(--e-tenue);
+    font-size: 11.5px; font-weight: 700; cursor: pointer; transition: background-color .12s, color .12s, transform .2s var(--resorte);
+  }
+  .e-ms button:hover { color: var(--e-texto); }
+  .e-ms button:active { transform: scale(.92); }
+  .e-ms .m.active { background: var(--ember); border-color: var(--ember); color: #fff; }
+  .e-ms .s.active { background: var(--focus); border-color: var(--focus); color: #1a1408; }
+  .e-pista.apagada .e-nombre { opacity: .45; }
+  .e-lienzo { position: relative; min-width: 0; cursor: text; touch-action: pan-y; }
+  .e-lienzo canvas { display: block; width: 100%; }
+  .e-lienzo.arrastrando { cursor: col-resize; }
+  .e-cargando-ondas { position: absolute; right: 10px; bottom: 8px; font-size: 11.5px; color: var(--e-tenue); background: var(--e-pozo); padding: 3px 9px; border-radius: 999px; pointer-events: none; }
+
+  /* Vista general (minimapa) */
+  .e-mapa { position: relative; height: 34px; margin-top: 8px; border-radius: 9px; overflow: hidden; background: var(--e-pozo); box-shadow: 0 0 0 1px var(--e-borde); cursor: pointer; touch-action: none; }
+  .e-mapa canvas { display: block; width: 100%; height: 100%; }
+  .e-ventana { position: absolute; top: 0; bottom: 0; border-radius: 6px; background: color-mix(in srgb, var(--e-texto) 10%, transparent); box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--e-texto) 55%, transparent); pointer-events: none; }
+
+  /* Mezclador */
+  .e-mezcla-cabeza { display: flex; align-items: center; justify-content: space-between; margin: 14px 4px 8px; }
+  .e-mezcla-cabeza h3 { margin: 0; font-size: 13px; font-weight: 600; color: var(--e-tenue); }
+  .e-mezclador { display: flex; gap: 6px; overflow-x: auto; padding: 2px 2px 6px; scrollbar-width: thin; }
+  .e-canal {
+    flex: 0 0 92px; display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 10px 6px 10px;
+    background: linear-gradient(180deg, var(--e-panel-2), var(--e-panel)); border-radius: var(--e-r);
+    box-shadow: 0 0 0 1px var(--e-borde), 0 1px 0 rgba(255,255,255,.04) inset; position: relative;
+  }
+  .e-canal::before { content: ""; position: absolute; top: 0; left: 14px; right: 14px; height: 3px; border-radius: 0 0 3px 3px; background: var(--c); }
+  .e-canal.maestro { flex-basis: 118px; margin-left: auto; background: linear-gradient(180deg, color-mix(in srgb, var(--e-acento) 14%, var(--e-panel-2)), var(--e-panel)); }
+  .e-canal-nombre { font-size: 12px; font-weight: 600; color: var(--e-texto); width: 100%; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px; }
+  .e-perilla {
+    position: relative; width: 38px; height: 38px; border-radius: 50%; cursor: ns-resize; touch-action: none;
+    background: radial-gradient(circle at 50% 35%, var(--e-panel-2), var(--e-pozo) 75%);
+    box-shadow: 0 2px 5px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.08), 0 0 0 1px var(--e-borde);
+  }
+  .e-perilla::before { /* arco de recorrido */
+    content: ""; position: absolute; inset: -5px; border-radius: 50%;
+    background: conic-gradient(from 225deg, color-mix(in srgb, var(--e-texto) 16%, transparent) 0 270deg, transparent 270deg);
+    -webkit-mask: radial-gradient(circle, transparent 23px, #000 23.5px); mask: radial-gradient(circle, transparent 23px, #000 23.5px);
+  }
+  .e-perilla-aguja { position: absolute; inset: 0; transition: transform .08s; }
+  .e-perilla-aguja::after { content: ""; position: absolute; left: 50%; top: 5px; width: 3px; height: 11px; margin-left: -1.5px; border-radius: 2px; background: var(--e-acento); }
+  .e-pan-txt { font-size: 11px; color: var(--e-tenue); margin-top: -4px; min-height: 14px; }
+  .e-fader-zona { position: relative; display: flex; gap: 8px; height: 210px; padding: 0 2px; }
+  .e-escala { position: relative; width: 18px; font-family: var(--mono); font-size: 9px; color: var(--e-tenue); }
+  .e-escala span { position: absolute; right: 0; transform: translateY(50%); line-height: 1; }
+  .e-medidor { width: 10px; height: 100%; border-radius: 3px; background: var(--e-pozo); box-shadow: inset 0 0 0 1px var(--e-borde); }
+  .maestro .e-medidor { width: 8px; }
+  .e-fader { position: relative; width: 26px; height: 100%; cursor: ns-resize; touch-action: none; }
+  .e-fader-riel { position: absolute; left: 50%; top: 0; bottom: 0; width: 4px; margin-left: -2px; border-radius: 2px; background: var(--e-pozo); box-shadow: inset 0 0 0 1px var(--e-borde); }
+  .e-fader-relleno { position: absolute; left: 50%; bottom: 0; width: 4px; margin-left: -2px; border-radius: 2px; background: var(--c, var(--e-acento)); opacity: .7; }
+  .e-fader-perilla {
+    position: absolute; left: 50%; width: 26px; height: 40px; margin-left: -13px; margin-top: -20px; border-radius: 6px;
+    background: linear-gradient(180deg, #fafafa 0%, #d9d9d9 46%, #9a9a9a 50%, #d4d4d4 54%, #efefef 100%);
+    box-shadow: 0 4px 10px rgba(0,0,0,.5), 0 0 0 1px rgba(0,0,0,.35); transition: box-shadow .15s;
+  }
+  .e-fader:hover .e-fader-perilla, .e-fader:focus-visible .e-fader-perilla { box-shadow: 0 4px 12px rgba(0,0,0,.55), 0 0 0 2px var(--e-acento); }
+  .e-fader:focus-visible, .e-perilla:focus-visible { outline: none; }
+  .e-perilla:focus-visible { box-shadow: 0 0 0 2px var(--e-acento); }
+  .e-db { font-family: var(--mono); font-variant-numeric: tabular-nums; font-size: 12px; font-weight: 600; color: var(--e-texto); background: var(--e-pozo); border-radius: 6px; padding: 3px 0; width: 100%; text-align: center; box-shadow: inset 0 0 0 1px var(--e-borde); }
+  .e-db.pico { color: #fff; background: var(--ember); }
+
+  /* En el estudio, los controles de abajo toman los colores del estudio */
+  body.modo-estudio .panel.practica { background: var(--e-panel); color: var(--e-texto); border-color: var(--e-borde); box-shadow: var(--sombra-2), 0 0 0 1px var(--e-borde); }
+  body.modo-estudio .practica .label { color: var(--e-tenue); }
+  body.modo-estudio .practica .valor { color: var(--e-acento); }
+  body.modo-estudio .practica input[type=range] { accent-color: var(--e-acento); }
+  body.modo-estudio .control + .control, body.modo-estudio .acciones-practica { border-color: var(--e-borde); }
+  body.modo-estudio .paso { background: var(--e-pozo); }
+  body.modo-estudio .practica .chip, body.modo-estudio .practica .boton { background: var(--e-panel-2); color: var(--e-texto); border-color: var(--e-borde); box-shadow: none; }
+  body.modo-estudio .practica .chip.active { background: var(--e-acento); color: var(--e-fondo); }
+  body.modo-estudio .transporte { background: color-mix(in srgb, var(--e-panel) 88%, transparent); color: var(--e-texto); box-shadow: var(--sombra-3), 0 0 0 1px var(--e-borde); }
+  body.modo-estudio .transporte .chip { color: var(--e-texto); }
+  body.modo-estudio .transporte .chip:not(.active):hover { background: var(--e-panel-2); }
+  body.modo-estudio .transporte .chip.active { background: var(--e-acento); color: var(--e-fondo); }
+  body.modo-estudio .tiempo { color: var(--e-tenue); }
+  body.modo-estudio .tiempo b { color: var(--e-texto); }
+
+  @media (max-width: 720px) {
+    .e-arreglo { grid-template-columns: 120px minmax(0, 1fr); }
+    .e-pista { grid-template-columns: minmax(0, 1fr); padding: 4px 6px 4px 12px; align-content: center; }
+    .e-lcd > div { padding: 6px 10px; }
+    .e-lcd-num, .e-lcd .grande .e-lcd-num { font-size: 18px; }
+    .e-herr { margin-left: 0; }
+  }
+
   @media (max-width: 860px) {
     #biblioteca { grid-template-columns: minmax(0, 1fr); gap: 24px; }
     .panel.practica { grid-template-columns: 1fr 1fr; }
@@ -569,6 +717,10 @@
   <symbol id="i-cargador" viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-6.2-8.6"/></symbol>
   <symbol id="i-alerta" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4"/><path d="M12 16h.01"/></symbol>
   <symbol id="i-microfono" viewBox="0 0 24 24"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10v1a7 7 0 0 0 14 0v-1"/><path d="M12 18v4"/></symbol>
+  <symbol id="i-mezcla" viewBox="0 0 24 24"><path d="M6 3v18"/><path d="M12 3v18"/><path d="M18 3v18"/><rect x="3.5" y="13" width="5" height="3" rx="1" fill="currentColor"/><rect x="9.5" y="6" width="5" height="3" rx="1" fill="currentColor"/><rect x="15.5" y="10" width="5" height="3" rx="1" fill="currentColor"/></symbol>
+  <symbol id="i-seguir" viewBox="0 0 24 24"><path d="M4 4v16"/><path d="m10 8 6 4-6 4V8z" fill="currentColor"/><path d="M20 4v16"/></symbol>
+  <symbol id="i-iman" viewBox="0 0 24 24"><path d="M6 3h4v8a2 2 0 0 0 4 0V3h4v8a6 6 0 0 1-12 0V3z"/><path d="M6 7h4"/><path d="M14 7h4"/></symbol>
+  <symbol id="i-expandir" viewBox="0 0 24 24"><path d="M3 12h18"/><path d="m7 8-4 4 4 4"/><path d="m17 8 4 4-4 4"/></symbol>
   <symbol id="i-buscar" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></symbol>
 </svg>
 
@@ -695,7 +847,40 @@
       <h2 id="titulo"></h2>
       <div class="dato" id="datoTono"></div>
       <div class="dato" id="datoBpm"></div>
+      <div class="seg vista" id="vista">
+        <button type="button" data-vista="ensayo" aria-pressed="true"><svg class="icono" aria-hidden="true"><use href="#i-musica"/></svg><span data-i18n="vistaEnsayo">Ensayo</span></button>
+        <button type="button" data-vista="estudio" aria-pressed="false"><svg class="icono" aria-hidden="true"><use href="#i-mezcla"/></svg><span data-i18n="vistaEstudio">Estudio</span></button>
+      </div>
     </div>
+
+    <!-- ===== Estudio: arreglo + mezclador ===== -->
+    <section class="estudio" id="estudio" hidden>
+      <div class="e-barra">
+        <div class="e-lcd">
+          <div class="grande"><span class="e-lcd-num" id="eCompas">001.1.1</span><small data-i18n="eCompasT">Compás</small></div>
+          <div><span class="e-lcd-num" id="eTiempo">0:00.0</span><small data-i18n="eTiempoT">Tiempo</small></div>
+          <div><span class="e-lcd-num" id="eBpm">—</span><small>BPM</small></div>
+          <div><span class="e-lcd-num" id="eTono">—</span><small data-i18n="tonalidad">Tonalidad</small></div>
+        </div>
+        <div class="e-herr">
+          <button class="e-boton" id="eSeguir" type="button" aria-pressed="true"><svg class="icono" aria-hidden="true"><use href="#i-seguir"/></svg><span data-i18n="eSeguir">Seguir</span></button>
+          <button class="e-boton" id="eAjustar" type="button" aria-pressed="true"><svg class="icono" aria-hidden="true"><use href="#i-iman"/></svg><span data-i18n="eAjustar">Ajustar al pulso</span></button>
+          <div class="e-zoom">
+            <button id="eAlejar" type="button" data-i18n-aria="eAlejar" aria-label="Alejar">−</button>
+            <input type="range" id="eZoom" min="0" max="1000" value="0" data-i18n-aria="eZoomT" aria-label="Zoom">
+            <button id="eAcercar" type="button" data-i18n-aria="eAcercar" aria-label="Acercar">+</button>
+          </div>
+          <button class="e-boton" id="eTodo" type="button"><svg class="icono" aria-hidden="true"><use href="#i-expandir"/></svg><span data-i18n="eTodo">Ver toda</span></button>
+        </div>
+      </div>
+      <div class="e-arreglo">
+        <div class="e-cabezas" id="eCabezas"></div>
+        <div class="e-lienzo" id="eLienzo"><canvas id="eCanvas"></canvas><span class="e-cargando-ondas" id="eCargandoOndas" data-i18n="eOndas" hidden>Dibujando ondas con detalle…</span></div>
+      </div>
+      <div class="e-mapa" id="eMapa" data-i18n-aria="eMapaT" aria-label="Vista general"><canvas id="eMapaCanvas"></canvas><div class="e-ventana" id="eVentana"></div></div>
+      <div class="e-mezcla-cabeza"><h3 data-i18n="eMezcladorT">Mezclador</h3></div>
+      <div class="e-mezclador" id="eMezclador"></div>
+    </section>
 
     <div class="panel acordes" id="acordes">
       <div class="label" data-i18n="acordesT">Acordes</div>
@@ -729,7 +914,7 @@
       </div>
     </div>
 
-    <div class="panel">
+    <div class="panel" id="panelPistas">
       <div class="carriles" id="carriles">
         <div class="carril">
           <div class="pista"><div class="nm label" data-i18n="seccionesT">Secciones</div></div>
@@ -871,6 +1056,14 @@ class Motor extends AudioWorkletProcessor {
     this.clickT = -1;
     this.clickFrec = 1000;
     this.bloques = 0;
+    // Estudio: paneo por pista (balance), medidores y ondas detalladas
+    this.pl = [];
+    this.pr = [];
+    this.medir = false;
+    this.niveles = new Float32Array(0);
+    this.nivL = 0;
+    this.nivR = 0;
+    this.trabajoPicos = null;
 
     this.ventana = new Float32Array(N);
     for (let i = 0; i < N; i++) this.ventana[i] = 0.5 - 0.5 * Math.cos((2 * Math.PI * i) / N);
@@ -891,6 +1084,10 @@ class Motor extends AudioWorkletProcessor {
         this.pistas = m.pistas;
         this.largo = m.largo;
         this.volumenes = m.pistas.map(() => 1 / 32768);
+        this.pl = m.pistas.map(() => 1);
+        this.pr = m.pistas.map(() => 1);
+        this.niveles = new Float32Array(m.pistas.length);
+        this.trabajoPicos = null;
         this.sonando = false;
         this.ir(0);
         break;
@@ -913,7 +1110,43 @@ class Motor extends AudioWorkletProcessor {
         this.sigPulso = this.buscarPulso(this.pos);
         break;
       case 'metronomo': this.clickOn = m.activo; this.clickVol = m.volumen; break;
+      case 'paneos':
+        // Balance: al centro las dos salidas quedan igual que sin paneo
+        m.paneos.forEach((p, k) => { this.pl[k] = Math.min(1, 1 - p); this.pr[k] = Math.min(1, 1 + p); });
+        break;
+      case 'medir': this.medir = !!m.activo; break;
+      case 'picos':
+        this.trabajoPicos = { id: m.id, res: m.res, k: 0, b: 0, salida: null };
+        break;
     }
+  }
+
+  // Calcula por partes el pico de cada tramo de m.res muestras (para dibujar ondas con detalle)
+  avanzarPicos() {
+    const tp = this.trabajoPicos;
+    let presupuesto = 131072;
+    while (presupuesto > 0 && tp.k < this.pistas.length) {
+      const d = this.pistas[tp.k], largo = d.length / 2;
+      const total = Math.ceil(largo / tp.res);
+      if (!tp.salida) { tp.salida = new Float32Array(total); tp.b = 0; }
+      while (tp.b < total && presupuesto > 0) {
+        const fin = Math.min(largo, (tp.b + 1) * tp.res);
+        let m = 0;
+        for (let i = tp.b * tp.res; i < fin; i++) {
+          const a = d[2 * i], b = d[2 * i + 1];
+          const v = a > b ? (a > -b ? a : -b) : (b > -a ? b : -a);
+          if (v > m) m = v;
+        }
+        tp.salida[tp.b++] = m / 32768;
+        presupuesto -= tp.res;
+      }
+      if (tp.b >= total) {
+        this.port.postMessage({ tipo: 'picos', id: tp.id, k: tp.k, datos: tp.salida }, [tp.salida.buffer]);
+        tp.salida = null;
+        tp.k++;
+      }
+    }
+    if (tp.k >= this.pistas.length) this.trabajoPicos = null;
   }
 
   buscarPulso(p) {
@@ -947,10 +1180,24 @@ class Motor extends AudioWorkletProcessor {
       const g = this.volumenes[k];
       if (!g) continue;
       const d = this.pistas[k];
-      for (let j = lo; j < hi; j++) {
-        const i = (inicio + j) * 2;
-        L[j] += d[i] * g;
-        R[j] += d[i + 1] * g;
+      const gl = g * this.pl[k], gr = g * this.pr[k];
+      if (this.medir) {
+        let m = this.niveles[k];
+        for (let j = lo; j < hi; j++) {
+          const i = (inicio + j) * 2;
+          const a = d[i] * gl, b = d[i + 1] * gr;
+          L[j] += a;
+          R[j] += b;
+          if (a > m) m = a; else if (-a > m) m = -a;
+          if (b > m) m = b; else if (-b > m) m = -b;
+        }
+        this.niveles[k] = m;
+      } else {
+        for (let j = lo; j < hi; j++) {
+          const i = (inicio + j) * 2;
+          L[j] += d[i] * gl;
+          R[j] += d[i + 1] * gr;
+        }
       }
     }
   }
@@ -1015,6 +1262,7 @@ class Motor extends AudioWorkletProcessor {
     const n = L.length;
     L.fill(0);
     if (R !== L) R.fill(0);
+    if (this.trabajoPicos) this.avanzarPicos();
     if (!this.sonando || !this.largo) return true;
 
     const directo = this.tempo === 1 && this.tono === 1;
@@ -1060,7 +1308,21 @@ class Motor extends AudioWorkletProcessor {
       this.pos += directo ? 1 : this.tempo;
     }
 
-    if (++this.bloques % 4 === 0) this.port.postMessage({ tipo: 'pos', tiempo: this.pos / sampleRate });
+    if (this.medir) {
+      for (let j = 0; j < n; j++) {
+        const a = L[j] < 0 ? -L[j] : L[j], b = R[j] < 0 ? -R[j] : R[j];
+        if (a > this.nivL) this.nivL = a;
+        if (b > this.nivR) this.nivR = b;
+      }
+    }
+    if (++this.bloques % 4 === 0) {
+      const m = { tipo: 'pos', tiempo: this.pos / sampleRate };
+      if (this.medir) {
+        m.niveles = Array.from(this.niveles); m.nivL = this.nivL; m.nivR = this.nivR;
+        this.niveles.fill(0); this.nivL = 0; this.nivR = 0;
+      }
+      this.port.postMessage(m);
+    }
     return true;
   }
 }
@@ -1980,6 +2242,7 @@ const TEXTOS = {
     karaoke: 'Karaoke', editarLetra: 'Editar letra', pegarLetra: 'Pegar la letra', usarLetra: 'Sincronizar', cargarTxt: 'Cargar .txt o .lrc',
     letraInicioT: 'Letra (opcional)', letraPh: 'Pega aquí la letra, una línea por renglón. La app la pone en pantalla al ritmo de la voz.',
     pegarNota: 'Pega la letra, una línea por renglón. La IA escucha la voz para saber cuándo se canta cada palabra. Un archivo .lrc ya trae los tiempos.',
+    vistaEnsayo: 'Ensayo', vistaEstudio: 'Estudio', eCompasT: 'Compás', eTiempoT: 'Tiempo', eSeguir: 'Seguir', eAjustar: 'Ajustar al pulso', eTodo: 'Ver toda', eAcercar: 'Acercar', eAlejar: 'Alejar', eZoomT: 'Zoom', eMapaT: 'Vista general de la canción', eMezcladorT: 'Mezclador', ePistas: 'Pistas', eOndas: 'Dibujando ondas con detalle…', maestro: 'Maestro', paneo: 'Paneo', panIzq: 'I', panDer: 'D',
     letraCalidadT: 'Letra: precisión', calidadNormal: 'Normal · 205 MB', calidadAlta: 'Alta · 410 MB', letraIdiomaT: 'Letra: idioma de la canción', automatico: 'Auto',
   },
   en: {
@@ -2025,6 +2288,7 @@ const TEXTOS = {
     karaoke: 'Karaoke', editarLetra: 'Edit lyrics', pegarLetra: 'Paste lyrics', usarLetra: 'Sync', cargarTxt: 'Load .txt or .lrc',
     letraInicioT: 'Lyrics (optional)', letraPh: 'Paste the lyrics here, one line per row. The app shows them in time with the vocals.',
     pegarNota: 'Paste the lyrics, one line per row. The AI listens to the vocals to know when each word is sung. An .lrc file already has the timing.',
+    vistaEnsayo: 'Practice', vistaEstudio: 'Studio', eCompasT: 'Bar', eTiempoT: 'Time', eSeguir: 'Follow', eAjustar: 'Snap to beat', eTodo: 'Fit all', eAcercar: 'Zoom in', eAlejar: 'Zoom out', eZoomT: 'Zoom', eMapaT: 'Song overview', eMezcladorT: 'Mixer', ePistas: 'Tracks', eOndas: 'Drawing detailed waveforms…', maestro: 'Master', paneo: 'Pan', panIzq: 'L', panDer: 'R',
     letraCalidadT: 'Lyrics: accuracy', calidadNormal: 'Normal · 205 MB', calidadAlta: 'High · 410 MB', letraIdiomaT: 'Lyrics: song language', automatico: 'Auto',
   },
 };
@@ -2078,6 +2342,7 @@ function aplicarTema(clave) {
   const vars = TEMAS[tema].vars;
   Object.keys(vars).forEach((k) => document.documentElement.style.setProperty('--' + k, vars[k]));
   document.querySelector('meta[name="theme-color"]').setAttribute('content', vars.bg);
+  coloresEstudio();
   guardarPref('tema', tema);
   pintarTemas();
   if (S.a) construirReproductor();
@@ -2484,9 +2749,11 @@ async function prepararAudio() {
   const url = URL.createObjectURL(new Blob([$('codigoMotor').textContent], { type: 'text/javascript' }));
   await actx.audioWorklet.addModule(url);
   nodo = new AudioWorkletNode(actx, 'motor', { outputChannelCount: [2] });
-  nodo.connect(actx.destination);
+  maestro = actx.createGain();
+  nodo.connect(maestro).connect(actx.destination);
   nodo.port.onmessage = (e) => {
-    if (e.data.tipo === 'pos') S.tiempo = e.data.tiempo;
+    if (e.data.tipo === 'pos') { S.tiempo = e.data.tiempo; if (e.data.niveles && E.activo) recibirNiveles(e.data); }
+    if (e.data.tipo === 'picos') recibirPicos(e.data);
     if (e.data.tipo === 'fin') { S.sonando = false; S.tiempo = 0; soltarPantalla(); pintarPlay(); }
   };
 }
@@ -2507,7 +2774,7 @@ async function abrirCancion(id) {
     nodo.port.postMessage({ tipo: 'cargar', pistas, largo }, pistas.map((p) => p.buffer));
 
     Object.assign(S, { cancion, a, sonando: false, tiempo: 0, dur: largo / 44100, loop: null, loopOn: false, tempo: 1, semis: 0 });
-    S.pistas = nombres.map((n) => ({ nombre: n, vol: 1, mute: false, solo: false }));
+    S.pistas = nombres.map((n) => ({ nombre: n, vol: 1, mute: false, solo: false, pan: 0 }));
     const fase = a.downbeat_phase;
     nodo.port.postMessage({ tipo: 'pulsos', pulsos: a.beats, acentos: a.beats.map((_, i) => (((i - fase) % 4) + 4) % 4 === 0) });
     enviarClick();
@@ -2515,6 +2782,8 @@ async function abrirCancion(id) {
     $('reproductor').hidden = false;
     enviarVelocidad();
     construirReproductor();
+    E.activo = false;
+    aplicarVista(leerPref('vista', 'ensayo'));
     history.replaceState(null, '', `#${id}`);
     scrollTo(0, 0);
   } catch (err) {
@@ -2528,6 +2797,7 @@ function enviarVolumenes() {
   const haySolo = S.pistas.some((p) => p.solo);
   nodo.port.postMessage({ tipo: 'volumenes', volumenes: S.pistas.map((p) => (p.mute || (haySolo && !p.solo) ? 0 : p.vol / 32768)) });
   dibujarOndas();
+  E.sucio = E.sucioMapa = true;
 }
 function enviarVelocidad() {
   nodo.port.postMessage({ tipo: 'velocidad', tempo: S.tempo, tono: Math.pow(2, S.semis / 12) });
@@ -3024,6 +3294,7 @@ function construirReproductor() {
   enviarVolumenes();
   enviarLoop();
   pintarPlay();
+  if (E.activo) construirEstudio();
 }
 
 // Arma un .wav de 16 bits a partir de la pista guardada
@@ -3075,6 +3346,641 @@ function dibujarOndas() {
 }
 
 /* =====================================================================
+ * Estudio: línea de tiempo con zoom, vista general y mezclador
+ * ===================================================================== */
+const ALTO = { regla: 30, secc: 26, acordes: 28, pista: 62 };
+const RES_PICOS = 256;          // muestras por punto en las ondas detalladas
+const E = {
+  activo: false, zoom: 40, inicio: 0, seguir: true, ajustar: true,
+  picos: {}, idPicos: null, faltanPicos: 0,
+  sucio: true, sucioMapa: true, base: null, w: 0, h: 0, dpr: 1,
+  col: {}, crudo: [], nivel: [], pico: [], picoT: [], maestroGanancia: 1,
+  ultimoCuadro: 0, lcd: {},
+};
+let maestro = null;  // GainNode de salida (volumen maestro)
+
+/* ---------- Colores: versión oscura de la paleta actual ---------- */
+const hexRgb = (h) => { h = h.replace('#', ''); return [0, 2, 4].map((i) => parseInt(h.slice(i, i + 2), 16)); };
+const mezclaRgb = (a, b, k) => a.map((x, i) => Math.round(x * k + b[i] * (1 - k)));
+const rgbTxt = (c, a = 1) => (a === 1 ? `rgb(${c.join(',')})` : `rgba(${c.join(',')},${a})`);
+function coloresEstudio() {
+  const v = TEMAS[tema].vars, c = (k) => hexRgb(v[k]);
+  const negro = [0, 0, 0], blanco = [255, 255, 255];
+  const luz = (x) => (0.299 * x[0] + 0.587 * x[1] + 0.114 * x[2]) / 255;
+  const claro = luz(c('bg')) > 0.5;
+  let fondo, panel, panel2, pozo, texto, tenue, acento;
+  if (claro) {
+    // Paleta clara: el estudio se arma con su color de texto (oscuro) como base
+    const base = c('parchment');
+    fondo = mezclaRgb(base, negro, 0.78); panel = mezclaRgb(base, negro, 0.92); panel2 = mezclaRgb(base, c('bg'), 0.9);
+    pozo = mezclaRgb(base, negro, 0.6); texto = c('bg'); tenue = mezclaRgb(c('bg'), base, 0.62);
+    acento = mezclaRgb(c('brass'), blanco, 0.78);
+  } else {
+    fondo = mezclaRgb(c('bg'), negro, 0.8); panel = c('surface'); panel2 = c('surface-2');
+    pozo = mezclaRgb(c('bg'), negro, 0.6); texto = c('parchment'); tenue = c('parchment-dim'); acento = c('brass');
+  }
+  if (luz(acento) < 0.42) acento = mezclaRgb(acento, blanco, 0.7);
+  E.col = { fondo, panel, panel2, pozo, texto, tenue, acento, ember: c('ember'), focus: c('focus'), brass: c('brass') };
+  const raiz = document.documentElement.style;
+  raiz.setProperty('--e-fondo', rgbTxt(fondo)); raiz.setProperty('--e-panel', rgbTxt(panel)); raiz.setProperty('--e-panel-2', rgbTxt(panel2));
+  raiz.setProperty('--e-pozo', rgbTxt(pozo)); raiz.setProperty('--e-texto', rgbTxt(texto)); raiz.setProperty('--e-tenue', rgbTxt(tenue));
+  raiz.setProperty('--e-acento', rgbTxt(acento)); raiz.setProperty('--e-borde', rgbTxt(texto, 0.09));
+  E.sucio = E.sucioMapa = true;
+}
+// Color de una pista sobre el fondo del estudio
+function colorPistaEstudio(nombre) {
+  const [v, k] = COLOR_PISTA[nombre] || ['--brass', 1];
+  const base = hexRgb(cssVar(v));
+  return mezclaRgb(mezclaRgb(base, [255, 255, 255], 0.85), E.col.panel || [0, 0, 0], 0.35 + 0.65 * k);
+}
+
+/* ---------- Escalas: tiempo ↔ píxeles, dB ↔ posición de fader ---------- */
+const xDe = (t) => (t - E.inicio) * E.zoom;
+const tDe = (x) => E.inicio + x / E.zoom;
+const zoomMin = () => (E.w > 0 && S.dur > 0 ? E.w / S.dur : 1);
+const ZOOM_MAX = 900;
+function limitarVista() {
+  E.zoom = Math.max(zoomMin(), Math.min(ZOOM_MAX, E.zoom));
+  E.inicio = Math.max(0, Math.min(Math.max(0, S.dur - E.w / E.zoom), E.inicio));
+}
+const posDeGanancia = (g) => Math.pow(Math.max(0, g) / 2, 0.4);           // 0..1 (1 = +6 dB, 0.76 = 0 dB)
+const gananciaDePos = (p) => 2 * Math.pow(Math.max(0, Math.min(1, p)), 2.5);
+const dbDe = (g) => (g > 0.000001 ? 20 * Math.log10(g) : -Infinity);
+const txtDb = (g) => { const d = dbDe(g); return d === -Infinity || d < -70 ? '−∞' : (d > 0 ? '+' : d < -0.05 ? '−' : '') + Math.abs(d).toFixed(1); };
+
+// Pulso más cercano a t (para ajustar loops y saltos)
+function pulsoCercano(t) {
+  const b = S.a.beats;
+  if (!b || !b.length) return t;
+  let lo = 0, hi = b.length - 1;
+  while (lo < hi) { const m = (lo + hi) >> 1; if (b[m] < t) lo = m + 1; else hi = m; }
+  return lo > 0 && Math.abs(b[lo - 1] - t) < Math.abs(b[lo] - t) ? b[lo - 1] : b[lo];
+}
+const ajustarT = (t) => (E.ajustar ? pulsoCercano(t) : t);
+
+// "compás.tiempo.dieciseisavo" a partir de los pulsos detectados (4/4)
+function compasDe(t) {
+  const b = S.a.beats, fase = S.a.downbeat_phase || 0;
+  if (!b || !b.length) return '001.1.1';
+  let lo = 0, hi = b.length;
+  while (lo < hi) { const m = (lo + hi) >> 1; if (b[m] <= t) lo = m + 1; else hi = m; }
+  const i = lo - 1;
+  if (i < 0) return '001.1.1';
+  const rel = i - fase;
+  const compas = Math.floor(rel / 4) + 1, pulso = ((rel % 4) + 4) % 4 + 1;
+  const sig = b[i + 1] || b[i] + (b[i] - (b[i - 1] || 0));
+  const dieci = Math.min(4, Math.floor(((t - b[i]) / Math.max(0.01, sig - b[i])) * 4) + 1);
+  return `${String(Math.max(0, compas)).padStart(3, '0')}.${pulso}.${dieci}`;
+}
+
+/* ---------- Construcción ---------- */
+function construirEstudio() {
+  if (!S.a) return;
+  const cab = $('eCabezas');
+  cab.innerHTML = `
+    <div class="e-fila regla" style="height:${ALTO.regla}px"><span>${t('ePistas')}</span></div>
+    <div class="e-fila" style="height:${ALTO.secc}px">${t('seccionesT')}</div>
+    <div class="e-fila" style="height:${ALTO.acordes}px">${t('acordesT')}</div>`;
+  const mez = $('eMezclador');
+  mez.innerHTML = '';
+  S.pistas.forEach((p, k) => {
+    const color = rgbTxt(colorPistaEstudio(p.nombre));
+    const fila = document.createElement('div');
+    fila.className = 'e-pista';
+    fila.dataset.k = k;
+    fila.style.height = ALTO.pista + 'px';
+    fila.style.setProperty('--c', color);
+    fila.innerHTML = `<div class="e-nombre"></div>
+      <div class="e-ms"><button class="m" type="button" data-k="${k}" title="${t('silenciar')}" aria-label="${t('silenciar')} ${t(p.nombre)}">M</button><button class="s" type="button" data-k="${k}" title="${t('solo')}" aria-label="${t('solo')} ${t(p.nombre)}">S</button></div>`;
+    fila.querySelector('.e-nombre').textContent = t(p.nombre);
+    cab.appendChild(fila);
+    mez.appendChild(crearCanal(p, k, color));
+  });
+  mez.appendChild(crearCanal(null, -1, rgbTxt(E.col.acento)));
+  E.crudo = S.pistas.map(() => 0); E.nivel = S.pistas.map(() => -Infinity); E.pico = S.pistas.map(() => -Infinity); E.picoT = S.pistas.map(() => 0);
+  E.nivelM = [-Infinity, -Infinity]; E.crudoM = [0, 0]; E.picoM = -Infinity; E.picoMT = 0;
+  pintarMS();
+  E.lcd = {};
+  E.sucio = E.sucioMapa = true;
+  if (E.activo) requestAnimationFrame(redimensionarEstudio);
+}
+
+function crearCanal(p, k, color) {
+  const esMaestro = k < 0;
+  const nombre = esMaestro ? t('maestro') : t(p.nombre);
+  const c = document.createElement('div');
+  c.className = 'e-canal' + (esMaestro ? ' maestro' : '');
+  c.style.setProperty('--c', color);
+  const marcas = [6, 0, -6, -12, -24, -48].map((d) => `<span style="bottom:${(posDeGanancia(Math.pow(10, d / 20)) * 100).toFixed(1)}%">${d > 0 ? '+' + d : d}</span>`).join('');
+  c.innerHTML = `
+    <div class="e-canal-nombre"></div>
+    ${esMaestro ? '<div style="height:38px"></div><div class="e-pan-txt"></div>' : `<div class="e-perilla" role="slider" tabindex="0" aria-valuemin="-100" aria-valuemax="100" aria-label="${t('paneo')} ${nombre}"><div class="e-perilla-aguja"></div></div><div class="e-pan-txt"></div>`}
+    ${esMaestro ? '<div class="e-ms" style="visibility:hidden"><button type="button" tabindex="-1">M</button></div>' : `<div class="e-ms"><button class="m" type="button" data-k="${k}" aria-label="${t('silenciar')} ${nombre}">M</button><button class="s" type="button" data-k="${k}" aria-label="${t('solo')} ${nombre}">S</button></div>`}
+    <div class="e-fader-zona">
+      <div class="e-escala">${marcas}</div>
+      <canvas class="e-medidor"></canvas>
+      <div class="e-fader" role="slider" tabindex="0" aria-label="${t('volumen')} ${nombre}"><div class="e-fader-riel"></div><div class="e-fader-relleno"></div><div class="e-fader-perilla"></div></div>
+    </div>
+    <div class="e-db"></div>`;
+  c.querySelector('.e-canal-nombre').textContent = nombre;
+  const fader = c.querySelector('.e-fader'), perilla = c.querySelector('.e-fader-perilla'), relleno = c.querySelector('.e-fader-relleno'), db = c.querySelector('.e-db');
+  const leer = () => (esMaestro ? E.maestroGanancia : p.vol);
+  const pintarFader = () => {
+    const g = leer(), pos = posDeGanancia(g);
+    perilla.style.top = `${(1 - pos) * 100}%`;
+    relleno.style.height = `${pos * 100}%`;
+    db.textContent = txtDb(g);
+    fader.setAttribute('aria-valuenow', dbDe(g).toFixed(1));
+    fader.setAttribute('aria-valuetext', txtDb(g) + ' dB');
+  };
+  const poner = (g) => {
+    g = Math.max(0, Math.min(2, g));
+    if (esMaestro) {
+      E.maestroGanancia = g;
+      if (maestro) maestro.gain.setTargetAtTime(g, actx.currentTime, 0.015);
+    } else { p.vol = g; enviarVolumenes(); }
+    pintarFader();
+  };
+  arrastrarVertical(fader, (dy, inicio, ev) => {
+    const alto = fader.clientHeight;
+    if (inicio) {
+      // Tocar fuera de la perilla la lleva ahí; tocar la perilla la arrastra sin saltos
+      const r = fader.getBoundingClientRect(), y = ev.clientY - r.top;
+      const yPerilla = (1 - posDeGanancia(leer())) * alto;
+      if (Math.abs(y - yPerilla) > 22) poner(gananciaDePos(1 - y / alto));
+      return posDeGanancia(leer());
+    }
+    return null;
+  }, (base, dy, fino) => poner(gananciaDePos(base - (dy / fader.clientHeight) * (fino ? 0.25 : 1))));
+  fader.ondblclick = () => poner(1);
+  fader.onkeydown = (e) => {
+    const paso = e.shiftKey ? 0.005 : 0.02;
+    if (e.key === 'ArrowUp' || e.key === 'ArrowRight') { e.preventDefault(); poner(gananciaDePos(posDeGanancia(leer()) + paso)); }
+    if (e.key === 'ArrowDown' || e.key === 'ArrowLeft') { e.preventDefault(); poner(gananciaDePos(posDeGanancia(leer()) - paso)); }
+  };
+  fader.addEventListener('wheel', (e) => { e.preventDefault(); poner(gananciaDePos(posDeGanancia(leer()) - Math.sign(e.deltaY) * 0.01)); }, { passive: false });
+  pintarFader();
+
+  if (!esMaestro) {
+    const kn = c.querySelector('.e-perilla'), aguja = c.querySelector('.e-perilla-aguja'), txt = c.querySelector('.e-pan-txt');
+    const pintarPan = () => {
+      const v = p.pan || 0;
+      aguja.style.transform = `rotate(${v * 135}deg)`;
+      txt.textContent = Math.abs(v) < 0.005 ? 'C' : `${v < 0 ? t('panIzq') : t('panDer')} ${Math.round(Math.abs(v) * 100)}`;
+      kn.setAttribute('aria-valuenow', Math.round(v * 100));
+      kn.setAttribute('aria-valuetext', txt.textContent);
+    };
+    const ponerPan = (v) => { p.pan = Math.max(-1, Math.min(1, Math.round(v * 100) / 100)); enviarPaneos(); pintarPan(); };
+    arrastrarVertical(kn, () => p.pan || 0, (base, dy, fino) => ponerPan(base - dy / (fino ? 600 : 150)));
+    kn.ondblclick = () => ponerPan(0);
+    kn.onkeydown = (e) => {
+      if (e.key === 'ArrowUp' || e.key === 'ArrowRight') { e.preventDefault(); ponerPan((p.pan || 0) + 0.05); }
+      if (e.key === 'ArrowDown' || e.key === 'ArrowLeft') { e.preventDefault(); ponerPan((p.pan || 0) - 0.05); }
+    };
+    kn.addEventListener('wheel', (e) => { e.preventDefault(); ponerPan((p.pan || 0) - Math.sign(e.deltaY) * 0.05); }, { passive: false });
+    pintarPan();
+  }
+  c._medidor = c.querySelector('.e-medidor');
+  c._db = db;
+  return c;
+}
+
+// Arrastre vertical con inercia cero y modo fino con Shift. alEmpezar devuelve el valor base.
+function arrastrarVertical(el, alEmpezar, alMover) {
+  el.addEventListener('pointerdown', (e) => {
+    if (e.button !== 0) return;
+    e.preventDefault();
+    el.focus({ preventScroll: true });
+    el.setPointerCapture(e.pointerId);
+    const y0 = e.clientY;
+    const base = alEmpezar(0, true, e);
+    let ref = base == null ? null : base;
+    const mover = (ev) => {
+      if (ref == null) return;
+      alMover(ref, ev.clientY - y0, ev.shiftKey);
+    };
+    const soltar = () => { el.removeEventListener('pointermove', mover); el.removeEventListener('pointerup', soltar); el.removeEventListener('pointercancel', soltar); };
+    el.addEventListener('pointermove', mover);
+    el.addEventListener('pointerup', soltar);
+    el.addEventListener('pointercancel', soltar);
+  });
+}
+
+// Mudo / solo: el mismo estado en el estudio y en el modo ensayo
+function pintarMS() {
+  const haySolo = S.pistas.some((p) => p.solo);
+  document.querySelectorAll('.estudio .e-ms button[data-k]').forEach((b) => {
+    const p = S.pistas[+b.dataset.k];
+    b.classList.toggle('active', b.classList.contains('m') ? p.mute : p.solo);
+  });
+  document.querySelectorAll('.e-pista').forEach((f) => {
+    const p = S.pistas[+f.dataset.k];
+    f.classList.toggle('apagada', p.mute || (haySolo && !p.solo));
+  });
+  E.sucio = E.sucioMapa = true;
+}
+$('estudio').addEventListener('click', (e) => {
+  const b = e.target.closest('.e-ms button[data-k]');
+  if (!b) return;
+  const p = S.pistas[+b.dataset.k];
+  if (b.classList.contains('m')) p.mute = !p.mute; else p.solo = !p.solo;
+  enviarVolumenes();
+  pintarMS();
+});
+
+function enviarPaneos() {
+  if (nodo) nodo.port.postMessage({ tipo: 'paneos', paneos: S.pistas.map((p) => p.pan || 0) });
+}
+
+/* ---------- Abrir y cerrar el estudio ---------- */
+function aplicarVista(v) {
+  const estudio = v === 'estudio' && !!S.a;
+  document.querySelectorAll('#vista button').forEach((b) => b.setAttribute('aria-pressed', b.dataset.vista === (estudio ? 'estudio' : 'ensayo') ? 'true' : 'false'));
+  if (v) guardarPref('vista', v === 'estudio' ? 'estudio' : 'ensayo');
+  const antes = E.activo;
+  E.activo = estudio;
+  document.body.classList.toggle('modo-estudio', estudio);
+  $('estudio').hidden = !estudio;
+  if (nodo) nodo.port.postMessage({ tipo: 'medir', activo: estudio });
+  if (estudio && !antes) {
+    pedirPicos();
+    construirEstudio();
+    requestAnimationFrame(() => { redimensionarEstudio(); verToda(); });
+  } else if (!estudio && antes && S.a) {
+    construirReproductor();
+  }
+}
+document.querySelectorAll('#vista button').forEach((b) => b.onclick = () => aplicarVista(b.dataset.vista));
+
+function pedirPicos() {
+  if (!S.cancion || E.idPicos === S.cancion.id) return;
+  E.idPicos = S.cancion.id;
+  E.picos = {};
+  E.faltanPicos = S.pistas.length;
+  $('eCargandoOndas').hidden = false;
+  nodo.port.postMessage({ tipo: 'picos', id: S.cancion.id, res: RES_PICOS });
+}
+function recibirPicos(m) {
+  if (!S.cancion || m.id !== S.cancion.id || !S.pistas[m.k]) return;
+  E.picos[S.pistas[m.k].nombre] = m.datos;
+  E.faltanPicos--;
+  if (E.faltanPicos <= 0) $('eCargandoOndas').hidden = true;
+  E.sucio = E.sucioMapa = true;
+}
+
+function redimensionarEstudio() {
+  if (!E.activo) return;
+  const lienzo = $('eLienzo'), cv = $('eCanvas');
+  E.dpr = devicePixelRatio || 1;
+  E.w = lienzo.clientWidth;
+  E.h = ALTO.regla + ALTO.secc + ALTO.acordes + S.pistas.length * ALTO.pista;
+  cv.style.height = E.h + 'px';
+  cv.width = Math.round(E.w * E.dpr); cv.height = Math.round(E.h * E.dpr);
+  if (!E.base) E.base = document.createElement('canvas');
+  E.base.width = cv.width; E.base.height = cv.height;
+  const mapa = $('eMapaCanvas');
+  mapa.width = Math.round(mapa.clientWidth * E.dpr); mapa.height = Math.round(mapa.clientHeight * E.dpr);
+  document.querySelectorAll('.e-medidor').forEach((m) => { m.width = Math.round(m.clientWidth * E.dpr); m.height = Math.round(m.clientHeight * E.dpr); });
+  limitarVista();
+  E.sucio = E.sucioMapa = true;
+}
+
+/* ---------- Zoom y desplazamiento ---------- */
+function zoomEn(nuevo, xAncla) {
+  const tAncla = tDe(xAncla);
+  E.zoom = Math.max(zoomMin(), Math.min(ZOOM_MAX, nuevo));
+  E.inicio = tAncla - xAncla / E.zoom;
+  limitarVista();
+  E.sucio = true;
+}
+function anclaZoom() {
+  const x = xDe(S.tiempo);
+  return x >= 0 && x <= E.w ? x : E.w / 2;
+}
+function verToda() { E.zoom = zoomMin(); E.inicio = 0; limitarVista(); E.sucio = true; }
+const zoomASlider = () => Math.round((Math.log(E.zoom / zoomMin()) / Math.log(ZOOM_MAX / zoomMin())) * 1000) || 0;
+$('eZoom').oninput = (e) => zoomEn(zoomMin() * Math.pow(ZOOM_MAX / zoomMin(), e.target.value / 1000), anclaZoom());
+$('eAcercar').onclick = () => zoomEn(E.zoom * 1.5, anclaZoom());
+$('eAlejar').onclick = () => zoomEn(E.zoom / 1.5, anclaZoom());
+$('eTodo').onclick = verToda;
+$('eSeguir').onclick = () => { E.seguir = !E.seguir; $('eSeguir').setAttribute('aria-pressed', E.seguir); };
+$('eAjustar').onclick = () => { E.ajustar = !E.ajustar; $('eAjustar').setAttribute('aria-pressed', E.ajustar); };
+
+$('eLienzo').addEventListener('wheel', (e) => {
+  const r = $('eLienzo').getBoundingClientRect();
+  if (e.ctrlKey || e.metaKey) {
+    // Pellizco en el trackpad o Ctrl + rueda: zoom donde está el puntero
+    e.preventDefault();
+    zoomEn(E.zoom * Math.exp(-e.deltaY * 0.01), e.clientX - r.left);
+  } else if (Math.abs(e.deltaX) > Math.abs(e.deltaY) || e.shiftKey) {
+    e.preventDefault();
+    E.inicio += (e.shiftKey && !e.deltaX ? e.deltaY : e.deltaX) / E.zoom;
+    limitarVista();
+    E.sucio = true;
+  }
+}, { passive: false });
+
+// Clic = saltar; arrastrar = marcar loop; clic en una sección = repetirla
+$('eLienzo').addEventListener('pointerdown', (e) => {
+  if (e.button !== 0 || !S.a) return;
+  const lienzo = $('eLienzo'), r = lienzo.getBoundingClientRect();
+  const x0 = e.clientX - r.left, y0 = e.clientY - r.top, t0 = tDe(x0);
+  lienzo.setPointerCapture(e.pointerId);
+  let arrastrando = false;
+  const mover = (ev) => {
+    const x = ev.clientX - r.left;
+    if (!arrastrando && Math.abs(x - x0) > 5) { arrastrando = true; lienzo.classList.add('arrastrando'); }
+    if (!arrastrando) return;
+    // Si se arrastra fuera del borde, la vista se mueve sola
+    if (x > E.w - 20) { E.inicio += 8 / E.zoom; limitarVista(); E.sucio = true; }
+    if (x < 20) { E.inicio -= 8 / E.zoom; limitarVista(); E.sucio = true; }
+    const a = ajustarT(t0), b = ajustarT(tDe(Math.max(0, Math.min(E.w, x))));
+    S.loop = { a: Math.max(0, Math.min(a, b)), b: Math.min(S.dur, Math.max(a, b)) };
+    S.loopOn = true;
+    enviarLoop();
+  };
+  const soltar = () => {
+    lienzo.removeEventListener('pointermove', mover);
+    lienzo.removeEventListener('pointerup', soltar);
+    lienzo.removeEventListener('pointercancel', soltar);
+    lienzo.classList.remove('arrastrando');
+    if (!arrastrando) {
+      const enSecc = y0 >= ALTO.regla && y0 < ALTO.regla + ALTO.secc;
+      const sec = enSecc && S.a.sections.find((s) => t0 >= s.start && t0 < s.end);
+      if (sec) {
+        const misma = S.loopOn && S.loop && Math.abs(S.loop.a - sec.start) < 0.01 && Math.abs(S.loop.b - sec.end) < 0.01;
+        if (misma) S.loopOn = false; else { S.loop = { a: sec.start, b: sec.end }; S.loopOn = true; saltar(sec.start); }
+        enviarLoop();
+      } else saltar(ajustarT(t0));
+    } else if (!S.loop || S.loop.b - S.loop.a < 0.1) { S.loop = null; S.loopOn = false; enviarLoop(); }
+    else saltar(S.loop.a);
+  };
+  lienzo.addEventListener('pointermove', mover);
+  lienzo.addEventListener('pointerup', soltar);
+  lienzo.addEventListener('pointercancel', soltar);
+});
+
+// Vista general: tocar o arrastrar mueve la ventana visible
+$('eMapa').addEventListener('pointerdown', (e) => {
+  const mapa = $('eMapa');
+  mapa.setPointerCapture(e.pointerId);
+  const mover = (ev) => {
+    const r = mapa.getBoundingClientRect();
+    const t = ((ev.clientX - r.left) / r.width) * S.dur;
+    E.inicio = t - E.w / E.zoom / 2;
+    limitarVista();
+    E.sucio = true;
+  };
+  mover(e);
+  const soltar = () => { mapa.removeEventListener('pointermove', mover); mapa.removeEventListener('pointerup', soltar); };
+  mapa.addEventListener('pointermove', mover);
+  mapa.addEventListener('pointerup', soltar);
+});
+
+/* ---------- Dibujo ---------- */
+function ondaDe(nombre) {
+  const d = E.picos[nombre];
+  if (d) return { datos: d, seg: RES_PICOS / 44100, escala: 1 };
+  const pk = S.a.peaks[nombre];
+  return { datos: pk, seg: S.dur / pk.length, escala: 0.01 };
+}
+
+function dibujarBase() {
+  const g = E.base.getContext('2d'), C = E.col;
+  const w = E.w, h = E.h;
+  g.setTransform(E.dpr, 0, 0, E.dpr, 0, 0);
+  g.clearRect(0, 0, w, h);
+  const yS = ALTO.regla, yA = yS + ALTO.secc, yP = yA + ALTO.acordes;
+  // Fondos de las filas
+  g.fillStyle = rgbTxt(C.panel2); g.fillRect(0, 0, w, ALTO.regla);
+  g.fillStyle = rgbTxt(C.panel); g.fillRect(0, yS, w, h - yS);
+  S.pistas.forEach((p, k) => { if (k % 2) { g.fillStyle = rgbTxt(C.texto, 0.02); g.fillRect(0, yP + k * ALTO.pista, w, ALTO.pista); } });
+
+  // Grilla de compases y pulsos
+  const b = S.a.beats || [], fase = S.a.downbeat_phase || 0;
+  const pxPulso = (60 / (S.a.bpm || 120)) * E.zoom;
+  let cada = 1;
+  while (cada * 4 * pxPulso < 46) cada *= 2;
+  g.font = `600 11px ${getComputedStyle(document.body).getPropertyValue('--mono') || 'monospace'}`;
+  g.textBaseline = 'middle';
+  const t0 = tDe(-2), t1 = tDe(w + 2);
+  for (let i = 0; i < b.length; i++) {
+    if (b[i] < t0) continue;
+    if (b[i] > t1) break;
+    const x = Math.round(xDe(b[i])) + 0.5;
+    const rel = i - fase, esCompas = ((rel % 4) + 4) % 4 === 0;
+    const compas = Math.floor(rel / 4) + 1;
+    if (esCompas) {
+      const marca = compas >= 1 && (compas - 1) % cada === 0;
+      g.fillStyle = rgbTxt(C.texto, marca ? 0.13 : 0.07);
+      g.fillRect(x - 0.5, yS, 1, h - yS);
+      g.fillStyle = rgbTxt(C.texto, marca ? 0.55 : 0.25);
+      g.fillRect(x - 0.5, marca ? 9 : 20, 1, ALTO.regla - (marca ? 9 : 20));
+      if (marca) { g.fillStyle = rgbTxt(C.tenue); g.fillText(String(compas), x + 4, 16); }
+    } else if (pxPulso > 9) {
+      g.fillStyle = rgbTxt(C.texto, 0.035);
+      g.fillRect(x - 0.5, yP, 1, h - yP);
+      g.fillStyle = rgbTxt(C.texto, 0.2);
+      g.fillRect(x - 0.5, 24, 1, ALTO.regla - 24);
+    }
+  }
+  g.fillStyle = rgbTxt(C.texto, 0.09);
+  g.fillRect(0, ALTO.regla - 1, w, 1); g.fillRect(0, yA - 1, w, 1); g.fillRect(0, yP - 1, w, 1);
+
+  // Secciones
+  const letras = [...new Set(S.a.sections.map((s) => s.label))];
+  g.font = `600 12px ${getComputedStyle(document.body).fontFamily}`;
+  for (const s of S.a.sections) {
+    const xa = xDe(s.start), xb = xDe(s.end);
+    if (xb < 0 || xa > w) continue;
+    const color = hexRgb(cssVar(COLOR_SECCION[letras.indexOf(s.label) % COLOR_SECCION.length]));
+    const activa = S.loopOn && S.loop && Math.abs(S.loop.a - s.start) < 0.01 && Math.abs(S.loop.b - s.end) < 0.01;
+    g.fillStyle = rgbTxt(color, activa ? 0.55 : 0.3);
+    redondeado(g, xa + 1, yS + 4, Math.max(2, xb - xa - 2), ALTO.secc - 8, 5); g.fill();
+    g.fillStyle = rgbTxt(color); g.fillRect(xa + 1, yS + 4, 3, ALTO.secc - 8);
+    if (xb - xa > 30) {
+      g.save(); g.beginPath(); g.rect(Math.max(xa, 0), yS, xb - Math.max(xa, 0) - 4, ALTO.secc); g.clip();
+      g.fillStyle = rgbTxt(C.texto); g.fillText(nombreSeccion(s.name), Math.max(xa, 0) + 9, yS + ALTO.secc / 2 + 0.5);
+      g.restore();
+    }
+  }
+
+  // Acordes
+  g.font = `700 13px ${getComputedStyle(document.body).fontFamily}`;
+  for (const c of S.a.chords) {
+    const xa = xDe(c.start), xb = xDe(c.end);
+    if (xb < 0 || xa > w) continue;
+    g.fillStyle = rgbTxt(C.texto, 0.12); g.fillRect(Math.round(xa), yA + 5, 1, ALTO.acordes - 10);
+    if (xb - xa > 22 && c.root >= 0) {
+      g.save(); g.beginPath(); g.rect(xa, yA, xb - xa - 2, ALTO.acordes); g.clip();
+      g.fillStyle = rgbTxt(C.texto, 0.85); g.fillText(nombreAcorde(c), Math.max(xa, 0) + 6, yA + ALTO.acordes / 2 + 0.5);
+      g.restore();
+    }
+  }
+
+  // Ondas: un punto por píxel con el pico de ese tramo
+  const haySolo = S.pistas.some((p) => p.solo);
+  S.pistas.forEach((p, k) => {
+    const y = yP + k * ALTO.pista, cy = y + ALTO.pista / 2, alto = ALTO.pista / 2 - 6;
+    const apagada = p.mute || (haySolo && !p.solo);
+    const col = colorPistaEstudio(p.nombre);
+    const { datos, seg, escala } = ondaDe(p.nombre);
+    const grad = g.createLinearGradient(0, y + 6, 0, y + ALTO.pista - 6);
+    grad.addColorStop(0, rgbTxt(col, apagada ? 0.18 : 0.75));
+    grad.addColorStop(0.5, rgbTxt(col, apagada ? 0.3 : 1));
+    grad.addColorStop(1, rgbTxt(col, apagada ? 0.18 : 0.75));
+    g.fillStyle = grad;
+    const vol = Math.min(p.vol, 2);
+    g.beginPath();
+    for (let x = 0; x < w; x++) {
+      const ta = tDe(x), tb = tDe(x + 1);
+      if (tb < 0 || ta > S.dur) continue;
+      let i0 = Math.floor(ta / seg), i1 = Math.max(i0 + 1, Math.floor(tb / seg));
+      i0 = Math.max(0, i0); i1 = Math.min(datos.length, i1);
+      let m = 0;
+      for (let i = i0; i < i1; i++) if (datos[i] > m) m = datos[i];
+      const a = Math.min(1, Math.pow(m * escala * vol, 0.75) * 1.05) * alto;
+      if (a > 0.3) g.rect(x, cy - a, 1, a * 2);
+    }
+    g.fill();
+    g.fillStyle = rgbTxt(C.texto, 0.07); g.fillRect(0, y + ALTO.pista - 1, w, 1);
+  });
+  // Fin de la canción
+  const xf = xDe(S.dur);
+  if (xf < w) { g.fillStyle = rgbTxt(C.pozo, 0.6); g.fillRect(xf, ALTO.regla, w - xf, h - ALTO.regla); }
+  E.sucio = false;
+}
+
+function redondeado(g, x, y, w, h, r) {
+  r = Math.min(r, w / 2, h / 2);
+  g.beginPath();
+  g.moveTo(x + r, y); g.arcTo(x + w, y, x + w, y + h, r); g.arcTo(x + w, y + h, x, y + h, r);
+  g.arcTo(x, y + h, x, y, r); g.arcTo(x, y, x + w, y, r); g.closePath();
+}
+
+function dibujarMapa() {
+  const cv = $('eMapaCanvas'), g = cv.getContext('2d'), C = E.col;
+  const w = cv.clientWidth, h = cv.clientHeight;
+  g.setTransform(E.dpr, 0, 0, E.dpr, 0, 0);
+  g.clearRect(0, 0, w, h);
+  const letras = [...new Set(S.a.sections.map((s) => s.label))];
+  for (const s of S.a.sections) {
+    const color = hexRgb(cssVar(COLOR_SECCION[letras.indexOf(s.label) % COLOR_SECCION.length]));
+    g.fillStyle = rgbTxt(color, 0.22);
+    g.fillRect((s.start / S.dur) * w, 0, ((s.end - s.start) / S.dur) * w - 1, h);
+  }
+  const haySolo = S.pistas.some((p) => p.solo);
+  const activas = S.pistas.filter((p) => !(p.mute || (haySolo && !p.solo)));
+  g.fillStyle = rgbTxt(C.texto, 0.5);
+  for (let x = 0; x < w; x++) {
+    let m = 0;
+    for (const p of activas) {
+      const pk = S.a.peaks[p.nombre], i0 = Math.floor((x / w) * pk.length), i1 = Math.max(i0 + 1, Math.floor(((x + 1) / w) * pk.length));
+      for (let i = i0; i < i1; i++) m = Math.max(m, (pk[i] / 100) * Math.min(p.vol, 2));
+    }
+    const a = Math.min(1, Math.pow(m, 0.75)) * (h / 2 - 4);
+    g.fillRect(x, h / 2 - a, 1, a * 2);
+  }
+  E.sucioMapa = false;
+}
+
+function dibujarMedidor(cv, valores, picoDb) {
+  const g = cv.getContext('2d'), w = cv.width, h = cv.height, C = E.col;
+  g.clearRect(0, 0, w, h);
+  const n = valores.length, ancho = (w - (n - 1) * E.dpr) / n;
+  const pos = (d) => (d === -Infinity ? 0 : posDeGanancia(Math.pow(10, d / 20)));
+  const y12 = h * (1 - pos(-12)), y3 = h * (1 - pos(-3));
+  valores.forEach((d, i) => {
+    const x = i * (ancho + E.dpr), y = h * (1 - pos(d));
+    if (y >= h) return;
+    // Verde (color principal), amarillo desde −12 dB y rojo desde −3 dB
+    g.fillStyle = rgbTxt(C.acento); g.fillRect(x, Math.max(y, y12), ancho, h - Math.max(y, y12));
+    if (y < y12) { g.fillStyle = rgbTxt(C.focus); g.fillRect(x, Math.max(y, y3), ancho, y12 - Math.max(y, y3)); }
+    if (y < y3) { g.fillStyle = rgbTxt(C.ember); g.fillRect(x, y, ancho, y3 - y); }
+  });
+  if (picoDb > -70) {
+    g.fillStyle = picoDb > -0.1 ? rgbTxt(C.ember) : rgbTxt(C.texto, 0.85);
+    g.fillRect(0, Math.round(h * (1 - pos(picoDb))), w, 2 * E.dpr);
+  }
+}
+
+// Llega con cada mensaje de posición del motor mientras suena
+function recibirNiveles(m) {
+  m.niveles.forEach((v, k) => { E.crudo[k] = Math.max(E.crudo[k] || 0, v); });
+  E.crudoM[0] = Math.max(E.crudoM[0], m.nivL); E.crudoM[1] = Math.max(E.crudoM[1], m.nivR);
+}
+
+function ponerTexto(id, txt) { if (E.lcd[id] !== txt) { E.lcd[id] = txt; $(id).textContent = txt; } }
+
+function cuadroEstudio(ahora) {
+  if (!E.w) return;
+  const dt = Math.min(0.1, (ahora - (E.ultimoCuadro || ahora)) / 1000);
+  E.ultimoCuadro = ahora;
+  // Seguir la reproducción: cuando el cabezal sale por la derecha, la vista pasa de página
+  if (E.seguir && S.sonando) {
+    const x = xDe(S.tiempo);
+    if (x > E.w * 0.88 || x < 0) { E.inicio = S.tiempo - (E.w * 0.08) / E.zoom; limitarVista(); E.sucio = true; }
+  }
+  if (E.sucio) dibujarBase();
+  if (E.sucioMapa) dibujarMapa();
+  const cv = $('eCanvas'), g = cv.getContext('2d'), C = E.col;
+  g.setTransform(1, 0, 0, 1, 0, 0);
+  g.drawImage(E.base, 0, 0);
+  g.setTransform(E.dpr, 0, 0, E.dpr, 0, 0);
+  // Loop
+  if (S.loop) {
+    const xa = xDe(S.loop.a), xb = xDe(S.loop.b);
+    const col = S.loopOn ? C.acento : C.tenue;
+    g.fillStyle = rgbTxt(col, S.loopOn ? 0.13 : 0.07); g.fillRect(xa, ALTO.regla, xb - xa, E.h - ALTO.regla);
+    g.fillStyle = rgbTxt(col, S.loopOn ? 0.9 : 0.5); redondeado(g, xa, 1, xb - xa, 6, 3); g.fill();
+    g.fillRect(Math.round(xa), ALTO.regla, 1.5, E.h - ALTO.regla); g.fillRect(Math.round(xb) - 1.5, ALTO.regla, 1.5, E.h - ALTO.regla);
+  }
+  // Cabezal
+  const xp = Math.round(xDe(S.tiempo)) + 0.5;
+  if (xp >= -6 && xp <= E.w + 6) {
+    g.fillStyle = rgbTxt(C.ember);
+    g.fillRect(xp - 0.75, ALTO.regla - 6, 1.5, E.h - ALTO.regla + 6);
+    g.beginPath(); g.moveTo(xp - 6, ALTO.regla - 12); g.lineTo(xp + 6, ALTO.regla - 12); g.lineTo(xp, ALTO.regla - 4); g.closePath(); g.fill();
+  }
+  // Vista general
+  const vent = $('eVentana');
+  vent.style.left = `${(E.inicio / S.dur) * 100}%`;
+  vent.style.width = `${Math.min(100, (E.w / E.zoom / S.dur) * 100)}%`;
+  const z = zoomASlider();
+  if (+$('eZoom').value !== z && document.activeElement !== $('eZoom')) $('eZoom').value = z;
+  // Pantallas
+  ponerTexto('eCompas', compasDe(S.tiempo));
+  ponerTexto('eTiempo', `${Math.floor(S.tiempo / 60)}:${(S.tiempo % 60).toFixed(1).padStart(4, '0')}`);
+  const bpm = S.a.bpm * S.tempo;
+  ponerTexto('eBpm', bpm.toFixed(bpm % 1 ? 1 : 0));
+  const k = tonalidadActual();
+  ponerTexto('eTono', nota(k.raiz, k.bemoles) + (k.modo === 'min' ? 'm' : ''));
+  // Medidores: suben al instante y bajan 26 dB por segundo; el pico queda 1.2 s
+  const canales = $('eMezclador').children;
+  const caida = 26 * dt;
+  S.pistas.forEach((p, i) => {
+    const d = dbDe(E.crudo[i] || 0);
+    E.crudo[i] = 0;
+    E.nivel[i] = Math.max(d, (E.nivel[i] === -Infinity ? -90 : E.nivel[i]) - caida);
+    if (E.nivel[i] < -80) E.nivel[i] = -Infinity;
+    if (d >= E.pico[i] || ahora - E.picoT[i] > 1200) { E.pico[i] = d; E.picoT[i] = ahora; }
+    const c = canales[i];
+    if (c && c._medidor) dibujarMedidor(c._medidor, [E.nivel[i]], E.pico[i]);
+  });
+  const gm = E.maestroGanancia;
+  const dl = dbDe(E.crudoM[0] * gm), dr = dbDe(E.crudoM[1] * gm);
+  E.crudoM = [0, 0];
+  E.nivelM = [Math.max(dl, (E.nivelM[0] === -Infinity ? -90 : E.nivelM[0]) - caida), Math.max(dr, (E.nivelM[1] === -Infinity ? -90 : E.nivelM[1]) - caida)].map((v) => (v < -80 ? -Infinity : v));
+  const dm = Math.max(dl, dr);
+  if (dm >= E.picoM || ahora - E.picoMT > 1200) { E.picoM = dm; E.picoMT = ahora; }
+  const cm = canales[S.pistas.length];
+  if (cm && cm._medidor) {
+    dibujarMedidor(cm._medidor, E.nivelM, E.picoM);
+    cm._db.classList.toggle('pico', E.picoM > -0.1);
+  }
+}
+
+/* =====================================================================
  * Controles
  * ===================================================================== */
 $('volver').onclick = () => {
@@ -3082,6 +3988,9 @@ $('volver').onclick = () => {
   if (S.sonando) tocarPausar();
   $('reproductor').hidden = true;
   $('biblioteca').hidden = false;
+  E.activo = false;
+  document.body.classList.remove('modo-estudio');
+  if (nodo) nodo.port.postMessage({ tipo: 'medir', activo: false });
   history.replaceState(null, '', location.pathname);
   cargarLista();
 };
@@ -3100,7 +4009,8 @@ $('click').onclick = () => { S.clickOn = !S.clickOn; enviarClick(); };
 $('clickVol').oninput = (e) => { S.clickVol = e.target.value / 100; enviarClick(); };
 $('restablecer').onclick = () => {
   S.tempo = 1; S.semis = 0; enviarVelocidad();
-  S.pistas.forEach((p) => { p.mute = false; p.solo = false; p.vol = 1; });
+  S.pistas.forEach((p) => { p.mute = false; p.solo = false; p.vol = 1; p.pan = 0; });
+  enviarPaneos();
   construirReproductor();
 };
 $('descargarBtn').onclick = (e) => { e.stopPropagation(); $('descargas').hidden = !$('descargas').hidden; };
@@ -3144,6 +4054,8 @@ $('pistas').addEventListener('pointerdown', (e) => {
 
 document.addEventListener('keydown', (e) => {
   if ($('reproductor').hidden || $('ajustes').open || $('dialogoLetra').open || e.target.tagName === 'TEXTAREA' || (e.target.tagName === 'INPUT' && e.target.type !== 'range')) return;
+  if (E.activo && (e.key === '+' || e.key === '=')) { zoomEn(E.zoom * 1.5, anclaZoom()); return; }
+  if (E.activo && e.key === '-') { zoomEn(E.zoom / 1.5, anclaZoom()); return; }
   if (e.code === 'Escape') cerrarKaraoke();
   if (e.code === 'Space') { e.preventDefault(); tocarPausar(); }
   else if (e.code === 'ArrowLeft') { e.preventDefault(); saltar(S.tiempo - 5); }
@@ -3153,7 +4065,7 @@ document.addEventListener('keydown', (e) => {
   else if (e.code === 'KeyK' && S.cancion && S.cancion.letra) ($('karaoke').hidden ? abrirKaraoke() : cerrarKaraoke());
 });
 
-addEventListener('resize', () => { if (S.a) { ubicarCapa(); dibujarOndas(); } });
+addEventListener('resize', () => { if (S.a) { ubicarCapa(); dibujarOndas(); redimensionarEstudio(); } });
 
 // Acorde que suena (grande) y el que viene; un pequeño salto cuando cambia
 function pintarAcordeAhora(i) {
@@ -3174,6 +4086,7 @@ const sinMovimiento = matchMedia('(prefers-reduced-motion: reduce)');
 function cuadro() {
   requestAnimationFrame(cuadro);
   if (!S.a || $('reproductor').hidden) return;
+  if (E.activo) cuadroEstudio(performance.now());
   const s = S.tiempo;
   $('playhead').style.left = `${(s / S.dur) * 100}%`;
   $('actual').textContent = fmt(s);

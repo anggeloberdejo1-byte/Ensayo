@@ -555,6 +555,8 @@
   .e-ms .s.active { background: var(--focus); border-color: var(--focus); color: #1a1408; }
   .e-pista.apagada .e-nombre { opacity: .45; }
   .e-lienzo { position: relative; min-width: 0; cursor: text; touch-action: pan-y; }
+  .e-lienzo.flecha { cursor: default; }
+  .e-lienzo.flecha.arrastrando { cursor: grabbing; }
   .e-lienzo canvas { display: block; width: 100%; }
   .e-lienzo.arrastrando { cursor: col-resize; }
   .e-cargando-ondas { position: absolute; right: 10px; bottom: 8px; font-size: 11.5px; color: var(--e-tenue); background: var(--e-pozo); padding: 3px 9px; border-radius: 999px; pointer-events: none; }
@@ -702,6 +704,19 @@
   .e-lcd.rec { box-shadow: inset 0 1px 3px rgba(0,0,0,.35), 0 0 0 1.5px var(--ember); }
   .e-lcd > .e-rec { flex-direction: row; align-items: center; color: var(--ember); font: 700 13px var(--mono); letter-spacing: .05em; animation: latidoRec 1s ease-in-out infinite; }
   .e-pista.rec .e-nombre { color: var(--ember); }
+  /* Selectores dentro del estudio (oscuro) */
+  .estudio .seg { background: var(--e-pozo); box-shadow: inset 0 0 0 1px var(--e-borde); }
+  .estudio .seg button { color: var(--e-tenue); min-height: 34px; display: inline-flex; align-items: center; justify-content: center; gap: 7px; font-size: 13.5px; }
+  .estudio .seg button:hover { color: var(--e-texto); }
+  .estudio .seg button[aria-pressed="true"] { background: var(--e-panel-2); color: var(--e-texto); box-shadow: 0 1px 2px rgba(0,0,0,.35), 0 0 0 1px var(--e-borde); }
+  .estudio .seg .icono { width: 17px; height: 17px; }
+  .e-paginas { flex: 0 0 auto; align-self: center; }
+  .e-paginas button { padding: 0 16px; font-weight: 600; }
+  .e-herramientas button { width: 40px; padding: 0; flex: 0 0 auto; }
+  body.estudio-mezcla .e-solo-pistas { display: none !important; }
+  /* Página Pistas: solo el arreglo, a lo ancho y alto de la pantalla */
+  body.modo-estudio.estudio-pistas .panel.practica { display: none; }
+  body.modo-estudio.estudio-pistas .tool { max-width: none; }
   .e-consejo { display: flex; align-items: center; gap: 12px; margin: 0 0 10px; padding: 12px 14px; border-radius: 12px; background: color-mix(in srgb, var(--e-acento) 12%, var(--e-panel)); box-shadow: 0 0 0 1px color-mix(in srgb, var(--e-acento) 35%, transparent); color: var(--e-texto); }
   .e-consejo p { margin: 0; flex: 1; font-size: 13.5px; line-height: 1.45; }
   .e-consejo .icono { color: var(--e-acento); width: 22px; height: 22px; }
@@ -809,6 +824,8 @@
   <symbol id="i-seguir" viewBox="0 0 24 24"><path d="M4 4v16"/><path d="m10 8 6 4-6 4V8z" fill="currentColor"/><path d="M20 4v16"/></symbol>
   <symbol id="i-iman" viewBox="0 0 24 24"><path d="M6 3h4v8a2 2 0 0 0 4 0V3h4v8a6 6 0 0 1-12 0V3z"/><path d="M6 7h4"/><path d="M14 7h4"/></symbol>
   <symbol id="i-expandir" viewBox="0 0 24 24"><path d="M3 12h18"/><path d="m7 8-4 4 4 4"/><path d="m17 8 4 4-4 4"/></symbol>
+  <symbol id="i-flecha-cursor" viewBox="0 0 24 24"><path d="M5 3l14 8-6.5 1.5L9.5 19z" fill="currentColor" stroke-linejoin="round"/></symbol>
+  <symbol id="i-cursor-texto" viewBox="0 0 24 24"><path d="M9 4h6"/><path d="M9 20h6"/><path d="M12 4v16"/></symbol>
   <symbol id="i-mas" viewBox="0 0 24 24"><path d="M12 5v14"/><path d="M5 12h14"/></symbol>
   <symbol id="i-buscar" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></symbol>
 </svg>
@@ -980,18 +997,26 @@
           <div><span class="e-lcd-num" id="eTono">—</span><small data-i18n="tonalidad">Tonalidad</small></div>
           <div class="e-rec" id="eRec" hidden>● REC</div>
         </div>
+        <div class="seg e-paginas" id="ePaginas" role="tablist">
+          <button type="button" data-pagina="pistas" aria-pressed="true"><svg class="icono" aria-hidden="true"><use href="#i-capas"/></svg><span data-i18n="pagPistas">Pistas</span></button>
+          <button type="button" data-pagina="mezcla" aria-pressed="false"><svg class="icono" aria-hidden="true"><use href="#i-mezcla"/></svg><span data-i18n="pagMezcla">Mezclador</span></button>
+        </div>
         <div class="e-herr">
           <button class="e-boton grabar" id="eGrabar" type="button" aria-pressed="false"><span class="punto-rec" aria-hidden="true"></span><span data-i18n="grabar">Grabar</span></button>
           <button class="e-boton" id="eEscuchar" type="button" aria-pressed="false" data-i18n-aria="grabEscuchar" aria-label="Escucharme mientras grabo"><svg class="icono" aria-hidden="true"><use href="#i-solo"/></svg><span data-i18n="grabEscucharCorto">Escucharme</span><span class="e-nivel-mic" id="eNivelMic" hidden><i></i></span></button>
           <label class="e-mic"><svg class="icono" aria-hidden="true"><use href="#i-microfono"/></svg><select id="eMic" data-i18n-aria="grabMic" aria-label="Micrófono"><option value="" data-i18n="grabMicDef">El del sistema</option></select></label>
-          <button class="e-boton" id="eSeguir" type="button" aria-pressed="true"><svg class="icono" aria-hidden="true"><use href="#i-seguir"/></svg><span data-i18n="eSeguir">Seguir</span></button>
-          <button class="e-boton" id="eAjustar" type="button" aria-pressed="true"><svg class="icono" aria-hidden="true"><use href="#i-iman"/></svg><span data-i18n="eAjustar">Ajustar al pulso</span></button>
-          <div class="e-zoom">
+          <div class="seg e-herramientas e-solo-pistas" id="eHerramienta">
+            <button type="button" data-herramienta="flecha" aria-pressed="false" data-i18n-aria="herrFlecha" aria-label="Flecha" title="Flecha (V)"><svg class="icono" aria-hidden="true"><use href="#i-flecha-cursor"/></svg></button>
+            <button type="button" data-herramienta="seleccion" aria-pressed="true" data-i18n-aria="herrSeleccion" aria-label="Selección" title="Selección (I)"><svg class="icono" aria-hidden="true"><use href="#i-cursor-texto"/></svg></button>
+          </div>
+          <button class="e-boton e-solo-pistas" id="eSeguir" type="button" aria-pressed="true"><svg class="icono" aria-hidden="true"><use href="#i-seguir"/></svg><span data-i18n="eSeguir">Seguir</span></button>
+          <button class="e-boton e-solo-pistas" id="eAjustar" type="button" aria-pressed="true"><svg class="icono" aria-hidden="true"><use href="#i-iman"/></svg><span data-i18n="eAjustar">Ajustar al pulso</span></button>
+          <div class="e-zoom e-solo-pistas">
             <button id="eAlejar" type="button" data-i18n-aria="eAlejar" aria-label="Alejar">−</button>
             <input type="range" id="eZoom" min="0" max="1000" value="0" data-i18n-aria="eZoomT" aria-label="Zoom">
             <button id="eAcercar" type="button" data-i18n-aria="eAcercar" aria-label="Acercar">+</button>
           </div>
-          <button class="e-boton" id="eTodo" type="button"><svg class="icono" aria-hidden="true"><use href="#i-expandir"/></svg><span data-i18n="eTodo">Ver toda</span></button>
+          <button class="e-boton e-solo-pistas" id="eTodo" type="button"><svg class="icono" aria-hidden="true"><use href="#i-expandir"/></svg><span data-i18n="eTodo">Ver toda</span></button>
           <button class="e-boton principal" id="eExportar" type="button"><svg class="icono" aria-hidden="true"><use href="#i-descargar"/></svg><span data-i18n="expT">Exportar mezcla</span></button>
         </div>
       </div>
@@ -1000,17 +1025,21 @@
         <p><b data-i18n="consejoT">¿No te escuchas mientras grabas?</b> <span data-i18n="consejoTxt">Toca «Escucharme» y usa audífonos. Si no suena nada, abre Ajustes y elige en «Salida de audio» donde están conectados tus audífonos. Si tu micrófono tiene salida para audífonos (como el Blue Yeti), conéctalos ahí: te escuchas sin retraso.</span></p>
         <button class="e-boton" id="eConsejoOk" type="button" data-i18n="consejoOk">Entendido</button>
       </div>
+      <div class="e-pagina" id="ePagPistas">
       <div class="e-arreglo">
         <div class="e-cabezas" id="eCabezas"></div>
         <div class="e-lienzo" id="eLienzo"><canvas id="eCanvas"></canvas><span class="e-cargando-ondas" id="eCargandoOndas" data-i18n="eOndas" hidden>Dibujando ondas con detalle…</span></div>
       </div>
       <div class="e-mapa" id="eMapa" data-i18n-aria="eMapaT" aria-label="Vista general"><canvas id="eMapaCanvas"></canvas><div class="e-ventana" id="eVentana"></div></div>
+      </div>
+      <div class="e-pagina" id="ePagMezcla" hidden>
       <div class="e-mezcla-cabeza">
         <h3 data-i18n="eMezcladorT">Mezclador</h3>
         <div class="e-escenas" id="eEscenas"></div>
         <button class="e-boton" id="eFx" type="button" aria-pressed="true"><svg class="icono" aria-hidden="true"><use href="#i-mezcla"/></svg><span data-i18n="fxVer">Efectos</span></button>
       </div>
       <div class="e-mezclador" id="eMezclador"></div>
+      </div>
     </section>
 
     <div class="panel acordes" id="acordes">
@@ -2401,11 +2430,12 @@ const TEXTOS = {
     karaoke: 'Karaoke', editarLetra: 'Editar letra', pegarLetra: 'Pegar la letra', usarLetra: 'Sincronizar', cargarTxt: 'Cargar .txt o .lrc',
     letraInicioT: 'Letra (opcional)', letraPh: 'Pega aquí la letra, una línea por renglón. La app la pone en pantalla al ritmo de la voz.',
     pegarNota: 'Pega la letra, una línea por renglón. La IA escucha la voz para saber cuándo se canta cada palabra. Un archivo .lrc ya trae los tiempos.',
+    pagPistas: 'Pistas', pagMezcla: 'Mezclador', herrFlecha: 'Flecha: tocar salta, arrastrar mueve la vista (V)', herrSeleccion: 'Selección: arrastrar marca un loop (I)',
     vistaEnsayo: 'Ensayo', vistaEstudio: 'Estudio', eCompasT: 'Compás', eTiempoT: 'Tiempo', eSeguir: 'Seguir', eAjustar: 'Ajustar al pulso', eTodo: 'Ver toda', eAcercar: 'Acercar', eAlejar: 'Alejar', eZoomT: 'Zoom', eMapaT: 'Vista general de la canción', eMezcladorT: 'Mezclador', ePistas: 'Pistas', eOndas: 'Dibujando ondas con detalle…', maestro: 'Maestro', paneo: 'Paneo', panIzq: 'I', panDer: 'D',
     grabar: 'Grabar', grabDetener: 'Detener', grabando: 'Grabando', grabBorrar: 'Borrar toma', grabBorrarConfirma: '¿Borrar "{t}"? No se puede deshacer.', grabLista: '{n} lista',
     grabMax: 'Ya hay 12 pistas: borra una toma para grabar otra.', grabSinMic: 'No se pudo usar el micrófono. Revisa el permiso del navegador.', grabVelocidad: 'Para grabar, la velocidad vuelve a 100 % y el tono a 0.',
     grabVacia: 'No se grabó nada.', grabSilencio: 'La toma quedó en silencio: revisa el micrófono.',
-    grabT: 'Grabación', grabSalida: 'Salida de audio (audífonos o parlantes)', grabSalidaN: 'Salida', grabSalidaLista: 'Salida de audio cambiada', grabSalidaSafari: 'Este navegador no deja elegir la salida aquí: cámbiala en Ajustes del Sistema → Sonido → Salida.', grabConsejo: 'Si tu micrófono tiene salida para audífonos (como el Blue Yeti), conéctalos ahí y elige ese micrófono también como salida: te escuchas sin ningún retraso y no hace falta «Escucharme».', consejoT: '¿No te escuchas mientras grabas?', consejoTxt: 'Toca «Escucharme» y usa audífonos. Si no suena nada, abre Ajustes y elige en «Salida de audio» donde están conectados tus audífonos. Si tu micrófono tiene salida para audífonos (como el Blue Yeti), conéctalos ahí: te escuchas sin retraso.', consejoOk: 'Entendido', grabEscucharCorto: 'Escucharme', grabUsaAudifonos: 'Te escuchas por la salida de audio: usa audífonos para que no se acople.', grabMic: 'Micrófono', grabMicDef: 'El del sistema', grabEscuchar: 'Escucharme mientras grabo', grabMonSi: 'Sí (con audífonos)',
+    grabT: 'Grabación', micConectado: 'Micrófono conectado: {n}', micDesconectado: 'Se desconectó el micrófono: vuelve el del sistema', grabSalida: 'Salida de audio (audífonos o parlantes)', grabSalidaN: 'Salida', grabSalidaLista: 'Salida de audio cambiada', grabSalidaSafari: 'Este navegador no deja elegir la salida aquí: cámbiala en Ajustes del Sistema → Sonido → Salida.', grabConsejo: 'Si tu micrófono tiene salida para audífonos (como el Blue Yeti), conéctalos ahí y elige ese micrófono también como salida: te escuchas sin ningún retraso y no hace falta «Escucharme».', consejoT: '¿No te escuchas mientras grabas?', consejoTxt: 'Toca «Escucharme» y usa audífonos. Si no suena nada, abre Ajustes y elige en «Salida de audio» donde están conectados tus audífonos. Si tu micrófono tiene salida para audífonos (como el Blue Yeti), conéctalos ahí: te escuchas sin retraso.', consejoOk: 'Entendido', grabEscucharCorto: 'Escucharme', grabUsaAudifonos: 'Te escuchas por la salida de audio: usa audífonos para que no se acople.', grabMic: 'Micrófono', grabMicDef: 'El del sistema', grabEscuchar: 'Escucharme mientras grabo', grabMonSi: 'Sí (con audífonos)',
     latT: 'Compensación de latencia', latCalibrar: 'Calibrar', latAutoT: 'Automática', latAuto: 'Automática: la calcula el navegador. Para más precisión, calibra.', latCalibrada: 'Calibrada con tus parlantes y tu micrófono.', latManual: 'Ajustada a mano.',
     latEscuchando: 'Escuchando los clics… quédate en silencio.', latSinClics: 'No se escucharon los clics. Sube el volumen, quita los audífonos y prueba otra vez.', latLista: 'Latencia calibrada: {ms} ms',
     latAyuda: 'Para calibrar: quita los audífonos y sube el volumen. La app toca 6 clics y mide cuánto tardan en volver por el micrófono.',
@@ -2459,11 +2489,12 @@ const TEXTOS = {
     karaoke: 'Karaoke', editarLetra: 'Edit lyrics', pegarLetra: 'Paste lyrics', usarLetra: 'Sync', cargarTxt: 'Load .txt or .lrc',
     letraInicioT: 'Lyrics (optional)', letraPh: 'Paste the lyrics here, one line per row. The app shows them in time with the vocals.',
     pegarNota: 'Paste the lyrics, one line per row. The AI listens to the vocals to know when each word is sung. An .lrc file already has the timing.',
+    pagPistas: 'Tracks', pagMezcla: 'Mixer', herrFlecha: 'Arrow: click jumps, drag moves the view (V)', herrSeleccion: 'Selection: drag marks a loop (I)',
     vistaEnsayo: 'Practice', vistaEstudio: 'Studio', eCompasT: 'Bar', eTiempoT: 'Time', eSeguir: 'Follow', eAjustar: 'Snap to beat', eTodo: 'Fit all', eAcercar: 'Zoom in', eAlejar: 'Zoom out', eZoomT: 'Zoom', eMapaT: 'Song overview', eMezcladorT: 'Mixer', ePistas: 'Tracks', eOndas: 'Drawing detailed waveforms…', maestro: 'Master', paneo: 'Pan', panIzq: 'L', panDer: 'R',
     grabar: 'Record', grabDetener: 'Stop', grabando: 'Recording', grabBorrar: 'Delete take', grabBorrarConfirma: 'Delete "{t}"? This can’t be undone.', grabLista: '{n} ready',
     grabMax: 'There are already 12 tracks: delete a take to record another.', grabSinMic: 'Couldn’t use the microphone. Check the browser permission.', grabVelocidad: 'To record, speed goes back to 100 % and key to 0.',
     grabVacia: 'Nothing was recorded.', grabSilencio: 'The take is silent: check the microphone.',
-    grabT: 'Recording', grabSalida: 'Audio output (headphones or speakers)', grabSalidaN: 'Output', grabSalidaLista: 'Audio output changed', grabSalidaSafari: 'This browser can’t choose the output here: change it in System Settings → Sound → Output.', grabConsejo: 'If your microphone has a headphone output (like the Blue Yeti), plug them in there and pick that microphone as the output too: you hear yourself with no delay and don’t need “Hear me”.', consejoT: 'Can’t hear yourself while recording?', consejoTxt: 'Tap “Hear me” and use headphones. If nothing sounds, open Settings and pick your headphones under “Audio output”. If your microphone has a headphone output (like the Blue Yeti), plug them in there: you hear yourself with no delay.', consejoOk: 'Got it', grabEscucharCorto: 'Hear me', grabUsaAudifonos: 'You hear yourself through the audio output: use headphones so it doesn’t feed back.', grabMic: 'Microphone', grabMicDef: 'System default', grabEscuchar: 'Hear myself while recording', grabMonSi: 'Yes (with headphones)',
+    grabT: 'Recording', micConectado: 'Microphone connected: {n}', micDesconectado: 'The microphone was unplugged: back to the system one', grabSalida: 'Audio output (headphones or speakers)', grabSalidaN: 'Output', grabSalidaLista: 'Audio output changed', grabSalidaSafari: 'This browser can’t choose the output here: change it in System Settings → Sound → Output.', grabConsejo: 'If your microphone has a headphone output (like the Blue Yeti), plug them in there and pick that microphone as the output too: you hear yourself with no delay and don’t need “Hear me”.', consejoT: 'Can’t hear yourself while recording?', consejoTxt: 'Tap “Hear me” and use headphones. If nothing sounds, open Settings and pick your headphones under “Audio output”. If your microphone has a headphone output (like the Blue Yeti), plug them in there: you hear yourself with no delay.', consejoOk: 'Got it', grabEscucharCorto: 'Hear me', grabUsaAudifonos: 'You hear yourself through the audio output: use headphones so it doesn’t feed back.', grabMic: 'Microphone', grabMicDef: 'System default', grabEscuchar: 'Hear myself while recording', grabMonSi: 'Yes (with headphones)',
     latT: 'Latency compensation', latCalibrar: 'Calibrate', latAutoT: 'Automatic', latAuto: 'Automatic: the browser estimates it. Calibrate for more precision.', latCalibrada: 'Calibrated with your speakers and microphone.', latManual: 'Set by hand.',
     latEscuchando: 'Listening to the clicks… stay quiet.', latSinClics: 'The clicks weren’t heard. Turn the volume up, remove headphones and try again.', latLista: 'Latency calibrated: {ms} ms',
     latAyuda: 'To calibrate: remove your headphones and turn the volume up. The app plays 6 clicks and measures how long they take to come back through the microphone.',
@@ -4135,6 +4166,30 @@ async function cambiarMic(id) {
   pintarEscuchar();
 }
 $('grabMic').onchange = (e) => cambiarMic(e.target.value);
+// Al conectar o desconectar un micrófono la lista se actualiza al momento;
+// si no elegiste uno a mano y aparece uno externo (como el Yeti), se cambia a ese
+if (navigator.mediaDevices && navigator.mediaDevices.addEventListener) {
+  navigator.mediaDevices.addEventListener('devicechange', async () => {
+    try {
+      await llenarMics();
+      const actual = leerPref('micId', '');
+      const lista = (await navigator.mediaDevices.enumerateDevices()).filter((d) => d.kind === 'audioinput');
+      const sigue = !actual || lista.some((d) => d.deviceId === actual);
+      if (!leerPref('micElegido', false)) {
+        const ext = await micExterno();
+        if (ext && ext.deviceId !== actual) {
+          guardarPref('micId', ext.deviceId);
+          aviso(t('micConectado', { n: ext.label.replace(/\s*\([0-9a-f]{4}:[0-9a-f]{4}\)\s*$/i, '') }));
+          if (micStream && !E.rec) { cerrarMic(); await prepararMic(); if (monitorGan) monitorGan.gain.value = leerPref('monitor', false) ? 1 : 0; }
+          llenarMics(); pintarEscuchar();
+          return;
+        }
+      }
+      // Si se desconectó el micrófono elegido, volver al del sistema
+      if (!sigue && !E.rec) { guardarPref('micId', ''); if (micStream) cerrarMic(); llenarMics(); pintarEscuchar(); aviso(t('micDesconectado')); }
+    } catch (e) {}
+  });
+}
 $('eMic').onchange = (e) => cambiarMic(e.target.value);
 // Al abrir el selector por primera vez se pide permiso, para que aparezcan los nombres de los micrófonos
 $('eMic').addEventListener('pointerdown', () => { if (!micStream) prepararMic().catch(() => {}); });
@@ -4520,6 +4575,34 @@ $('estudio').addEventListener('click', (e) => {
 function enviarPaneos() { aplicarMezcla(); }
 
 /* ---------- Abrir y cerrar el estudio ---------- */
+// Páginas del estudio: Pistas (solo el arreglo, grande) o Mezclador (faders, efectos y opciones de audio)
+E.pagina = leerPref('paginaEstudio', 'pistas') === 'mezcla' ? 'mezcla' : 'pistas';
+function aplicarPagina(pg, desplazar) {
+  E.pagina = pg === 'mezcla' ? 'mezcla' : 'pistas';
+  guardarPref('paginaEstudio', E.pagina);
+  document.querySelectorAll('#ePaginas button').forEach((b) => b.setAttribute('aria-pressed', b.dataset.pagina === E.pagina ? 'true' : 'false'));
+  $('ePagPistas').hidden = E.pagina !== 'pistas';
+  $('ePagMezcla').hidden = E.pagina !== 'mezcla';
+  document.body.classList.toggle('estudio-pistas', E.activo && E.pagina === 'pistas');
+  document.body.classList.toggle('estudio-mezcla', E.activo && E.pagina === 'mezcla');
+  requestAnimationFrame(() => {
+    redimensionarEstudio();
+    if (desplazar && E.activo) $('estudio').scrollIntoView({ block: 'start', behavior: sinMovimiento.matches ? 'auto' : 'smooth' });
+  });
+}
+document.querySelectorAll('#ePaginas button').forEach((b) => b.onclick = () => aplicarPagina(b.dataset.pagina, true));
+
+// Herramientas del cursor: flecha (arrastrar mueve la vista) o selección (arrastrar marca un loop)
+E.herramienta = leerPref('herramienta', 'seleccion') === 'flecha' ? 'flecha' : 'seleccion';
+function aplicarHerramienta(h) {
+  E.herramienta = h === 'flecha' ? 'flecha' : 'seleccion';
+  guardarPref('herramienta', E.herramienta);
+  document.querySelectorAll('#eHerramienta button').forEach((b) => b.setAttribute('aria-pressed', b.dataset.herramienta === E.herramienta ? 'true' : 'false'));
+  $('eLienzo').classList.toggle('flecha', E.herramienta === 'flecha');
+}
+document.querySelectorAll('#eHerramienta button').forEach((b) => b.onclick = () => aplicarHerramienta(b.dataset.herramienta));
+aplicarHerramienta(E.herramienta);
+
 function aplicarVista(v) {
   const estudio = v === 'estudio' && !!S.a;
   document.querySelectorAll('#vista button').forEach((b) => b.setAttribute('aria-pressed', b.dataset.vista === (estudio ? 'estudio' : 'ensayo') ? 'true' : 'false'));
@@ -4528,6 +4611,7 @@ function aplicarVista(v) {
   E.activo = estudio;
   document.body.classList.toggle('modo-estudio', estudio);
   $('estudio').hidden = !estudio;
+  aplicarPagina(E.pagina);
   if (estudio && !antes) {
     llenarMics().catch(() => {});
     pedirPicos();
@@ -4560,6 +4644,17 @@ function redimensionarEstudio() {
   const lienzo = $('eLienzo'), cv = $('eCanvas');
   E.dpr = devicePixelRatio || 1;
   E.w = lienzo.clientWidth;
+  // En la página Pistas los carriles crecen para llenar la pantalla
+  if (E.pagina === 'pistas') {
+    const filas = S.pistas.length + (E.rec ? 1 : 0);
+    const barra = $('estudio').querySelector('.e-barra').offsetHeight + ($('eConsejo').hidden ? 0 : $('eConsejo').offsetHeight + 10);
+    const libre = innerHeight - barra - ALTO.regla - ALTO.secc - ALTO.acordes - 44 - 110 - 30;
+    const alto = Math.max(62, Math.min(170, Math.floor(libre / Math.max(1, filas))));
+    if (alto !== ALTO.pista) {
+      ALTO.pista = alto;
+      document.querySelectorAll('.e-pista').forEach((f) => { f.style.height = alto + 'px'; });
+    }
+  }
   E.h = ALTO.regla + ALTO.secc + ALTO.acordes + (S.pistas.length + (E.rec ? 1 : 0)) * ALTO.pista;
   cv.style.height = E.h + 'px';
   cv.width = Math.round(E.w * E.dpr); cv.height = Math.round(E.h * E.dpr);
@@ -4616,10 +4711,12 @@ $('eLienzo').addEventListener('pointerdown', (e) => {
   const x0 = e.clientX - r.left, y0 = e.clientY - r.top, t0 = tDe(x0);
   lienzo.setPointerCapture(e.pointerId);
   let arrastrando = false;
+  const flecha = E.herramienta === 'flecha', inicio0 = E.inicio;
   const mover = (ev) => {
     const x = ev.clientX - r.left;
     if (!arrastrando && Math.abs(x - x0) > 5) { arrastrando = true; lienzo.classList.add('arrastrando'); }
     if (!arrastrando) return;
+    if (flecha) { E.inicio = inicio0 - (x - x0) / E.zoom; limitarVista(); E.sucio = true; return; }
     // Si se arrastra fuera del borde, la vista se mueve sola
     if (x > E.w - 20) { E.inicio += 8 / E.zoom; limitarVista(); E.sucio = true; }
     if (x < 20) { E.inicio -= 8 / E.zoom; limitarVista(); E.sucio = true; }
@@ -4641,7 +4738,8 @@ $('eLienzo').addEventListener('pointerdown', (e) => {
         if (misma) S.loopOn = false; else { S.loop = { a: sec.start, b: sec.end }; S.loopOn = true; saltar(sec.start); }
         enviarLoop();
       } else saltar(ajustarT(t0));
-    } else if (!S.loop || S.loop.b - S.loop.a < 0.1) { S.loop = null; S.loopOn = false; enviarLoop(); }
+    } else if (flecha) { /* solo se movió la vista */ }
+    else if (!S.loop || S.loop.b - S.loop.a < 0.1) { S.loop = null; S.loopOn = false; enviarLoop(); }
     else saltar(S.loop.a);
   };
   lienzo.addEventListener('pointermove', mover);
@@ -4864,10 +4962,7 @@ function picoDe(an) {
 
 function ponerTexto(id, txt) { if (E.lcd[id] !== txt) { E.lcd[id] = txt; $(id).textContent = txt; } }
 
-function cuadroEstudio(ahora) {
-  if (!E.w) return;
-  const dt = Math.min(0.1, (ahora - (E.ultimoCuadro || ahora)) / 1000);
-  E.ultimoCuadro = ahora;
+function dibujarArreglo() {
   // Seguir la reproducción: cuando el cabezal sale por la derecha, la vista pasa de página
   if (E.seguir && S.sonando) {
     const x = xDe(S.tiempo);
@@ -4900,6 +4995,12 @@ function cuadroEstudio(ahora) {
   vent.style.width = `${Math.min(100, (E.w / E.zoom / S.dur) * 100)}%`;
   const z = zoomASlider();
   if (+$('eZoom').value !== z && document.activeElement !== $('eZoom')) $('eZoom').value = z;
+}
+
+function cuadroEstudio(ahora) {
+  const dt = Math.min(0.1, (ahora - (E.ultimoCuadro || ahora)) / 1000);
+  E.ultimoCuadro = ahora;
+  if (E.w && E.pagina === 'pistas') dibujarArreglo();
   // Pantallas
   ponerTexto('eCompas', compasDe(S.tiempo));
   ponerTexto('eTiempo', `${Math.floor(S.tiempo / 60)}:${(S.tiempo % 60).toFixed(1).padStart(4, '0')}`);
@@ -4944,7 +5045,7 @@ $('volver').onclick = () => {
   $('reproductor').hidden = true;
   $('biblioteca').hidden = false;
   E.activo = false;
-  document.body.classList.remove('modo-estudio');
+  document.body.classList.remove('modo-estudio', 'estudio-pistas', 'estudio-mezcla');
   history.replaceState(null, '', location.pathname);
   cargarLista();
 };
@@ -5028,6 +5129,8 @@ document.addEventListener('keydown', (e) => {
   if ($('reproductor').hidden || $('ajustes').open || $('dialogoLetra').open || e.target.tagName === 'TEXTAREA' || (e.target.tagName === 'INPUT' && e.target.type !== 'range')) return;
   if (E.activo && (e.key === '+' || e.key === '=')) { zoomEn(E.zoom * 1.5, anclaZoom()); return; }
   if (E.activo && e.key === '-') { zoomEn(E.zoom / 1.5, anclaZoom()); return; }
+  if (E.activo && e.code === 'KeyV') { aplicarHerramienta('flecha'); return; }
+  if (E.activo && e.code === 'KeyI') { aplicarHerramienta('seleccion'); return; }
   if (e.code === 'Escape') cerrarKaraoke();
   if (e.code === 'Space') { e.preventDefault(); tocarPausar(); }
   else if (e.code === 'ArrowLeft') { e.preventDefault(); saltar(S.tiempo - 5); }

@@ -450,6 +450,8 @@
   .yt-oficial { display: inline-block; font-size: 11px; font-weight: 700; background: var(--brass); color: var(--ink); padding: 1px 6px; border-radius: 5px; margin-right: 6px; vertical-align: 1px; }
   .yt-lista .chip { flex-shrink: 0; }
   .fila-botones { display: flex; gap: 8px; justify-content: flex-end; margin-top: 12px; flex-wrap: wrap; align-items: center; }
+  .desfase-letra { display: inline-flex; align-items: center; gap: 4px; font-size: 13px; color: var(--parchment-dim); font-variant-numeric: tabular-nums; }
+  .desfase-letra span { min-width: 46px; text-align: center; }
   /* Letra de internet: de dónde salió, buscador y resultados */
   .fuente-letra { margin: 8px 0 0; font-size: 12px; color: var(--parchment-dim); }
   .fuente-letra a { color: var(--brass); }
@@ -1111,6 +1113,11 @@
         <button class="chip" id="abrirKaraoke" type="button" data-i18n-aria="karaoke" aria-label="Karaoke"><svg class="icono" aria-hidden="true"><use href="#i-pantalla"/></svg><span class="txt" data-i18n="karaoke">Karaoke</span></button>
         <button class="chip" id="editarLetra" type="button" data-i18n-aria="editarLetra" aria-label="Editar letra"><svg class="icono" aria-hidden="true"><use href="#i-lapiz"/></svg><span class="txt" data-i18n="editarLetra">Editar letra</span></button>
         <button class="chip" id="rehacerLetra" type="button" data-i18n-aria="otraVez" aria-label="Volver a sacar"><svg class="icono" aria-hidden="true"><use href="#i-rehacer"/></svg><span class="txt" data-i18n="otraVez">Volver a sacar</span></button>
+        <span class="desfase-letra">
+          <button class="chip" id="letraAntes" type="button" data-i18n-aria="letraAntes" aria-label="Letra antes">−</button>
+          <span id="letraDesfase" data-i18n-title="ajusteLetra" title="Ajuste de la letra">0.0 s</span>
+          <button class="chip" id="letraDespues" type="button" data-i18n-aria="letraDespues" aria-label="Letra después">+</button>
+        </span>
       </div>
       <div class="letra-vacia" id="letraVacia">
         <div class="vacio-icono" aria-hidden="true"><svg class="icono"><use href="#i-microfono"/></svg></div>
@@ -2487,6 +2494,7 @@ const TEXTOS = {
     'sec:Intro': 'Intro', 'sec:Estrofa': 'Estrofa', 'sec:Coro': 'Coro', 'sec:Puente': 'Puente', 'sec:Final': 'Final', 'sec:Canción': 'Canción', 'sec:Parte': 'Parte',
     credito: 'Hecha por Anggelo Berdejo — El Ñañe', otras: 'Otras herramientas', paypal: 'Apoya este proyecto en PayPal',
     letraT: 'Letra', sacarLetra: 'Sacar la letra', letraNota: 'Busca la letra en internet y la pone al ritmo de la voz. Si no la encuentra, la IA la escucha y la escribe.',
+    letraAntes: 'Letra antes', letraDespues: 'Letra después', ajusteLetra: 'Ajuste fino: mueve toda la letra antes o después',
     buscandoLetra: 'Buscando la letra en internet', buscarT: 'Buscar en internet', buscarPh: 'Artista y canción', buscar: 'Buscar', oPegala: 'O pégala tú',
     sinResultados: 'No se encontró. Prueba solo con el nombre de la canción.', conTiempos: 'con tiempos', soloTexto: 'solo texto', sinConexion: 'Sin conexión: no se pudo buscar.',
     fuenteInternet: 'Letra de internet (LRCLIB): {t}', fuenteIA: 'Letra escuchada por la IA', fuentePropia: 'Letra puesta por ti', cambiar: 'cambiar',
@@ -2551,6 +2559,7 @@ const TEXTOS = {
     kick: 'Kick', snare: 'Snare', toms: 'Toms', cymbals: 'Cymbals', congas: 'Congas & timbales', campana: 'Bell & cymbals',
     'sec:Intro': 'Intro', 'sec:Estrofa': 'Verse', 'sec:Coro': 'Chorus', 'sec:Puente': 'Bridge', 'sec:Final': 'Outro', 'sec:Canción': 'Song', 'sec:Parte': 'Part',
     credito: 'Built by Anggelo Berdejo — El Ñañe', otras: 'More tools', paypal: 'Support this project on PayPal',
+    letraAntes: 'Lyrics earlier', letraDespues: 'Lyrics later', ajusteLetra: 'Fine tune: moves all the lyrics earlier or later',
     buscandoLetra: 'Searching the lyrics online', buscarT: 'Search online', buscarPh: 'Artist and song', buscar: 'Search', oPegala: 'Or paste them',
     sinResultados: 'Nothing found. Try just the song name.', conTiempos: 'timed', soloTexto: 'text only', sinConexion: 'Offline: could not search.',
     fuenteInternet: 'Lyrics from the internet (LRCLIB): {t}', fuenteIA: 'Lyrics heard by the AI', fuentePropia: 'Lyrics added by you', cambiar: 'change',
@@ -2599,6 +2608,7 @@ function aplicarIdioma(nuevo) {
   document.querySelectorAll('[data-i18n]').forEach((el) => { el.textContent = t(el.dataset.i18n); });
   document.querySelectorAll('[data-i18n-aria]').forEach((el) => el.setAttribute('aria-label', t(el.dataset.i18nAria)));
   document.querySelectorAll('[data-i18n-ph]').forEach((el) => { el.placeholder = t(el.dataset.i18nPh); });
+  document.querySelectorAll('[data-i18n-title]').forEach((el) => { el.title = t(el.dataset.i18nTitle); });
   document.querySelectorAll('[data-i18n-titulo]').forEach((el) => { el.title = t(el.dataset.i18nTitulo); });
   document.querySelectorAll('#idiomas button').forEach((b) => b.setAttribute('aria-pressed', b.dataset.idioma === idioma ? 'true' : 'false'));
   guardarPref('idioma', idioma);
@@ -3067,6 +3077,11 @@ async function abrirCancion(id) {
     const nombres = ORDEN_PISTAS.filter((n) => datos[n]).concat((cancion.tomas || []).map((x) => x.nombre).filter((n) => datos[n]));
     const pistas = nombres.map((n) => datos[n]);
     const largo = Math.min(...pistas.map((p) => p.length / 2));
+    S.voz = datos.vocals ? contornoDeVoz(datos.vocals) : null;
+    if (cancion.letra && cancion.letra.afinada !== 2 && S.voz) {
+      afinarConVoz(cancion.letra, S.voz);
+      bdHacer('canciones', 'readwrite', (st) => st.put(cancion)).catch(() => {});
+    }
     // Las pistas pasan al motor sin copiarse (para descargar se vuelven a leer de la base de datos)
     nodo.port.postMessage({ tipo: 'cargar', pistas, largo }, pistas.map((p) => p.buffer));
 
@@ -3261,15 +3276,16 @@ function leerLrc(texto) {
     for (const m of tiempos) filas.push({ t: +m[1] * 60 + parseFloat(m[2].replace(':', '.')), texto: resto });
   }
   filas.sort((x, y) => x.t - y.t);
-  const palabras = [], lineas = [];
+  const palabras = [], lineas = [], tramos = [];
   filas.forEach((f, k) => {
     const ws = f.texto.split(/\s+/).filter((w) => /[\p{L}\p{N}]/u.test(w));
     if (!ws.length) return;
     const fin = k + 1 < filas.length ? filas[k + 1].t : f.t + ws.length * 0.5;
     const paso = Math.min(0.6, (fin - f.t) / ws.length);
     lineas.push(ws.map((w, i) => { palabras.push({ t: w, a: f.t + i * paso, b: f.t + (i + 1) * paso }); return palabras.length - 1; }));
+    tramos.push([f.t, fin]);
   });
-  return { palabras, lineas };
+  return { palabras, lineas, tramos, deLrc: true };
 }
 
 // Parecido entre dos palabras (0 a 1), por distancia de edición
@@ -3487,6 +3503,9 @@ async function procesarLetra(c) {
       }
       c.letra = escrita || { palabras: oidas, lineas: armarLineas(oidas) };
     }
+    // Ajustar cada palabra a la voz real
+    const contorno = esta() && S.voz ? S.voz : contornoDeVoz((await bdPistas(c.id)).vocals);
+    afinarConVoz(c.letra, contorno);
     await bdHacer('canciones', 'readwrite', (st) => st.put(c));
   } catch (err) {
     c.letra = null;
@@ -3511,6 +3530,7 @@ function pintarLetra() {
   $('letraBarra').hidden = !enCurso;
   if (!enCurso) $('letraEstado').textContent = l && !l.palabras.length ? t('sinLetra') : t('letraNota');
   if (!hay) cerrarKaraoke();
+  if (hay) pintarDesfase();
   const f = S.cancion && S.cancion.fuenteLetra;
   $('fuenteLetra').hidden = !hay || !f;
   if (hay && f) {
@@ -3533,12 +3553,143 @@ function lineaHtml(idx) {
   return linea.map((i) => `<span data-i="${i}">${l.palabras[i].t.trim().replace(/[&<>]/g, '')}</span>`).join(' ');
 }
 
+/* ---------- La letra de la mano con la voz ----------
+ * De la pista de voz se saca su contorno cada 10 ms: cuándo suena y dónde ataca cada sílaba.
+ * Con eso cada palabra empieza en el ataque real, dura lo que la voz la sostiene, y el color
+ * solo avanza mientras la voz suena (si respira, el color espera). */
+const VOZ_FPS = 100;
+
+function contornoDeVoz(d) {
+  const paso = 44100 / VOZ_FPS, n = Math.floor(d.length / 2 / paso);
+  const env = new Float32Array(n);
+  for (let f = 0; f < n; f++) {
+    let q = 0;
+    const i0 = f * paso;
+    for (let i = i0; i < i0 + paso; i += 3) { const v = (d[2 * i] + d[2 * i + 1]) / 65536; q += v * v; }
+    env[f] = Math.sqrt(q / (paso / 3));
+  }
+  const orden = Array.from(env).sort((x, y) => x - y);
+  const umbral = Math.max((orden[Math.floor(n * 0.95)] || 0) * 0.06, 1e-4);
+  const sonando = new Uint8Array(n);
+  for (let f = 0; f < n; f++) sonando[f] = env[f] > umbral ? 1 : 0;
+  // Unir huecos de menos de 60 ms (consonantes) y borrar chispazos de menos de 40 ms
+  for (let f = 1, hueco = 0; f < n; f++) {
+    if (!sonando[f]) hueco++;
+    else { if (hueco > 0 && hueco <= 6 && f - hueco - 1 >= 0 && sonando[f - hueco - 1]) for (let k = f - hueco; k < f; k++) sonando[k] = 1; hueco = 0; }
+  }
+  for (let f = 0, corrida = 0; f <= n; f++) {
+    if (f < n && sonando[f]) corrida++;
+    else { if (corrida > 0 && corrida < 4) for (let k = f - corrida; k < f; k++) sonando[k] = 0; corrida = 0; }
+  }
+  const acum = new Float32Array(n + 1);
+  for (let f = 0; f < n; f++) acum[f + 1] = acum[f] + sonando[f];
+  // Ataques: subidas fuertes de volumen (cada sílaba nueva suele empezar así)
+  const lg = Array.from(env, (v) => Math.log(v + 1e-4));
+  const subida = (f) => (f >= 3 ? lg[f] - lg[f - 3] : 0);
+  const ataques = [];
+  for (let f = 3; f < n - 3; f++) {
+    const d0 = subida(f);
+    if (d0 > 0.6 && sonando[f] && d0 >= subida(f - 1) && d0 >= subida(f + 1) && (!ataques.length || f - ataques[ataques.length - 1] * VOZ_FPS > 8)) ataques.push((f - 2) / VOZ_FPS);
+  }
+  return { sonando, acum, ataques, n };
+}
+
+const cuadroVoz = (v, t) => Math.max(0, Math.min(v.n, Math.round(t * VOZ_FPS)));
+const vozEntre = (v, a, b) => v.acum[cuadroVoz(v, b)] - v.acum[cuadroVoz(v, a)];
+
+// Letra que solo trae el tiempo de cada línea: reparte las palabras según las sílabas y lo que suena la voz
+function repartirPorSilabas(letra, v) {
+  const silabas = (w) => Math.max(1, (w.normalize('NFD').replace(/[\u0300-\u036f]/g, '').match(/[aeiouy]+/gi) || []).length);
+  letra.lineas.forEach((linea, k) => {
+    const [ini, fin] = letra.tramos[k] || [];
+    if (ini == null) return;
+    const total = vozEntre(v, ini, fin);
+    if (total < 10) return;
+    const sil = linea.map((i) => silabas(letra.palabras[i].t));
+    const todas = sil.reduce((x, y) => x + y, 0);
+    let antes = 0, f = cuadroVoz(v, ini);
+    const base = v.acum[f];
+    const estimado = linea.map((i, j) => {
+      const meta = base + (total * antes) / todas;
+      while (f < v.n && v.acum[f] < meta) f++;
+      while (f < v.n && !v.sonando[f]) f++;
+      antes += sil[j];
+      return f / VOZ_FPS;
+    });
+    // Si hay al menos un ataque por palabra, cada palabra se asigna a un ataque real en orden,
+    // eligiendo la combinación más parecida al reparto por sílabas
+    const A = v.ataques.filter((x) => x >= ini - 0.15 && x < fin);
+    const W = linea.length, M = A.length;
+    if (M >= W) {
+      const costo = Array.from({ length: W }, () => new Float64Array(M).fill(Infinity));
+      const desde = Array.from({ length: W }, () => new Int32Array(M).fill(-1));
+      for (let j = 0; j < M; j++) costo[0][j] = Math.abs(A[j] - ini) * 2 + (j ? 0.3 * j : 0); // la línea empieza en su tiempo
+      for (let w = 1; w < W; w++) {
+        let mejor = Infinity, arg = -1;
+        for (let j = w; j < M; j++) {
+          if (costo[w - 1][j - 1] < mejor) { mejor = costo[w - 1][j - 1]; arg = j - 1; }
+          costo[w][j] = mejor + Math.abs(A[j] - estimado[w]);
+          desde[w][j] = arg;
+        }
+      }
+      let j = 0;
+      for (let k = 1; k < M; k++) if (costo[W - 1][k] < costo[W - 1][j]) j = k;
+      for (let w = W - 1; w >= 0; w--) { estimado[w] = A[j]; j = desde[w][j]; }
+    }
+    linea.forEach((i, w) => { letra.palabras[i].a = estimado[w]; });
+  });
+}
+
+function afinarConVoz(letra, v) {
+  if (!letra || !letra.palabras.length || !v) return;
+  const P = letra.palabras;
+  if (letra.deLrc && letra.tramos) repartirPorSilabas(letra, v);
+  // Inicio de cada palabra: el ataque más cercano (±0.25 s); si cae en silencio, el primer momento con voz
+  let ai = 0;
+  for (let i = 0; i < P.length; i++) {
+    const p = P[i], minimo = i ? P[i - 1].a + 0.06 : 0;
+    while (ai < v.ataques.length && v.ataques[ai] < p.a - 0.25) ai++;
+    let mejor = null;
+    for (let k = ai; k < v.ataques.length && v.ataques[k] <= p.a + 0.25; k++) {
+      if (v.ataques[k] >= minimo && (mejor === null || Math.abs(v.ataques[k] - p.a) < Math.abs(mejor - p.a))) mejor = v.ataques[k];
+    }
+    if (mejor !== null) p.a = mejor;
+    else if (!v.sonando[cuadroVoz(v, p.a)]) {
+      for (let f = cuadroVoz(v, p.a); f < Math.min(v.n, cuadroVoz(v, p.a + 0.4)); f++) if (v.sonando[f]) { p.a = f / VOZ_FPS; break; }
+    }
+    p.a = Math.max(p.a, minimo);
+  }
+  // Final: hasta que la voz suelta la palabra. Una nota sostenida la alarga, y si el cantante
+  // respira (hasta 1.2 s) y sigue antes de la siguiente palabra, es la misma palabra que continúa
+  for (let i = 0; i < P.length; i++) {
+    const p = P[i], sig = i + 1 < P.length ? P[i + 1].a : p.a + 6;
+    const tope = Math.min(cuadroVoz(v, sig), cuadroVoz(v, p.a + 6));
+    let ultimo = cuadroVoz(v, p.a), silencio = 0;
+    for (let f = cuadroVoz(v, p.a); f < tope; f++) {
+      if (v.sonando[f]) { ultimo = f + 1; silencio = 0; } else if (++silencio > 120) break;
+    }
+    p.b = Math.max(p.a + 0.1, Math.min(ultimo / VOZ_FPS, sig));
+  }
+  letra.afinada = 2;
+}
+
+// Cuánto de la palabra ya se cantó (0 a 1): avanza solo mientras la voz suena
+function progresoPalabra(p, t) {
+  if (t <= p.a) return 0;
+  if (t >= p.b) return 1;
+  const v = S.voz;
+  const total = v ? vozEntre(v, p.a, p.b) : 0;
+  if (total < 3) return (t - p.a) / Math.max(0.15, p.b - p.a);
+  return vozEntre(v, p.a, t) / total;
+}
+
 // Pinta las líneas en el cuadro y en el karaoke; cada palabra se va llenando de color mientras se canta
 const LINEAS_CUADRO = [['lineaPrevia', -1], ['lineaActual', 0], ['lineaSiguiente', 1]];
 const LINEAS_KARAOKE = [['kPrevia', -1], ['kActual', 0], ['kSiguiente', 1], ['kDespues', 2]];
 function moverLetra(s) {
   const l = S.cancion && S.cancion.letra;
   if (!l || !l.palabras.length) return;
+  s -= S.cancion.desfaseLetra || 0;
   let idx = -1;
   for (let k = 0; k < l.lineas.length; k++) if (l.palabras[l.lineas[k][0]].a - 0.3 <= s) idx = k; else break;
   if (idx !== lineaActual) {
@@ -3551,7 +3702,7 @@ function moverLetra(s) {
   for (const id of ['lineaActual', 'kActual']) {
     $(id).querySelectorAll('span').forEach((w) => {
       const p = l.palabras[+w.dataset.i];
-      w.style.setProperty('--p', `${Math.round(Math.max(0, Math.min(1, (s - p.a) / Math.max(0.15, p.b - p.a))) * 100)}%`);
+      w.style.setProperty('--p', `${Math.round(progresoPalabra(p, s) * 1000) / 10}%`);
     });
   }
 }
@@ -3636,6 +3787,20 @@ $('usarLetra').onclick = async () => {
 $('rehacerLetra').onclick = () => { S.cancion.letra = null; pintarLetra(); sacarLetra(); };
 
 $('sacarLetra').onclick = () => sacarLetra();
+// Ajuste fino: si una canción todavía va un poco adelantada o atrasada
+function cambiarDesfase(d) {
+  const c = S.cancion;
+  c.desfaseLetra = Math.round(((c.desfaseLetra || 0) + d) * 10) / 10;
+  pintarDesfase();
+  lineaActual = -2;
+  bdHacer('canciones', 'readwrite', (st) => st.put(c)).catch(() => {});
+}
+function pintarDesfase() {
+  const v = (S.cancion && S.cancion.desfaseLetra) || 0;
+  $('letraDesfase').textContent = `${v > 0 ? '+' : ''}${v.toFixed(1)} s`;
+}
+$('letraAntes').onclick = () => cambiarDesfase(-0.1);
+$('letraDespues').onclick = () => cambiarDesfase(0.1);
 [...LINEAS_CUADRO, ...LINEAS_KARAOKE].forEach(([id]) => {
   $(id).onclick = () => {
     const l = S.cancion.letra, k = +$(id).dataset.linea;

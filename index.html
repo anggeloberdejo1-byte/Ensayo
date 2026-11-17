@@ -450,6 +450,16 @@
   .yt-oficial { display: inline-block; font-size: 11px; font-weight: 700; background: var(--brass); color: var(--ink); padding: 1px 6px; border-radius: 5px; margin-right: 6px; vertical-align: 1px; }
   .yt-lista .chip { flex-shrink: 0; }
   .fila-botones { display: flex; gap: 8px; justify-content: flex-end; margin-top: 12px; flex-wrap: wrap; align-items: center; }
+  /* Letra de internet: de dónde salió, buscador y resultados */
+  .fuente-letra { margin: 8px 0 0; font-size: 12px; color: var(--parchment-dim); }
+  .fuente-letra a { color: var(--brass); }
+  .buscar-letra { display: flex; gap: 8px; }
+  .buscar-letra input { flex: 1; min-width: 0; min-height: var(--toque); font: 16px var(--fuente); padding: 0 14px; border-radius: 12px; border: 1px solid var(--linea-fuerte); background: var(--bg); color: var(--parchment); }
+  .buscar-letra input:focus-visible { outline: 2px solid var(--focus); outline-offset: 1px; }
+  .resultados-letra { display: grid; gap: 6px; margin-top: 8px; max-height: 240px; overflow: auto; font-size: 13px; color: var(--parchment-dim); }
+  .resultados-letra button { text-align: left; background: var(--bg); border: 1px solid var(--linea-fuerte); border-radius: 12px; padding: 10px 12px; color: var(--parchment); cursor: pointer; font: 14px var(--fuente); }
+  .resultados-letra button:hover { border-color: var(--brass); }
+  .resultados-letra small { display: block; font-size: 12px; color: var(--parchment-dim); margin-top: 2px; font-variant-numeric: tabular-nums; }
   .fila-botones .izq { margin-right: auto; }
   .letra-inicio .fila-botones { margin-bottom: 14px; }
 
@@ -1116,6 +1126,7 @@
         <p class="linea actual" id="lineaActual"></p>
         <p class="linea siguiente" id="lineaSiguiente"></p>
       </div>
+      <p class="fuente-letra" id="fuenteLetra" hidden></p>
     </div>
 
     <div class="panel" id="panelPistas">
@@ -1204,6 +1215,13 @@
     <button class="boton" id="cancelarLetra" type="button" data-i18n="cerrar">Cerrar</button>
   </div>
   <div class="ajustes-cuerpo">
+    <p class="settings-section-title" data-i18n="buscarT">Buscar en internet</p>
+    <div class="buscar-letra">
+      <input type="search" id="consultaLetra" data-i18n-ph="buscarPh" placeholder="Artista y canción" autocomplete="off">
+      <button class="boton" id="buscarLetraBtn" type="button" data-i18n="buscar">Buscar</button>
+    </div>
+    <div class="resultados-letra" id="resultadosLetra"></div>
+    <p class="settings-section-title" style="margin-top:14px" data-i18n="oPegala">O pégala tú</p>
     <p class="nota-ajustes" data-i18n="pegarNota">Pega la letra, una línea por renglón. La IA escucha la voz para saber cuándo se canta cada palabra. Un archivo .lrc ya trae los tiempos.</p>
     <textarea id="textoLetraPlayer" data-i18n-ph="letraPh"></textarea>
     <div class="fila-botones">
@@ -2468,7 +2486,10 @@ const TEXTOS = {
     kick: 'Bombo', snare: 'Redoblante', toms: 'Toms', cymbals: 'Platillos', congas: 'Congas y timbal', campana: 'Campana y platillos',
     'sec:Intro': 'Intro', 'sec:Estrofa': 'Estrofa', 'sec:Coro': 'Coro', 'sec:Puente': 'Puente', 'sec:Final': 'Final', 'sec:Canción': 'Canción', 'sec:Parte': 'Parte',
     credito: 'Hecha por Anggelo Berdejo — El Ñañe', otras: 'Otras herramientas', paypal: 'Apoya este proyecto en PayPal',
-    letraT: 'Letra', sacarLetra: 'Sacar la letra', letraNota: 'La IA escucha la voz separada y escribe la letra con el tiempo de cada palabra.',
+    letraT: 'Letra', sacarLetra: 'Sacar la letra', letraNota: 'Busca la letra en internet y la pone al ritmo de la voz. Si no la encuentra, la IA la escucha y la escribe.',
+    buscandoLetra: 'Buscando la letra en internet', buscarT: 'Buscar en internet', buscarPh: 'Artista y canción', buscar: 'Buscar', oPegala: 'O pégala tú',
+    sinResultados: 'No se encontró. Prueba solo con el nombre de la canción.', conTiempos: 'con tiempos', soloTexto: 'solo texto', sinConexion: 'Sin conexión: no se pudo buscar.',
+    fuenteInternet: 'Letra de internet (LRCLIB): {t}', fuenteIA: 'Letra escuchada por la IA', fuentePropia: 'Letra puesta por ti', cambiar: 'cambiar',
     descargandoLetra: 'Descargando el modelo de letra (solo la primera vez)', escuchandoLetra: 'Escuchando la voz y escribiendo la letra',
     sinLetra: 'No se encontró letra cantada en esta canción.', ocultarLetra: 'Ocultar letra', otraVez: 'Volver a sacar',
     karaoke: 'Karaoke', editarLetra: 'Editar letra', pegarLetra: 'Pegar la letra', usarLetra: 'Sincronizar', cargarTxt: 'Cargar .txt o .lrc',
@@ -2530,7 +2551,10 @@ const TEXTOS = {
     kick: 'Kick', snare: 'Snare', toms: 'Toms', cymbals: 'Cymbals', congas: 'Congas & timbales', campana: 'Bell & cymbals',
     'sec:Intro': 'Intro', 'sec:Estrofa': 'Verse', 'sec:Coro': 'Chorus', 'sec:Puente': 'Bridge', 'sec:Final': 'Outro', 'sec:Canción': 'Song', 'sec:Parte': 'Part',
     credito: 'Built by Anggelo Berdejo — El Ñañe', otras: 'More tools', paypal: 'Support this project on PayPal',
-    letraT: 'Lyrics', sacarLetra: 'Get the lyrics', letraNota: 'The AI listens to the isolated vocals and writes the lyrics with the timing of every word.',
+    buscandoLetra: 'Searching the lyrics online', buscarT: 'Search online', buscarPh: 'Artist and song', buscar: 'Search', oPegala: 'Or paste them',
+    sinResultados: 'Nothing found. Try just the song name.', conTiempos: 'timed', soloTexto: 'text only', sinConexion: 'Offline: could not search.',
+    fuenteInternet: 'Lyrics from the internet (LRCLIB): {t}', fuenteIA: 'Lyrics heard by the AI', fuentePropia: 'Lyrics added by you', cambiar: 'change',
+    letraT: 'Lyrics', sacarLetra: 'Get the lyrics', letraNota: 'Finds the lyrics online and syncs them to the vocals. If they are not found, the AI listens and writes them.',
     descargandoLetra: 'Downloading the lyrics model (first time only)', escuchandoLetra: 'Listening to the vocals and writing the lyrics',
     sinLetra: 'No sung lyrics were found in this song.', ocultarLetra: 'Hide lyrics', otraVez: 'Get them again',
     karaoke: 'Karaoke', editarLetra: 'Edit lyrics', pegarLetra: 'Paste lyrics', usarLetra: 'Sync', cargarTxt: 'Load .txt or .lrc',
@@ -2858,8 +2882,8 @@ async function procesarCola() {
     });
     const cancion = { id: j.id, titulo: j.titulo, creada: Date.now(), duracion: r.analisis.duration, analisis: r.analisis, segundos: r.segundos, motor: r.motor, estudio: j.estudio, salsa: !!j.salsa, textoLetra: j.textoLetra || '' };
     await bdGuardar(cancion, r.pistas);
-    // Si trajo la letra escrita, se sincroniza sola
-    if (cancion.textoLetra) sacarLetra(cancion);
+    // La letra se busca sola (en internet, o la escucha la IA); si la pegaste, se usa la tuya
+    sacarLetra(cancion);
     trabajos.splice(trabajos.indexOf(j), 1);
     await cargarLista();
     pintarEstadoModelo();
@@ -3334,6 +3358,63 @@ function zonasConVoz(audio) {
   return partes;
 }
 
+/* ---------- Letra de internet (LRCLIB: base de datos libre de letras, muchas ya con tiempos) ---------- */
+// "Diego Torres - Color Esperanza (Official Video)" -> partes útiles para buscar
+function partesDelTitulo(titulo) {
+  const limpio = titulo
+    .replace(/\.[a-z0-9]{2,4}$/i, '')
+    .replace(/[([{][^)\]}]*[)\]}]/g, ' ')
+    .replace(/\b(official|oficial|video|v[ií]deo|audio|lyrics?|letra|hd|hq|4k|en vivo|live|remaster(ed)?|videoclip|visualizer|clip)\b/gi, ' ')
+    .replace(/\s*[|｜].*$/, '')
+    .replace(/_/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+  return limpio.split(/\s+[-–—]\s+/).map((x) => x.split(/\s*,\s*|\s+(?:ft\.?|feat\.?|x|&)\s+/i)[0].trim()).filter(Boolean);
+}
+
+async function consultarLrclib(q) {
+  const r = await fetch(`https://lrclib.net/api/search?q=${encodeURIComponent(q)}`);
+  if (!r.ok) throw new Error(`LRCLIB ${r.status}`);
+  return (await r.json()).filter((x) => !x.instrumental && (x.syncedLyrics || x.plainLyrics));
+}
+
+// Busca con artista y canción; si no aparece, prueba con cada parte del título por separado
+async function buscarLetras(titulo) {
+  const partes = partesDelTitulo(titulo);
+  const consultas = [...new Set([partes.slice(0, 2).join(' '), ...partes])].filter((q) => q.length > 2);
+  const vistos = new Set(), todos = [];
+  for (const q of consultas) {
+    for (const x of await consultarLrclib(q)) if (!vistos.has(x.id)) { vistos.add(x.id); todos.push(x); }
+    if (todos.length >= 5) break;
+  }
+  return { partes, resultados: todos };
+}
+
+// Elige la mejor: que el nombre de la canción coincida, mejor si el artista coincide y dura lo mismo
+function puntuarLetra(x, partes, duracion) {
+  const n = normalizar;
+  const titulo = n(x.trackName), artista = n(x.artistName);
+  const coincide = (a, b) => a && b && (a.includes(b) || b.includes(a) || parecido(a, b) >= 0.7);
+  const tituloOk = partes.some((p) => coincide(titulo, n(p)));
+  if (!tituloOk) return -1;
+  const artistaOk = partes.some((p) => coincide(artista, n(p)) || n(p).includes(artista));
+  return 2 + (artistaOk ? 1 : 0) + (x.syncedLyrics ? 0.5 : 0) - Math.min(1, Math.abs((x.duration || 0) - duracion) / 30);
+}
+
+// Si es la misma versión (mismo artista y dura casi lo mismo) se usan sus tiempos; si no, solo el texto y la IA lo sincroniza
+function textoDeResultado(x, duracion) {
+  if (x.syncedLyrics && Math.abs((x.duration || 0) - duracion) <= 3) return x.syncedLyrics;
+  return x.plainLyrics || x.syncedLyrics.replace(/\[[^\]]*\]/g, '').trim();
+}
+
+async function letraDeInternet(c) {
+  const { partes, resultados } = await buscarLetras(c.titulo);
+  const mejor = resultados.map((x) => [puntuarLetra(x, partes, c.duracion), x]).filter(([p]) => p >= 1).sort((a, b) => b[0] - a[0])[0];
+  if (!mejor) return null;
+  const x = mejor[1];
+  return { texto: textoDeResultado(x, c.duracion), fuente: { tipo: 'internet', nombre: `${x.artistName} – ${x.trackName}`, id: x.id } };
+}
+
 function sacarLetra(c = S.cancion) {
   colaLetra = colaLetra.then(() => procesarLetra(c)).catch(() => {});
   return colaLetra;
@@ -3350,6 +3431,14 @@ async function procesarLetra(c) {
   };
   avance('leyendo', 0);
   try {
+    if (!c.textoLetra && !c.sinInternet) {
+      avance('buscandoLetra', 0);
+      try {
+        const encontrada = await letraDeInternet(c);
+        if (encontrada) { c.textoLetra = encontrada.texto; c.fuenteLetra = encontrada.fuente; }
+      } catch (e) { /* sin conexión o LRCLIB caído: sigue con la IA */ }
+    }
+    if (!c.fuenteLetra) c.fuenteLetra = { tipo: c.textoLetra ? 'propia' : 'ia' };
     if (c.textoLetra && /\[\d+:\d+/.test(c.textoLetra)) {
       // .lrc: ya trae los tiempos, no hace falta escuchar
       c.letra = { ...leerLrc(c.textoLetra), escrita: true };
@@ -3409,6 +3498,18 @@ function pintarLetra() {
   $('letraBarra').hidden = !enCurso;
   if (!enCurso) $('letraEstado').textContent = l && !l.palabras.length ? t('sinLetra') : t('letraNota');
   if (!hay) cerrarKaraoke();
+  const f = S.cancion && S.cancion.fuenteLetra;
+  $('fuenteLetra').hidden = !hay || !f;
+  if (hay && f) {
+    const txt = f.tipo === 'internet' ? t('fuenteInternet', { t: f.nombre }) : t(f.tipo === 'propia' ? 'fuentePropia' : 'fuenteIA');
+    $('fuenteLetra').innerHTML = '';
+    $('fuenteLetra').append(txt + ' · ');
+    const a = document.createElement('a');
+    a.href = '#';
+    a.textContent = t('cambiar');
+    a.onclick = (e) => { e.preventDefault(); abrirPegarLetra(); };
+    $('fuenteLetra').append(a);
+  }
   lineaActual = -2;
 }
 
@@ -3465,8 +3566,40 @@ $('kPlay').onclick = tocarPausar;
 /* ---------- Pegar o cargar la letra escrita ---------- */
 function abrirPegarLetra() {
   $('textoLetraPlayer').value = S.cancion.textoLetra || '';
+  $('consultaLetra').value = partesDelTitulo(S.cancion.titulo).slice(0, 2).join(' ');
+  $('resultadosLetra').innerHTML = '';
   $('dialogoLetra').showModal();
 }
+
+async function buscarEnDialogo() {
+  const caja = $('resultadosLetra');
+  caja.textContent = t('buscandoLetra') + '…';
+  let lista;
+  try { lista = await consultarLrclib($('consultaLetra').value.trim()); } catch (e) { caja.textContent = t('sinConexion'); return; }
+  caja.innerHTML = '';
+  if (!lista.length) { caja.textContent = t('sinResultados'); return; }
+  const c = S.cancion;
+  for (const x of lista.slice(0, 15)) {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.textContent = `${x.trackName} · ${x.artistName}`;
+    const info = document.createElement('small');
+    info.textContent = `${fmt(x.duration || 0)} · ${t(x.syncedLyrics ? 'conTiempos' : 'soloTexto')}`;
+    b.appendChild(info);
+    b.onclick = async () => {
+      c.textoLetra = textoDeResultado(x, c.duracion);
+      c.fuenteLetra = { tipo: 'internet', nombre: `${x.artistName} – ${x.trackName}`, id: x.id };
+      c.letra = null;
+      $('dialogoLetra').close();
+      await bdHacer('canciones', 'readwrite', (st) => st.put(c));
+      pintarLetra();
+      sacarLetra(c);
+    };
+    caja.appendChild(b);
+  }
+}
+$('buscarLetraBtn').onclick = buscarEnDialogo;
+$('consultaLetra').addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); buscarEnDialogo(); } });
 async function leerArchivoTexto(input, destino) {
   const f = input.files[0];
   if (f) destino.value = await f.text();
@@ -3480,6 +3613,7 @@ $('cancelarLetra').onclick = () => $('dialogoLetra').close();
 $('usarLetra').onclick = async () => {
   const c = S.cancion;
   c.textoLetra = $('textoLetraPlayer').value.trim();
+  c.fuenteLetra = { tipo: c.textoLetra ? 'propia' : 'ia' };
   c.letra = null;
   $('dialogoLetra').close();
   await bdHacer('canciones', 'readwrite', (st) => st.put(c));

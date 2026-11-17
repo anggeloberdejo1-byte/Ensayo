@@ -3083,6 +3083,8 @@ async function abrirCancion(id) {
     construirReproductor();
     E.activo = false;
     aplicarVista(leerPref('vista', 'ensayo'));
+    // Canción sin letra (por ejemplo, separada antes de esta versión): buscarla sola
+    if (!cancion.letra && !cancion.fuenteLetra && letraEnCurso !== cancion.id) sacarLetra(cancion);
     history.replaceState(null, '', `#${id}`);
     scrollTo(0, 0);
   } catch (err) {
@@ -3331,7 +3333,7 @@ function alinearLetra(lineasTexto, oidas) {
   const palabras = escritas.map((w, i) => ({ t: w.t, a: Math.max(0, tiempo[i][0]), b: Math.max(0, tiempo[i][1]) }));
   const lineas = lineasTexto.map(() => []);
   escritas.forEach((w, i) => lineas[w.linea].push(i));
-  return { palabras, lineas: lineas.filter((l) => l.length), escrita: true };
+  return { palabras, lineas: lineas.filter((l) => l.length), escrita: true, coincidencia: conocidas.length / m };
 }
 
 // Zonas donde hay voz (energía en ventanas de 50 ms), en bloques de hasta 25 s
@@ -3364,7 +3366,7 @@ function partesDelTitulo(titulo) {
   const limpio = titulo
     .replace(/\.[a-z0-9]{2,4}$/i, '')
     .replace(/[([{][^)\]}]*[)\]}]/g, ' ')
-    .replace(/\b(official|oficial|video|v[ií]deo|audio|lyrics?|letra|hd|hq|4k|en vivo|live|remaster(ed)?|videoclip|visualizer|clip)\b/gi, ' ')
+    .replace(/\b(official|oficial|video|v[ií]deo|audio|lyrics?|letra|hd|hq|4k|en vivo|live|remaster(ed)?|videoclip|visualizer|clip|performs?|presents?|presenta|interpreta|cover|karaoke)\b/gi, ' ')
     .replace(/\s*[|｜].*$/, '')
     .replace(/_/g, ' ')
     .replace(/\s+/g, ' ')
@@ -3372,8 +3374,10 @@ function partesDelTitulo(titulo) {
   return limpio.split(/\s+[-–—]\s+/).map((x) => x.split(/\s*,\s*|\s+(?:ft\.?|feat\.?|x|&)\s+/i)[0].trim()).filter(Boolean);
 }
 
-async function consultarLrclib(q) {
+async function consultarLrclib(q, intento = 1) {
   const r = await fetch(`https://lrclib.net/api/search?q=${encodeURIComponent(q)}`);
+  // Demasiadas búsquedas seguidas: esperar un poco y probar otra vez
+  if (r.status === 429 && intento < 3) { await new Promise((ok) => setTimeout(ok, 2500 * intento)); return consultarLrclib(q, intento + 1); }
   if (!r.ok) throw new Error(`LRCLIB ${r.status}`);
   return (await r.json()).filter((x) => !x.instrumental && (x.syncedLyrics || x.plainLyrics));
 }
@@ -3393,17 +3397,20 @@ async function buscarLetras(titulo) {
 // Elige la mejor: que el nombre de la canción coincida, mejor si el artista coincide y dura lo mismo
 function puntuarLetra(x, partes, duracion) {
   const n = normalizar;
-  const titulo = n(x.trackName), artista = n(x.artistName);
+  const titulo = n(x.trackName.replace(/[([][^)\]]*[)\]]/g, '')), artista = n(x.artistName);
   const coincide = (a, b) => a && b && (a.includes(b) || b.includes(a) || parecido(a, b) >= 0.7);
-  const tituloOk = partes.some((p) => coincide(titulo, n(p)));
+  // La parte del título que es solo el nombre del artista no cuenta como nombre de canción
+  const esArtista = (p) => n(p) === artista || parecido(n(p), artista) >= 0.7;
+  const tituloOk = partes.some((p) => !esArtista(p) && (coincide(titulo, n(p)) || (titulo.length > 3 && n(p).endsWith(titulo))));
   if (!tituloOk) return -1;
   const artistaOk = partes.some((p) => coincide(artista, n(p)) || n(p).includes(artista));
+  x.mismoArtista = artistaOk;
   return 2 + (artistaOk ? 1 : 0) + (x.syncedLyrics ? 0.5 : 0) - Math.min(1, Math.abs((x.duration || 0) - duracion) / 30);
 }
 
 // Si es la misma versión (mismo artista y dura casi lo mismo) se usan sus tiempos; si no, solo el texto y la IA lo sincroniza
 function textoDeResultado(x, duracion) {
-  if (x.syncedLyrics && Math.abs((x.duration || 0) - duracion) <= 3) return x.syncedLyrics;
+  if (x.syncedLyrics && x.mismoArtista !== false && Math.abs((x.duration || 0) - duracion) <= 3) return x.syncedLyrics;
   return x.plainLyrics || x.syncedLyrics.replace(/\[[^\]]*\]/g, '').trim();
 }
 
@@ -3471,7 +3478,13 @@ async function procesarLetra(c) {
       // Una palabra no dura más de 1.5 s: si Whisper la estira, se acerca a su final
       oidas.forEach((p) => { if (p.b - p.a > 1.5) p.a = p.b - 0.5; });
       oidas.sort((x, y) => x.a - y.a);
-      const escrita = c.textoLetra ? alinearLetra(lineasDeTexto(c.textoLetra), oidas) : null;
+      let escrita = c.textoLetra ? alinearLetra(lineasDeTexto(c.textoLetra), oidas) : null;
+      // Si la letra de internet casi no coincide con lo que se canta, era otra canción con el mismo nombre
+      if (escrita && c.fuenteLetra && c.fuenteLetra.tipo === 'internet' && escrita.coincidencia < 0.3 && oidas.length > 20) {
+        escrita = null;
+        c.textoLetra = '';
+        c.fuenteLetra = { tipo: 'ia' };
+      }
       c.letra = escrita || { palabras: oidas, lineas: armarLineas(oidas) };
     }
     await bdHacer('canciones', 'readwrite', (st) => st.put(c));

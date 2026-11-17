@@ -529,6 +529,15 @@
   .e-lcd .grande .e-lcd-num { font-size: 28px; }
   .e-lcd small { font-size: 11px; color: var(--e-tenue); margin-top: 1px; }
   .e-herr { display: flex; align-items: center; gap: 6px; margin-left: auto; flex-wrap: wrap; }
+  .e-letra { margin: 10px 0 0; padding: 10px 16px; border-radius: 14px; background: var(--e-panel); box-shadow: 0 0 0 1px var(--e-borde); text-align: center; color: var(--e-tenue); }
+  .e-linea { margin: 0; cursor: pointer; font-weight: 700; line-height: 1.25; overflow-wrap: anywhere; min-height: 1.25em; }
+  .e-linea.actual { font-size: clamp(20px, 2.6vw, 32px); }
+  .e-linea.siguiente { font-size: clamp(14px, 1.5vw, 18px); color: var(--e-tenue); margin-top: 2px; }
+  .e-linea.actual span {
+    background: linear-gradient(90deg, var(--e-acento) var(--p, 0%), var(--e-tenue) var(--p, 0%));
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .e-letra-vacia { display: flex; gap: 12px; align-items: center; justify-content: center; flex-wrap: wrap; font-size: 14px; }
   .e-boton {
     display: inline-flex; align-items: center; gap: 7px; min-height: 38px; padding: 0 12px; border-radius: 10px;
     background: var(--e-panel); color: var(--e-texto); border: 1px solid var(--e-borde); font-size: 13px; font-weight: 500; cursor: pointer;
@@ -1068,8 +1077,18 @@
             <input type="range" id="eZoom" min="0" max="1000" value="0" data-i18n-aria="eZoomT" aria-label="Zoom">
             <button id="eAcercar" type="button" data-i18n-aria="eAcercar" aria-label="Acercar">+</button>
           </div>
+          <button class="e-boton" id="eLetraBtn" type="button" aria-pressed="true" data-i18n-titulo="eLetraT"><svg class="icono" aria-hidden="true"><use href="#i-microfono"/></svg><span class="txt-angosto" data-i18n="letraT">Letra</span></button>
+          <button class="e-boton" id="eKaraoke" type="button" data-i18n-titulo="karaoke"><svg class="icono" aria-hidden="true"><use href="#i-pantalla"/></svg><span class="txt-angosto" data-i18n="karaoke">Karaoke</span></button>
           <button class="e-boton e-solo-pistas" id="eTodo" type="button" data-i18n-titulo="eTodo"><svg class="icono" aria-hidden="true"><use href="#i-expandir"/></svg><span class="txt-angosto" data-i18n="eTodo">Ver toda</span></button>
           <button class="e-boton principal" id="eExportar" type="button" data-i18n-titulo="expT"><svg class="icono" aria-hidden="true"><use href="#i-descargar"/></svg><span class="txt-angosto" data-i18n="expT">Exportar mezcla</span></button>
+        </div>
+      </div>
+      <div class="e-letra" id="eLetra" hidden>
+        <p class="e-linea actual" id="eLineaActual"></p>
+        <p class="e-linea siguiente" id="eLineaSiguiente"></p>
+        <div class="e-letra-vacia" id="eLetraVacia" hidden>
+          <span id="eLetraEstado"></span>
+          <button class="e-boton" id="eSacarLetra" type="button" data-i18n="sacarLetra">Sacar la letra</button>
         </div>
       </div>
       <div class="e-consejo" id="eConsejo" hidden>
@@ -2494,6 +2513,7 @@ const TEXTOS = {
     'sec:Intro': 'Intro', 'sec:Estrofa': 'Estrofa', 'sec:Coro': 'Coro', 'sec:Puente': 'Puente', 'sec:Final': 'Final', 'sec:Canción': 'Canción', 'sec:Parte': 'Parte',
     credito: 'Hecha por Anggelo Berdejo — El Ñañe', otras: 'Otras herramientas', paypal: 'Apoya este proyecto en PayPal',
     letraT: 'Letra', sacarLetra: 'Sacar la letra', letraNota: 'Busca la letra en internet y la pone al ritmo de la voz. Si no la encuentra, la IA la escucha y la escribe.',
+    eLetraT: 'Mostrar u ocultar la letra', eSinLetra: 'Esta canción todavía no tiene letra.',
     letraAntes: 'Letra antes', letraDespues: 'Letra después', ajusteLetra: 'Ajuste fino: mueve toda la letra antes o después',
     buscandoLetra: 'Buscando la letra en internet', buscarT: 'Buscar en internet', buscarPh: 'Artista y canción', buscar: 'Buscar', oPegala: 'O pégala tú',
     sinResultados: 'No se encontró. Prueba solo con el nombre de la canción.', conTiempos: 'con tiempos', soloTexto: 'solo texto', sinConexion: 'Sin conexión: no se pudo buscar.',
@@ -2559,6 +2579,7 @@ const TEXTOS = {
     kick: 'Kick', snare: 'Snare', toms: 'Toms', cymbals: 'Cymbals', congas: 'Congas & timbales', campana: 'Bell & cymbals',
     'sec:Intro': 'Intro', 'sec:Estrofa': 'Verse', 'sec:Coro': 'Chorus', 'sec:Puente': 'Bridge', 'sec:Final': 'Outro', 'sec:Canción': 'Song', 'sec:Parte': 'Part',
     credito: 'Built by Anggelo Berdejo — El Ñañe', otras: 'More tools', paypal: 'Support this project on PayPal',
+    eLetraT: 'Show or hide the lyrics', eSinLetra: 'This song has no lyrics yet.',
     letraAntes: 'Lyrics earlier', letraDespues: 'Lyrics later', ajusteLetra: 'Fine tune: moves all the lyrics earlier or later',
     buscandoLetra: 'Searching the lyrics online', buscarT: 'Search online', buscarPh: 'Artist and song', buscar: 'Search', oPegala: 'Or paste them',
     sinResultados: 'Nothing found. Try just the song name.', conTiempos: 'timed', soloTexto: 'text only', sinConexion: 'Offline: could not search.',
@@ -3450,6 +3471,7 @@ async function procesarLetra(c) {
   const avance = (etapa, p) => {
     if (!esta()) return;
     $('letraEstado').textContent = `${t(etapa)}… ${Math.round(p * 100)}%`;
+    $('eLetraEstado').textContent = $('letraEstado').textContent;
     $('letraBarra').querySelector('i').style.width = `${p * 100}%`;
   };
   avance('leyendo', 0);
@@ -3531,6 +3553,7 @@ function pintarLetra() {
   if (!enCurso) $('letraEstado').textContent = l && !l.palabras.length ? t('sinLetra') : t('letraNota');
   if (!hay) cerrarKaraoke();
   if (hay) pintarDesfase();
+  pintarLetraEstudio();
   const f = S.cancion && S.cancion.fuenteLetra;
   $('fuenteLetra').hidden = !hay || !f;
   if (hay && f) {
@@ -3686,6 +3709,7 @@ function progresoPalabra(p, t) {
 // Pinta las líneas en el cuadro y en el karaoke; cada palabra se va llenando de color mientras se canta
 const LINEAS_CUADRO = [['lineaPrevia', -1], ['lineaActual', 0], ['lineaSiguiente', 1]];
 const LINEAS_KARAOKE = [['kPrevia', -1], ['kActual', 0], ['kSiguiente', 1], ['kDespues', 2]];
+const LINEAS_ESTUDIO = [['eLineaActual', 0], ['eLineaSiguiente', 1]];
 function moverLetra(s) {
   const l = S.cancion && S.cancion.letra;
   if (!l || !l.palabras.length) return;
@@ -3694,12 +3718,12 @@ function moverLetra(s) {
   for (let k = 0; k < l.lineas.length; k++) if (l.palabras[l.lineas[k][0]].a - 0.3 <= s) idx = k; else break;
   if (idx !== lineaActual) {
     lineaActual = idx;
-    for (const [id, d] of [...LINEAS_CUADRO, ...LINEAS_KARAOKE]) {
+    for (const [id, d] of [...LINEAS_CUADRO, ...LINEAS_KARAOKE, ...LINEAS_ESTUDIO]) {
       $(id).innerHTML = idx + d >= 0 ? lineaHtml(idx + d) : '';
       $(id).dataset.linea = idx + d;
     }
   }
-  for (const id of ['lineaActual', 'kActual']) {
+  for (const id of ['lineaActual', 'kActual', 'eLineaActual']) {
     $(id).querySelectorAll('span').forEach((w) => {
       const p = l.palabras[+w.dataset.i];
       w.style.setProperty('--p', `${Math.round(progresoPalabra(p, s) * 1000) / 10}%`);
@@ -3799,9 +3823,26 @@ function pintarDesfase() {
   const v = (S.cancion && S.cancion.desfaseLetra) || 0;
   $('letraDesfase').textContent = `${v > 0 ? '+' : ''}${v.toFixed(1)} s`;
 }
+// Letra en el Estudio: franja debajo de la barra (se puede ocultar) y botón de karaoke
+function pintarLetraEstudio() {
+  const l = S.cancion && S.cancion.letra, hay = !!(l && l.palabras.length);
+  const ver = leerPref('letraEstudio', true);
+  const enCurso = letraEnCurso === (S.cancion && S.cancion.id);
+  $('eLetraBtn').setAttribute('aria-pressed', ver ? 'true' : 'false');
+  $('eLetra').hidden = !ver || !S.cancion;
+  $('eLineaActual').hidden = $('eLineaSiguiente').hidden = !hay;
+  $('eLetraVacia').hidden = hay;
+  $('eSacarLetra').hidden = enCurso;
+  if (!hay && !enCurso) $('eLetraEstado').textContent = l && !l.palabras.length ? t('sinLetra') : t('eSinLetra');
+  $('eKaraoke').disabled = !hay;
+  lineaActual = -2;
+}
+$('eLetraBtn').onclick = () => { guardarPref('letraEstudio', !leerPref('letraEstudio', true)); pintarLetraEstudio(); redimensionarEstudio(); };
+$('eKaraoke').onclick = () => { if (S.cancion && S.cancion.letra) abrirKaraoke(); };
+$('eSacarLetra').onclick = () => sacarLetra();
 $('letraAntes').onclick = () => cambiarDesfase(-0.1);
 $('letraDespues').onclick = () => cambiarDesfase(0.1);
-[...LINEAS_CUADRO, ...LINEAS_KARAOKE].forEach(([id]) => {
+[...LINEAS_CUADRO, ...LINEAS_KARAOKE, ...LINEAS_ESTUDIO].forEach(([id]) => {
   $(id).onclick = () => {
     const l = S.cancion.letra, k = +$(id).dataset.linea;
     if (l && l.lineas[k]) saltar(Math.max(0, l.palabras[l.lineas[k][0]].a - 0.2));
